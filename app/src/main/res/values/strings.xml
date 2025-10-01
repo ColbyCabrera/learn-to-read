@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Reading Foundations</string>
+    <string name="phonetics_practice">Phonetics Practice</string>
+    <string name="listen_and_choose">Listen and Choose</string>
 </resources>
