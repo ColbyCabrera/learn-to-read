@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import com.example.readingfoundations.data.models.Word
 import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,6 +29,20 @@ fun WordReadingScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val ttsManager = remember { TextToSpeechManager(context) }
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.navigationEvent.collectLatest { event ->
+            when (event) {
+                is NavigationEvent.LevelComplete -> {
+                    navController.navigate("level_complete/${event.level}")
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(navController.currentBackStackEntry) {
+        viewModel.loadWords()
+    }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -54,7 +69,11 @@ fun WordReadingScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (uiState.isPracticeMode && uiState.quizState != null) {
+            if (uiState.words.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else if (uiState.isPracticeMode && uiState.quizState != null) {
                 PracticeMode(
                     quizState = uiState.quizState!!,
                     onAnswerSelected = { answer -> viewModel.submitAnswer(answer) },
