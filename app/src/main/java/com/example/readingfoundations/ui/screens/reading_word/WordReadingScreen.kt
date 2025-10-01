@@ -18,9 +18,8 @@ import androidx.navigation.NavController
 import com.example.readingfoundations.data.models.Word
 import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
-import androidx.compose.foundation.layout.FlowRow
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordReadingScreen(
     navController: NavController,
@@ -79,30 +78,32 @@ fun LearnMode(
     onWordClicked: (String) -> Unit,
     onStartPracticeClicked: () -> Unit
 ) {
-    Text("Learn these words:", style = MaterialTheme.typography.headlineMedium)
-    Spacer(modifier = Modifier.height(16.dp))
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.weight(1f)
-    ) {
-        items(words) { word ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onWordClicked(word.text) },
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Text(
-                    text = word.text,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(16.dp)
-                )
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text("Learn these words:", style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            items(words) { word ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onWordClicked(word.text) },
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Text(
+                        text = word.text,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
             }
         }
-    }
-    Spacer(modifier = Modifier.height(16.dp))
-    Button(onClick = onStartPracticeClicked, enabled = words.isNotEmpty()) {
-        Text("Start Practice")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onStartPracticeClicked, enabled = words.isNotEmpty()) {
+            Text("Start Practice")
+        }
     }
 }
 
@@ -149,9 +150,8 @@ fun PracticeMode(
     // Jumbled letter bank
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
-        mainAxisAlignment = MainAxisAlignment.Center,
-        mainAxisSpacing = 8.dp,
-        crossAxisSpacing = 8.dp
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         remainingLetters.forEachIndexed { index, char ->
             Button(onClick = {

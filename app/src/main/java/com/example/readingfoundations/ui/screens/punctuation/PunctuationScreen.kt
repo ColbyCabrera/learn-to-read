@@ -21,6 +21,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
@@ -90,7 +91,7 @@ fun PunctuationCard(symbol: String, name: String, description: String, example: 
             Text(
                 text = "Example: \"$example\"",
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Italic
+                fontStyle = FontStyle.Italic
             )
         }
     }

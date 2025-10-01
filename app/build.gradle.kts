@@ -7,7 +7,6 @@ plugins {
 android {
     namespace = "com.example.readingfoundations"
     compileSdk = 36
-
     defaultConfig {
         applicationId = "com.example.readingfoundations"
         minSdk = 24
@@ -41,7 +40,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
+        kotlinCompilerExtensionVersion = "1.5.11"
     }
     packaging {
         resources {

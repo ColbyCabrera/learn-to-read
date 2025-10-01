@@ -17,7 +17,6 @@ import androidx.navigation.NavController
 import com.example.readingfoundations.data.models.Sentence
 import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
-import androidx.compose.foundation.layout.FlowRow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,30 +77,32 @@ fun LearnMode(
     onSentenceClicked: (String) -> Unit,
     onStartPracticeClicked: () -> Unit
 ) {
-    Text("Learn these sentences:", style = MaterialTheme.typography.headlineMedium)
-    Spacer(modifier = Modifier.height(16.dp))
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.weight(1f)
-    ) {
-        items(sentences) { sentence ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onSentenceClicked(sentence.text) },
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Text(
-                    text = sentence.text,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(16.dp)
-                )
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text("Learn these sentences:", style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            items(sentences) { sentence ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onSentenceClicked(sentence.text) },
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Text(
+                        text = sentence.text,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
             }
         }
-    }
-    Spacer(modifier = Modifier.height(16.dp))
-    Button(onClick = onStartPracticeClicked, enabled = sentences.isNotEmpty()) {
-        Text("Start Practice")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onStartPracticeClicked, enabled = sentences.isNotEmpty()) {
+            Text("Start Practice")
+        }
     }
 }
 
@@ -136,9 +137,8 @@ fun PracticeMode(
     ) {
         FlowRow(
             modifier = Modifier.padding(16.dp),
-            mainAxisAlignment = MainAxisAlignment.Center,
-            mainAxisSpacing = 8.dp,
-            crossAxisSpacing = 8.dp
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             assembledWords.forEachIndexed { index, word ->
                 Button(
@@ -158,9 +158,8 @@ fun PracticeMode(
     // Jumbled words bank
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
-        mainAxisAlignment = MainAxisAlignment.Center,
-        mainAxisSpacing = 8.dp,
-        crossAxisSpacing = 8.dp
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         remainingWords.forEachIndexed { index, word ->
             Button(onClick = {
