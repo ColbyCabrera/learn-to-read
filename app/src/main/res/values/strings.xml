@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Reading Foundations</string>
+    <string name="phonetics">Phonetics</string>
+    <string name="word_building">Word Building</string>
+    <string name="sentence_reading">Sentence Reading</string>
+    <string name="punctuation">Punctuation</string>
+    <string name="settings">Settings</string>
 </resources>
