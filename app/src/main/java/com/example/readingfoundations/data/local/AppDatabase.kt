@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.readingfoundations.data.models.PunctuationQuestion
 import com.example.readingfoundations.data.models.Sentence
 import com.example.readingfoundations.data.models.UserProgress
 import com.example.readingfoundations.data.models.Word
@@ -12,12 +13,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Word::class, Sentence::class, UserProgress::class], version = 2, exportSchema = false)
+@Database(entities = [Word::class, Sentence::class, UserProgress::class, PunctuationQuestion::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun wordDao(): WordDao
     abstract fun sentenceDao(): SentenceDao
     abstract fun userProgressDao(): UserProgressDao
+    abstract fun punctuationQuestionDao(): PunctuationQuestionDao
 
     companion object {
         @Volatile
@@ -34,6 +36,7 @@ abstract class AppDatabase : RoomDatabase() {
                                 Instance?.let { database ->
                                     database.wordDao().insertAll(PrepopulateData.words)
                                     database.sentenceDao().insertAll(PrepopulateData.sentences)
+                                    database.punctuationQuestionDao().insertAll(PrepopulateData.punctuationQuestions)
                                     // Initialize user progress
                                     database.userProgressDao().updateUserProgress(UserProgress())
                                 }

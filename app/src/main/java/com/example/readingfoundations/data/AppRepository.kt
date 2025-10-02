@@ -12,6 +12,10 @@ class AppRepository(
     private val remoteDataSource: RemoteDataSource
 ) : DataSource {
 
+    override fun getAllPunctuationQuestions(): Flow<List<PunctuationQuestion>> {
+        return localDataSource.getAllPunctuationQuestions()
+    }
+
     override fun getWordsByDifficulty(difficulty: Int): Flow<List<Word>> {
         // For now, we only fetch from the local data source.
         // In the future, logic can be added here to fetch from the remote data source

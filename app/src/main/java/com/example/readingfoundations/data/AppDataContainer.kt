@@ -11,7 +11,8 @@ class AppDataContainer(private val context: Context) : AppContainer {
         LocalDataSource(
             AppDatabase.getDatabase(context).wordDao(),
             AppDatabase.getDatabase(context).sentenceDao(),
-            AppDatabase.getDatabase(context).userProgressDao()
+            AppDatabase.getDatabase(context).userProgressDao(),
+            AppDatabase.getDatabase(context).punctuationQuestionDao()
         )
     }
 
