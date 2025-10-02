@@ -28,7 +28,7 @@ abstract class AppDatabase : RoomDatabase() {
         fun getDatabase(context: Context): AppDatabase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, AppDatabase::class.java, "reading_foundations_database")
-                    .fallbackToDestructiveMigration() // Handle schema changes by destroying old data
+                    .fallbackToDestructiveMigration(true) // Handle schema changes by destroying old data
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
