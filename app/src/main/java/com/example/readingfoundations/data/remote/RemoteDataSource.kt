@@ -1,6 +1,7 @@
 package com.example.readingfoundations.data.remote
 
 import com.example.readingfoundations.data.DataSource
+import com.example.readingfoundations.data.models.PunctuationQuestion
 import com.example.readingfoundations.data.models.Sentence
 import com.example.readingfoundations.data.models.UserProgress
 import com.example.readingfoundations.data.models.Word
@@ -25,6 +26,10 @@ import retrofit2.http.Path
  */
 class RemoteDataSource(/* private val ktorClient: HttpClient, private val retrofitService: ApiService */) : DataSource {
 
+    override fun getAllPunctuationQuestions(): Flow<List<PunctuationQuestion>> {
+        return flow { emit(emptyList()) }
+    }
+
     override fun getWordsByDifficulty(difficulty: Int): Flow<List<Word>> {
         // Ktor Example:
         // return flow { emit(ktorClient.get("words/{difficulty}").body()) }
@@ -37,7 +42,7 @@ class RemoteDataSource(/* private val ktorClient: HttpClient, private val retrof
     }
 
     override fun getSentencesByDifficulty(difficulty: Int): Flow<List<Sentence>> {
-        // Ktor Example:
+        // Ktor aexample:
         // return flow { emit(ktorClient.get("sentences/{difficulty}").body()) }
 
         // Retrofit Example:
