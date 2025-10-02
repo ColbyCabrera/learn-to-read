@@ -3,6 +3,7 @@ activityCompose = "1.11.0"
 appcompat = "1.7.1"
 androidGradlePlugin = "8.13.0"
 composeBom = "2025.09.01"
+composeCompiler = "2.2.20"
 coreKtx = "1.17.0"
 coroutines = "1.10.2"
 espressoCore = "3.7.0"
@@ -49,7 +50,8 @@ google-material = { group = "com.google.android.material", name = "material", ve
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+jetbrains-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "composeCompiler" }
 google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 [bundles]
-room = ["androidx.room.runtime", "androidx.room.ktx"]
+room = ["androidx-room-runtime", "androidx-room-ktx"]
