@@ -5,4 +5,7 @@
     <string name="sentence_reading">Sentence Reading</string>
     <string name="punctuation">Punctuation</string>
     <string name="settings">Settings</string>
+    <string name="congratulations">Congratulations!</string>
+    <string name="level_complete">You have completed level %1$d.</string>
+    <string name="continue_button">Continue</string>
 </resources>

@@ -11,10 +11,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.readingfoundations.data.models.Word
 import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
@@ -29,20 +34,25 @@ fun WordReadingScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val ttsManager = remember { TextToSpeechManager(context) }
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
-    LaunchedEffect(key1 = Unit) {
-        viewModel.navigationEvent.collectLatest { event ->
-            when (event) {
-                is NavigationEvent.LevelComplete -> {
-                    navController.navigate("level_complete/${event.level}")
+    LaunchedEffect(viewModel.navigationEvent, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.navigationEvent.collect { event ->
+                when (event) {
+                    is NavigationEvent.LevelComplete -> {
+                        navController.navigate("level_complete/${event.level}")
+                    }
                 }
             }
         }
     }
 
-    LaunchedEffect(navController.currentBackStackEntry) {
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    LaunchedEffect(currentBackStackEntry) {
         viewModel.loadWords()
     }
+
 
     DisposableEffect(Unit) {
         onDispose {
