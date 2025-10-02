@@ -5,10 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.readingfoundations.data.AppRepository
 import com.example.readingfoundations.data.models.UserProgress
 import com.example.readingfoundations.data.models.Word
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class WordReadingViewModel(private val appRepository: AppRepository) : ViewModel() {
@@ -16,11 +14,14 @@ class WordReadingViewModel(private val appRepository: AppRepository) : ViewModel
     private val _uiState = MutableStateFlow(WordReadingUiState())
     val uiState: StateFlow<WordReadingUiState> = _uiState.asStateFlow()
 
+    private val _navigationEvent = Channel<NavigationEvent>()
+    val navigationEvent = _navigationEvent.receiveAsFlow()
+
     init {
         loadWords()
     }
 
-    private fun loadWords() {
+    fun loadWords() {
         viewModelScope.launch {
             val userProgress = appRepository.getUserProgress().first() ?: UserProgress()
             val currentLevel = userProgress.lastWordLevelCompleted + 1
@@ -76,7 +77,7 @@ class WordReadingViewModel(private val appRepository: AppRepository) : ViewModel
                 appRepository.updateUserProgress(
                     userProgress.copy(lastWordLevelCompleted = _uiState.value.currentLevel)
                 )
-                loadWords() // Load next level
+                _navigationEvent.send(NavigationEvent.LevelComplete(_uiState.value.currentLevel))
             }
         }
     }
@@ -94,3 +95,7 @@ data class QuizState(
     val currentQuestionIndex: Int,
     val isAnswerCorrect: Boolean? = null
 )
+
+sealed class NavigationEvent {
+    data class LevelComplete(val level: Int) : NavigationEvent()
+}

@@ -2,4 +2,12 @@
     <string name="app_name">Reading Foundations</string>
     <string name="phonetics_practice">Phonetics Practice</string>
     <string name="listen_and_choose">Listen and Choose</string>
+    <string name="phonetics">Phonetics</string>
+    <string name="word_building">Word Building</string>
+    <string name="sentence_reading">Sentence Reading</string>
+    <string name="punctuation">Punctuation</string>
+    <string name="settings">Settings</string>
+    <string name="congratulations">Congratulations!</string>
+    <string name="level_complete">You have completed level %1$d.</string>
+    <string name="continue_button">Continue</string>
 </resources>
