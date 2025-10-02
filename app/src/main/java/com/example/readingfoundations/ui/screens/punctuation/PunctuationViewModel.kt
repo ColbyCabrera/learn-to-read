@@ -34,7 +34,7 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
     fun submitAnswer(answer: String) {
         val currentState = _uiState.value
         val currentQuestion = currentState.questions[currentState.currentQuestionIndex]
-        val isCorrect = currentQuestion.correctAnswer.equals(answer, ignoreCase = true)
+        val isCorrect = currentQuestion.correctAnswer.equals(answer.trim(), ignoreCase = true)
 
         _uiState.value = currentState.copy(
             isAnswerSubmitted = true,
