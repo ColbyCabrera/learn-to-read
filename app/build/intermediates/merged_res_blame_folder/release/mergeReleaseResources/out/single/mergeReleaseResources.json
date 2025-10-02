@@ -1,50 +1,50 @@
 [
     {
-        "merged": "com.example.readingfoundations.app-release-64:/drawable_edit_note_24px.xml.flat",
-        "source": "com.example.readingfoundations.app-main-65:/drawable/edit_note_24px.xml"
+        "merged": "com.example.readingfoundations.app-release-54:/drawable_record_voice_over_24px.xml.flat",
+        "source": "com.example.readingfoundations.app-main-55:/drawable/record_voice_over_24px.xml"
     },
     {
-        "merged": "com.example.readingfoundations.app-release-64:/drawable_ic_notification.xml.flat",
-        "source": "com.example.readingfoundations.app-main-65:/drawable/ic_notification.xml"
+        "merged": "com.example.readingfoundations.app-release-54:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.example.readingfoundations.app-main-55:/drawable/ic_launcher_background.xml"
     },
     {
-        "merged": "com.example.readingfoundations.app-release-64:/drawable_ic_launcher_background.xml.flat",
-        "source": "com.example.readingfoundations.app-main-65:/drawable/ic_launcher_background.xml"
+        "merged": "com.example.readingfoundations.app-release-54:/drawable_edit_note_24px.xml.flat",
+        "source": "com.example.readingfoundations.app-main-55:/drawable/edit_note_24px.xml"
     },
     {
-        "merged": "com.example.readingfoundations.app-release-64:/xml_backup_rules.xml.flat",
-        "source": "com.example.readingfoundations.app-main-65:/xml/backup_rules.xml"
+        "merged": "com.example.readingfoundations.app-release-54:/mipmap-hdpi_ic_launcher_foreground.xml.flat",
+        "source": "com.example.readingfoundations.app-main-55:/mipmap-hdpi/ic_launcher_foreground.xml"
     },
     {
-        "merged": "com.example.readingfoundations.app-release-64:/drawable_construction_24px.xml.flat",
-        "source": "com.example.readingfoundations.app-main-65:/drawable/construction_24px.xml"
+        "merged": "com.example.readingfoundations.app-release-54:/drawable_book_24px.xml.flat",
+        "source": "com.example.readingfoundations.app-main-55:/drawable/book_24px.xml"
     },
     {
-        "merged": "com.example.readingfoundations.app-release-64:/drawable_ic_launcher_foreground.xml.flat",
-        "source": "com.example.readingfoundations.app-main-65:/drawable/ic_launcher_foreground.xml"
+        "merged": "com.example.readingfoundations.app-release-54:/drawable_ic_notification.xml.flat",
+        "source": "com.example.readingfoundations.app-main-55:/drawable/ic_notification.xml"
     },
     {
-        "merged": "com.example.readingfoundations.app-release-64:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "com.example.readingfoundations.app-main-65:/mipmap-anydpi-v26/ic_launcher.xml"
+        "merged": "com.example.readingfoundations.app-release-54:/drawable_construction_24px.xml.flat",
+        "source": "com.example.readingfoundations.app-main-55:/drawable/construction_24px.xml"
     },
     {
-        "merged": "com.example.readingfoundations.app-release-64:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
-        "source": "com.example.readingfoundations.app-main-65:/mipmap-anydpi-v26/ic_launcher_round.xml"
+        "merged": "com.example.readingfoundations.app-release-54:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.example.readingfoundations.app-main-55:/drawable/ic_launcher_foreground.xml"
     },
     {
-        "merged": "com.example.readingfoundations.app-release-64:/mipmap-hdpi_ic_launcher_foreground.xml.flat",
-        "source": "com.example.readingfoundations.app-main-65:/mipmap-hdpi/ic_launcher_foreground.xml"
+        "merged": "com.example.readingfoundations.app-release-54:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.example.readingfoundations.app-main-55:/mipmap-anydpi-v26/ic_launcher.xml"
     },
     {
-        "merged": "com.example.readingfoundations.app-release-64:/drawable_book_24px.xml.flat",
-        "source": "com.example.readingfoundations.app-main-65:/drawable/book_24px.xml"
+        "merged": "com.example.readingfoundations.app-release-54:/xml_backup_rules.xml.flat",
+        "source": "com.example.readingfoundations.app-main-55:/xml/backup_rules.xml"
     },
     {
-        "merged": "com.example.readingfoundations.app-release-64:/xml_data_extraction_rules.xml.flat",
-        "source": "com.example.readingfoundations.app-main-65:/xml/data_extraction_rules.xml"
+        "merged": "com.example.readingfoundations.app-release-54:/xml_data_extraction_rules.xml.flat",
+        "source": "com.example.readingfoundations.app-main-55:/xml/data_extraction_rules.xml"
     },
     {
-        "merged": "com.example.readingfoundations.app-release-64:/drawable_record_voice_over_24px.xml.flat",
-        "source": "com.example.readingfoundations.app-main-65:/drawable/record_voice_over_24px.xml"
+        "merged": "com.example.readingfoundations.app-release-54:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.example.readingfoundations.app-main-55:/mipmap-anydpi-v26/ic_launcher_round.xml"
     }
 ]
