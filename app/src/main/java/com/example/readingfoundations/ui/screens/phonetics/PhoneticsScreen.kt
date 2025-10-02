@@ -83,6 +83,7 @@ fun PhoneticsScreen(
         } else {
             AllLettersContent(
                 ttsManager = ttsManager,
+                onLetterSelected = { viewModel.onLetterSelected(it) },
                 modifier = Modifier.padding(paddingValues)
             )
         }
@@ -92,6 +93,7 @@ fun PhoneticsScreen(
 @Composable
 fun AllLettersContent(
     ttsManager: TextToSpeechManager,
+    onLetterSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
@@ -105,6 +107,7 @@ fun AllLettersContent(
             LetterCard(
                 letter = phoneme.grapheme,
                 onClick = {
+                    onLetterSelected(phoneme.grapheme)
                     ttsManager.speak(phoneme.exampleWord)
                 }
             )

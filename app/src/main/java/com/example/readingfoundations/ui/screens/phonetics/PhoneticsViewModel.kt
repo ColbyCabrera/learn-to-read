@@ -2,7 +2,6 @@ package com.example.readingfoundations.ui.screens.phonetics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.readingfoundations.data.Phoneme
 import com.example.readingfoundations.data.PhoneticsData
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
