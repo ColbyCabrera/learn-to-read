@@ -1,36 +1,26 @@
 package com.example.readingfoundations.ui.screens.phonetics
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.readingfoundations.R
 import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
 
@@ -42,49 +32,161 @@ fun PhoneticsScreen(
 ) {
     val context = LocalContext.current
     val ttsManager = remember { TextToSpeechManager(context) }
+    val uiState by viewModel.uiState.collectAsState()
 
     DisposableEffect(Unit) {
         onDispose {
             ttsManager.shutdown()
+            viewModel.stopPractice()
+        }
+    }
+
+    LaunchedEffect(uiState.targetLetter) {
+        uiState.targetLetter?.let {
+            ttsManager.speak(it)
         }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Phonetics") },
+                title = { Text(stringResource(R.string.phonetics_practice)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        if (uiState.inPracticeMode) {
+                            viewModel.stopPractice()
+                        } else {
+                            viewModel.startPractice()
+                        }
+                    }) {
+                        Icon(
+                            imageVector = if (uiState.inPracticeMode) Icons.Default.Stop else Icons.Default.PlayArrow,
+                            contentDescription = if (uiState.inPracticeMode) "Stop Practice" else "Start Practice"
+                        )
                     }
                 }
             )
         }
     ) { paddingValues ->
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 100.dp),
-            contentPadding = paddingValues,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
-        ) {
-            items(viewModel.alphabet) { letter ->
-                val onClick = remember(letter) {
-                    {
-                        viewModel.onLetterSelected(letter)
-                        ttsManager.speak(letter)
-                    }
+        if (uiState.inPracticeMode) {
+            PracticeContent(
+                uiState = uiState,
+                onOptionSelected = { viewModel.checkAnswer(it) },
+                modifier = Modifier.padding(paddingValues)
+            )
+        } else {
+            AllLettersContent(
+                viewModel = viewModel,
+                ttsManager = ttsManager,
+                modifier = Modifier.padding(paddingValues)
+            )
+        }
+    }
+}
+
+@Composable
+fun AllLettersContent(
+    viewModel: PhoneticsViewModel,
+    ttsManager: TextToSpeechManager,
+    modifier: Modifier = Modifier
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 100.dp),
+        contentPadding = PaddingValues(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.fillMaxSize()
+    ) {
+        items(viewModel.alphabet) { letter ->
+            LetterCard(
+                letter = letter,
+                onClick = {
+                    viewModel.onLetterSelected(letter)
+                    ttsManager.speak(letter)
                 }
-                LetterCard(letter = letter, onClick = onClick)
+            )
+        }
+    }
+}
+
+@Composable
+fun PracticeContent(
+    uiState: PhoneticsUiState,
+    onOptionSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = stringResource(R.string.listen_and_choose),
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            items(uiState.options) { option ->
+                val color = when (uiState.isCorrect) {
+                    true -> if (option == uiState.targetLetter) Color.Green else Color.Unspecified
+                    false -> if (option == uiState.selectedLetter) Color.Red else Color.Unspecified
+                    null -> Color.Unspecified
+                }
+                PracticeLetterCard(
+                    letter = option,
+                    color = color,
+                    onClick = {
+                        if (uiState.isCorrect == null) { // prevent clicking after an answer
+                            onOptionSelected(option)
+                        }
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun LetterCard(letter: String, onClick: () -> Unit) {
+fun LetterCard(
+    letter: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier
+            .aspectRatio(1f)
+            .clickable(onClick = onClick),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = letter,
+                style = MaterialTheme.typography.headlineLarge,
+            )
+        }
+    }
+}
+
+@Composable
+fun PracticeLetterCard(
+    letter: String,
+    color: Color,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .aspectRatio(1f)
@@ -92,7 +194,9 @@ fun LetterCard(letter: String, onClick: () -> Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color),
             contentAlignment = Alignment.Center
         ) {
             Text(
