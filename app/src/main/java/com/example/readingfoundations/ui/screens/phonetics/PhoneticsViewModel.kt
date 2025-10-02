@@ -2,6 +2,7 @@ package com.example.readingfoundations.ui.screens.phonetics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.readingfoundations.data.PhoneticsData
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,6 @@ class PhoneticsViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(PhoneticsUiState())
     val uiState: StateFlow<PhoneticsUiState> = _uiState.asStateFlow()
 
-    val alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".map { it.toString() }
     private var practiceJob: Job? = null
 
     fun onLetterSelected(letter: String) {
@@ -47,17 +47,52 @@ class PhoneticsViewModel : ViewModel() {
     }
 
     private fun generateNewQuestion() {
-        val target = alphabet.random()
-        val options = (alphabet - target).shuffled().take(3) + target
-        _uiState.update {
-            it.copy(
-                targetLetter = target,
-                options = options.shuffled(),
-                isCorrect = null,
-                selectedLetter = null
-            )
+        val targetPhoneme = PhoneticsData.phonemes.random()
+        val otherPhonemes = (PhoneticsData.phonemes - targetPhoneme).shuffled().take(3)
+        val options = (otherPhonemes + targetPhoneme)
+
+        val questionType = QuestionType.entries.toTypedArray().random()
+        val questionPrompt = when (questionType) {
+            QuestionType.FIRST_SOUND -> "What letter makes the first sound in '${targetPhoneme.exampleWord}'?"
+            QuestionType.WHICH_LETTER -> "Which letter is for '${targetPhoneme.exampleWord}'?"
+            QuestionType.WHAT_IS_THE_LETTER -> "The word is '${targetPhoneme.exampleWord}'. What is the first letter?"
+            QuestionType.IPA_SYMBOL -> "Which letter makes the sound at the beginning of '${targetPhoneme.exampleWord}'?"
+            QuestionType.WHICH_WORD -> {
+                val soundToSay = PhoneticsData.phoneticPronunciations[targetPhoneme.grapheme]
+                "Which word starts with the '${soundToSay}' sound?"
+            }
+        }
+
+        if (questionType == QuestionType.WHICH_WORD) {
+             _uiState.update { it ->
+                 it.copy(
+                    targetLetter = targetPhoneme.exampleWord,
+                    options = options.map { it.exampleWord }.shuffled(),
+                    isCorrect = null,
+                    selectedLetter = null,
+                    questionPrompt = questionPrompt
+                )
+            }
+        } else {
+            _uiState.update { it ->
+                it.copy(
+                    targetLetter = targetPhoneme.grapheme,
+                    options = options.map { it.grapheme }.shuffled(),
+                    isCorrect = null,
+                    selectedLetter = null,
+                    questionPrompt = questionPrompt
+                )
+            }
         }
     }
+}
+
+enum class QuestionType {
+    FIRST_SOUND,
+    WHICH_LETTER,
+    WHAT_IS_THE_LETTER,
+    IPA_SYMBOL,
+    WHICH_WORD
 }
 
 data class PhoneticsUiState(
@@ -65,5 +100,6 @@ data class PhoneticsUiState(
     val inPracticeMode: Boolean = false,
     val targetLetter: String? = null,
     val options: List<String> = emptyList(),
-    val isCorrect: Boolean? = null
+    val isCorrect: Boolean? = null,
+    val questionPrompt: String? = null
 )

@@ -8,6 +8,7 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.readingfoundations.data.models.PunctuationQuestion
+import com.example.readingfoundations.data.models.Phoneme
 import com.example.readingfoundations.data.models.Sentence
 import com.example.readingfoundations.data.models.UserProgress
 import com.example.readingfoundations.data.models.Word
@@ -15,14 +16,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Word::class, Sentence::class, UserProgress::class, PunctuationQuestion::class], version = 5, exportSchema = false)
 @TypeConverters(Converters::class)
+@Database(entities = [Word::class, Sentence::class, UserProgress::class, Phoneme::class, PunctuationQuestion::class], version = 2, exportSchema = false)
+
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun wordDao(): WordDao
     abstract fun sentenceDao(): SentenceDao
     abstract fun userProgressDao(): UserProgressDao
     abstract fun punctuationQuestionDao(): PunctuationQuestionDao
+    abstract fun phonemeDao(): PhonemeDao
 
     companion object {
         @Volatile
@@ -31,6 +34,7 @@ abstract class AppDatabase : RoomDatabase() {
         fun getDatabase(context: Context): AppDatabase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, AppDatabase::class.java, "reading_foundations_database")
+                    .fallbackToDestructiveMigration(true) // Handle schema changes by destroying old data
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
@@ -40,6 +44,7 @@ abstract class AppDatabase : RoomDatabase() {
                                     database.wordDao().insertAll(PrepopulateData.words)
                                     database.sentenceDao().insertAll(PrepopulateData.sentences)
                                     database.punctuationQuestionDao().insertAll(PrepopulateData.punctuationQuestions)
+                                    database.phonemeDao().insertAll(PrepopulateData.phonemes)
                                     // Initialize user progress
                                     database.userProgressDao().updateUserProgress(UserProgress())
                                 }
