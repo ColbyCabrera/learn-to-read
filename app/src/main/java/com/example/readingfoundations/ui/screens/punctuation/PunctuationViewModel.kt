@@ -22,7 +22,7 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
 
     private fun loadQuestions() {
         viewModelScope.launch {
-            appRepository.getAllPunctuationQuestions().first().let { questions ->
+            appRepository.getAllPunctuationQuestions().collectLatest { questions ->
                 _uiState.value = PunctuationUiState(
                     questions = questions.shuffled(),
                     currentQuestionIndex = 0
@@ -34,7 +34,7 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
     fun submitAnswer(answer: String) {
         val currentState = _uiState.value
         val currentQuestion = currentState.questions[currentState.currentQuestionIndex]
-        val isCorrect = currentQuestion.correctAnswer == answer
+        val isCorrect = currentQuestion.correctAnswer.equals(answer, ignoreCase = true)
 
         _uiState.value = currentState.copy(
             isAnswerSubmitted = true,

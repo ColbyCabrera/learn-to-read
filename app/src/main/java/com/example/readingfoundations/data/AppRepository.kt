@@ -1,6 +1,7 @@
 package com.example.readingfoundations.data
 
 import com.example.readingfoundations.data.local.LocalDataSource
+import com.example.readingfoundations.data.models.PunctuationQuestion
 import com.example.readingfoundations.data.models.Sentence
 import com.example.readingfoundations.data.models.UserProgress
 import com.example.readingfoundations.data.models.Word
@@ -18,7 +19,7 @@ class AppRepository(
 
     override fun getWordsByDifficulty(difficulty: Int): Flow<List<Word>> {
         // For now, we only fetch from the local data source.
-        // In the future, logic can be added here to fetch from the remote data source
+        // In the future, logic can be in here to fetch from the remote data source
         // and cache the results locally.
         return localDataSource.getWordsByDifficulty(difficulty)
     }

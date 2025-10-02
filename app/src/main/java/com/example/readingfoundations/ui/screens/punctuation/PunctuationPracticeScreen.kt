@@ -84,6 +84,7 @@ fun PunctuationQuestionCard(
     onNextClicked: () -> Unit
 ) {
     val question = uiState.questions.getOrNull(uiState.currentQuestionIndex) ?: return
+    var userAnswer by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -95,30 +96,28 @@ fun PunctuationQuestionCard(
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = question.questionText,
+            text = question.text,
             style = MaterialTheme.typography.headlineSmall
         )
         Spacer(modifier = Modifier.height(24.dp))
 
-        question.options.forEach { option ->
-            val isSelected = uiState.isAnswerSubmitted && option == question.correctAnswer
-            val isIncorrect = uiState.isAnswerSubmitted && !uiState.isAnswerCorrect && option != question.correctAnswer
+        OutlinedTextField(
+            value = userAnswer,
+            onValueChange = { userAnswer = it },
+            label = { Text("Your answer") },
+            modifier = Modifier.fillMaxWidth()
+        )
 
-            Button(
-                onClick = { onAnswerSelected(option) },
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                enabled = !uiState.isAnswerSubmitted,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = when {
-                        isSelected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-                        isIncorrect -> MaterialTheme.colorScheme.error.copy(alpha = 0.3f)
-                        else -> MaterialTheme.colorScheme.primary
-                    }
-                )
-            ) {
-                Text(text = option)
-            }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { onAnswerSelected(userAnswer) },
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            enabled = !uiState.isAnswerSubmitted
+        ) {
+            Text(text = "Submit")
         }
+
 
         if (uiState.isAnswerSubmitted) {
             Spacer(modifier = Modifier.height(16.dp))
