@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.readingfoundations.data.models.PunctuationQuestion
 import com.example.readingfoundations.data.models.Sentence
@@ -13,7 +15,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Word::class, Sentence::class, UserProgress::class, PunctuationQuestion::class], version = 4, exportSchema = false)
+@Database(entities = [Word::class, Sentence::class, UserProgress::class, PunctuationQuestion::class], version = 5, exportSchema = false)
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun wordDao(): WordDao
@@ -43,9 +46,15 @@ abstract class AppDatabase : RoomDatabase() {
                             }
                         }
                     })
-                    .fallbackToDestructiveMigration()
+                    .addMigrations(MIGRATION_4_5)
                     .build()
                     .also { Instance = it }
+            }
+        }
+
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE punctuation_questions ADD COLUMN options TEXT")
             }
         }
     }

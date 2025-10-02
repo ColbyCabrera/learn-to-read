@@ -1,24 +1,18 @@
 package com.example.readingfoundations.ui.screens.punctuation
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.readingfoundations.data.models.PunctuationQuestion
 import com.example.readingfoundations.ui.AppViewModelProvider
 import kotlinx.coroutines.flow.collectLatest
 
@@ -29,7 +23,7 @@ fun PunctuationPracticeScreen(
     viewModel: PunctuationViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
     LaunchedEffect(viewModel.navigationEvent, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -101,23 +95,32 @@ fun PunctuationQuestionCard(
         )
         Spacer(modifier = Modifier.height(24.dp))
 
-        OutlinedTextField(
-            value = userAnswer,
-            onValueChange = { userAnswer = it },
-            label = { Text("Your answer") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { onAnswerSelected(userAnswer) },
-            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-            enabled = !uiState.isAnswerSubmitted
-        ) {
-            Text(text = "Submit")
+        if (question.options.isNullOrEmpty()) {
+            OutlinedTextField(
+                value = userAnswer,
+                onValueChange = { userAnswer = it },
+                label = { Text("Your answer") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { onAnswerSelected(userAnswer) },
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                enabled = !uiState.isAnswerSubmitted
+            ) {
+                Text(text = "Submit")
+            }
+        } else {
+            question.options.forEach { option ->
+                Button(
+                    onClick = { onAnswerSelected(option) },
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    enabled = !uiState.isAnswerSubmitted,
+                ) {
+                    Text(text = option)
+                }
+            }
         }
-
 
         if (uiState.isAnswerSubmitted) {
             Spacer(modifier = Modifier.height(16.dp))

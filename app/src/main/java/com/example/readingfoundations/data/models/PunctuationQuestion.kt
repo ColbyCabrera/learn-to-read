@@ -8,5 +8,6 @@ data class PunctuationQuestion(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val text: String,
-    val correctAnswer: String
+    val correctAnswer: String,
+    val options: List<String>? = null
 )
