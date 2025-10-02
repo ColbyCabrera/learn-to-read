@@ -53,7 +53,7 @@ fun PhoneticsScreen(
                 title = { Text(stringResource(R.string.phonetics_practice)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back_button_desc))
                     }
                 },
                 actions = {
@@ -66,7 +66,7 @@ fun PhoneticsScreen(
                     }) {
                         Icon(
                             imageVector = if (uiState.inPracticeMode) Icons.Default.Stop else Icons.Default.PlayArrow,
-                            contentDescription = if (uiState.inPracticeMode) "Stop Practice" else "Start Practice"
+                            contentDescription = if (uiState.inPracticeMode) stringResource(R.string.stop_practice_desc) else stringResource(R.string.start_practice_desc)
                         )
                     }
                 }
@@ -202,6 +202,7 @@ fun PracticePhonemeCard(
             modifier = Modifier.fillMaxSize().background(color).padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
+
         ) {
             Text(
                 text = phoneme.sound,

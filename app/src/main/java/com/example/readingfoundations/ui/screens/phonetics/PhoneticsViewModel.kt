@@ -2,6 +2,7 @@ package com.example.readingfoundations.ui.screens.phonetics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,6 +54,7 @@ class PhoneticsViewModel : ViewModel() {
     }
 
     fun stopPractice() {
+        practiceJob?.cancel()
         _uiState.value = PhoneticsUiState()
     }
 
@@ -60,7 +62,7 @@ class PhoneticsViewModel : ViewModel() {
         val isCorrect = selectedOption == _uiState.value.targetPhoneme
         _uiState.update { it.copy(isCorrect = isCorrect, selectedPhoneme = selectedOption) }
 
-        viewModelScope.launch {
+        practiceJob = viewModelScope.launch {
             delay(1000) // wait for 1 second
             if (isCorrect) {
                 generateNewQuestion()
