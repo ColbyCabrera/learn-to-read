@@ -15,4 +15,9 @@ class Converters {
     fun fromList(list: List<String>?): String? {
         return list?.let { gson.toJson(it, type) }
     }
+
+    companion object {
+        private val gson = Gson()
+        private val type = object : TypeToken<List<String>>() {}.type
+    }
 }
