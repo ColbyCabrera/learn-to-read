@@ -8,7 +8,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="white">#FFFFFFFF</color>
     <string name="app_name">Reading Foundations</string>
-    <style name="Theme.ReadingFoundations" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/purple_700</item>
-    </style>
+    <string name="phonetics">Phonetics</string>
+    <string name="punctuation">Punctuation</string>
+    <string name="sentence_reading">Sentence Reading</string>
+    <string name="settings">Settings</string>
+    <string name="word_building">Word Building</string>
+    <style name="Theme.ReadingFoundations" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    
+  </style>
 </resources>
