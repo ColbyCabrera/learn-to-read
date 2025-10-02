@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.readingfoundations.R
+import com.example.readingfoundations.data.PhoneticsData
 import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
 
@@ -41,8 +42,8 @@ fun PhoneticsScreen(
         }
     }
 
-    LaunchedEffect(uiState.targetLetter) {
-        uiState.targetLetter?.let {
+    LaunchedEffect(uiState.questionPrompt) {
+        uiState.questionPrompt?.let {
             ttsManager.speak(it)
         }
     }
@@ -81,8 +82,8 @@ fun PhoneticsScreen(
             )
         } else {
             AllLettersContent(
-                viewModel = viewModel,
                 ttsManager = ttsManager,
+                onLetterSelected = { viewModel.onLetterSelected(it) },
                 modifier = Modifier.padding(paddingValues)
             )
         }
@@ -91,8 +92,8 @@ fun PhoneticsScreen(
 
 @Composable
 fun AllLettersContent(
-    viewModel: PhoneticsViewModel,
     ttsManager: TextToSpeechManager,
+    onLetterSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
@@ -102,12 +103,12 @@ fun AllLettersContent(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.fillMaxSize()
     ) {
-        items(viewModel.alphabet) { letter ->
+        items(PhoneticsData.phonemes) { phoneme ->
             LetterCard(
-                letter = letter,
+                letter = phoneme.grapheme,
                 onClick = {
-                    viewModel.onLetterSelected(letter)
-                    ttsManager.speak(letter)
+                    onLetterSelected(phoneme.grapheme)
+                    ttsManager.speak(phoneme.exampleWord)
                 }
             )
         }
@@ -127,10 +128,12 @@ fun PracticeContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = stringResource(R.string.listen_and_choose),
-            style = MaterialTheme.typography.headlineMedium
-        )
+        uiState.questionPrompt?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.headlineMedium
+            )
+        }
         Spacer(modifier = Modifier.height(32.dp))
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
