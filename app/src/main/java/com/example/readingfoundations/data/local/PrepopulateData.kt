@@ -24,7 +24,7 @@ object PrepopulateData {
         Phoneme(grapheme = "b", sound = "b", ttsText = "b as in bed", exampleWord = "bed", category = "CVC Phoneme", level = 1),
         Phoneme(grapheme = "f", sound = "f", ttsText = "f as in fan", exampleWord = "fan", category = "CVC Phoneme", level = 1),
         Phoneme(grapheme = "l", sound = "l", ttsText = "l as in lip", exampleWord = "lip", category = "CVC Phoneme", level = 1),
-        Phoneme(grapheme = "g", sound = "g", ttsText = "g as in gem", exampleWord = "gem", category = "CVC Phoneme", level = 1),
+        Phoneme(grapheme = "g", sound = "g", ttsText = "g as in gas", exampleWord = "gas", category = "CVC Phoneme", level = 1),
         Phoneme(grapheme = "u", sound = "u", ttsText = "u as in up", exampleWord = "up", category = "CVC Phoneme", level = 1),
         Phoneme(grapheme = "v", sound = "v", ttsText = "v as in van", exampleWord = "van", category = "CVC Phoneme", level = 1),
 
