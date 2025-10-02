@@ -7,7 +7,7 @@ import com.example.readingfoundations.data.models.Word
 object PrepopulateData {
     val punctuationQuestions = listOf(
         PunctuationQuestion(
-            questionText = "Which sentence uses commas correctly_ Sarah bought apples oranges and bananas.",
+            questionText = "Which sentence uses commas correctly?\nSarah bought apples oranges and bananas.",
             options = listOf(
                 "Sarah, bought apples, oranges, and bananas.",
                 "Sarah bought apples, oranges, and bananas.",
@@ -17,7 +17,7 @@ object PrepopulateData {
             difficulty = 1
         ),
         PunctuationQuestion(
-            questionText = "Choose the correctly punctuated sentence_ He said I am going to the park",
+            questionText = "Choose the correctly punctuated sentence:\nHe said I am going to the park",
             options = listOf(
                 "He said, \"I am going to the park.\"",
                 "He said \"I am going to the park.\"",
@@ -27,7 +27,7 @@ object PrepopulateData {
             difficulty = 2
         ),
         PunctuationQuestion(
-            questionText = "Which sentence is correct_ Its a beautiful day outside.",
+            questionText = "Which sentence is correct?\nIts a beautiful day outside.",
             options = listOf(
                 "Its a beautiful day outside.",
                 "It's a beautiful day outside.",

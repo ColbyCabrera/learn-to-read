@@ -36,7 +36,7 @@ fun PunctuationPracticeScreen(
             viewModel.navigationEvent.collectLatest { event ->
                 when (event) {
                     is NavigationEvent.QuizComplete -> {
-                        navController.navigate("quiz_complete/${event.score}/${uiState.questions.size}")
+                        navController.navigate("quiz_complete/${event.score}/${event.totalQuestions}")
                     }
                 }
             }
@@ -95,7 +95,7 @@ fun PunctuationQuestionCard(
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = question.questionText.replace("_", "\n"),
+            text = question.questionText,
             style = MaterialTheme.typography.headlineSmall
         )
         Spacer(modifier = Modifier.height(24.dp))
@@ -110,8 +110,8 @@ fun PunctuationQuestionCard(
                 enabled = !uiState.isAnswerSubmitted,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = when {
-                        isSelected -> Color.Green.copy(alpha = 0.3f)
-                        isIncorrect -> Color.Red.copy(alpha = 0.3f)
+                        isSelected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                        isIncorrect -> MaterialTheme.colorScheme.error.copy(alpha = 0.3f)
                         else -> MaterialTheme.colorScheme.primary
                     }
                 )
@@ -124,7 +124,7 @@ fun PunctuationQuestionCard(
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = if (uiState.isAnswerCorrect) "Correct!" else "Incorrect!",
-                color = if (uiState.isAnswerCorrect) Color.Green else Color.Red,
+                color = if (uiState.isAnswerCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.headlineMedium
             )
             Spacer(modifier = Modifier.height(16.dp))

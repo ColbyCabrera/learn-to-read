@@ -22,7 +22,7 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
 
     private fun loadQuestions() {
         viewModelScope.launch {
-            appRepository.getAllPunctuationQuestions().collect { questions ->
+            appRepository.getAllPunctuationQuestions().first().let { questions ->
                 _uiState.value = PunctuationUiState(
                     questions = questions.shuffled(),
                     currentQuestionIndex = 0
@@ -54,7 +54,7 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
         } else {
             // Quiz finished
             viewModelScope.launch {
-                _navigationEvent.send(NavigationEvent.QuizComplete(currentState.score))
+                _navigationEvent.send(NavigationEvent.QuizComplete(currentState.score, currentState.questions.size))
             }
         }
     }
@@ -69,5 +69,5 @@ data class PunctuationUiState(
 )
 
 sealed class NavigationEvent {
-    data class QuizComplete(val score: Int) : NavigationEvent()
+    data class QuizComplete(val score: Int, val totalQuestions: Int) : NavigationEvent()
 }
