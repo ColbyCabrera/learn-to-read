@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(entities = [Word::class, Sentence::class, UserProgress::class, Phoneme::class], version = 2, exportSchema = false)
+
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun wordDao(): WordDao
@@ -44,6 +45,7 @@ abstract class AppDatabase : RoomDatabase() {
                             }
                         }
                     })
+                    .fallbackToDestructiveMigration()
                     .build()
                     .also { Instance = it }
             }
