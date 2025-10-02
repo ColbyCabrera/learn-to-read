@@ -53,7 +53,7 @@ fun PhoneticsScreen(
                 title = { Text(stringResource(R.string.phonetics_practice)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back_button_desc))
                     }
                 },
                 actions = {
@@ -66,7 +66,7 @@ fun PhoneticsScreen(
                     }) {
                         Icon(
                             imageVector = if (uiState.inPracticeMode) Icons.Default.Stop else Icons.Default.PlayArrow,
-                            contentDescription = if (uiState.inPracticeMode) "Stop Practice" else "Start Practice"
+                            contentDescription = if (uiState.inPracticeMode) stringResource(R.string.stop_practice_desc) else stringResource(R.string.start_practice_desc)
                         )
                     }
                 }
@@ -138,10 +138,10 @@ fun PracticeContent(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             items(uiState.options) { option ->
-                val color = when (uiState.isCorrect) {
-                    true -> if (option == uiState.targetLetter) Color.Green else Color.Unspecified
-                    false -> if (option == uiState.selectedLetter) Color.Red else Color.Unspecified
-                    null -> Color.Unspecified
+                val color = when {
+                    uiState.isCorrect == true && option == uiState.targetLetter -> Color.Green
+                    uiState.isCorrect == false && option == uiState.selectedLetter -> MaterialTheme.colorScheme.error
+                    else -> Color.Unspecified
                 }
                 PracticeLetterCard(
                     letter = option,
@@ -196,7 +196,7 @@ fun PracticeLetterCard(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color),
+                .background(color, shape = CardDefaults.shape),
             contentAlignment = Alignment.Center
         ) {
             Text(
