@@ -41,9 +41,9 @@ fun PhoneticsScreen(
         }
     }
 
-    LaunchedEffect(uiState.targetLetter) {
-        uiState.targetLetter?.let {
-            ttsManager.speak(it)
+    LaunchedEffect(uiState.targetPhoneme) {
+        uiState.targetPhoneme?.let {
+            ttsManager.speak(it.ttsText)
         }
     }
 
@@ -80,7 +80,7 @@ fun PhoneticsScreen(
                 modifier = Modifier.padding(paddingValues)
             )
         } else {
-            AllLettersContent(
+            AllPhonemesContent(
                 viewModel = viewModel,
                 ttsManager = ttsManager,
                 modifier = Modifier.padding(paddingValues)
@@ -90,7 +90,7 @@ fun PhoneticsScreen(
 }
 
 @Composable
-fun AllLettersContent(
+fun AllPhonemesContent(
     viewModel: PhoneticsViewModel,
     ttsManager: TextToSpeechManager,
     modifier: Modifier = Modifier
@@ -102,12 +102,12 @@ fun AllLettersContent(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.fillMaxSize()
     ) {
-        items(viewModel.alphabet) { letter ->
-            LetterCard(
-                letter = letter,
+        items(viewModel.phonemes) { phoneme ->
+            PhonemeCard(
+                phoneme = phoneme,
                 onClick = {
-                    viewModel.onLetterSelected(letter)
-                    ttsManager.speak(letter)
+                    viewModel.onLetterSelected(phoneme)
+                    ttsManager.speak(phoneme.ttsText)
                 }
             )
         }
@@ -117,7 +117,7 @@ fun AllLettersContent(
 @Composable
 fun PracticeContent(
     uiState: PhoneticsUiState,
-    onOptionSelected: (String) -> Unit,
+    onOptionSelected: (Phoneme) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -139,12 +139,12 @@ fun PracticeContent(
         ) {
             items(uiState.options) { option ->
                 val color = when (uiState.isCorrect) {
-                    true -> if (option == uiState.targetLetter) Color.Green else Color.Unspecified
-                    false -> if (option == uiState.selectedLetter) Color.Red else Color.Unspecified
+                    true -> if (option == uiState.targetPhoneme) Color.Green else Color.Unspecified
+                    false -> if (option == uiState.selectedPhoneme) Color.Red else Color.Unspecified
                     null -> Color.Unspecified
                 }
-                PracticeLetterCard(
-                    letter = option,
+                PracticePhonemeCard(
+                    phoneme = option,
                     color = color,
                     onClick = {
                         if (uiState.isCorrect == null) { // prevent clicking after an answer
@@ -158,8 +158,8 @@ fun PracticeContent(
 }
 
 @Composable
-fun LetterCard(
-    letter: String,
+fun PhonemeCard(
+    phoneme: Phoneme,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -169,21 +169,26 @@ fun LetterCard(
             .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+        Column(
+            modifier = Modifier.fillMaxSize().padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = letter,
+                text = phoneme.sound,
                 style = MaterialTheme.typography.headlineLarge,
+            )
+            Text(
+                text = phoneme.exampleWord,
+                style = MaterialTheme.typography.bodyLarge,
             )
         }
     }
 }
 
 @Composable
-fun PracticeLetterCard(
-    letter: String,
+fun PracticePhonemeCard(
+    phoneme: Phoneme,
     color: Color,
     onClick: () -> Unit
 ) {
@@ -193,15 +198,18 @@ fun PracticeLetterCard(
             .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color),
-            contentAlignment = Alignment.Center
+        Column(
+            modifier = Modifier.fillMaxSize().background(color).padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = letter,
+                text = phoneme.sound,
                 style = MaterialTheme.typography.headlineLarge,
+            )
+            Text(
+                text = phoneme.exampleWord,
+                style = MaterialTheme.typography.bodyLarge,
             )
         }
     }
