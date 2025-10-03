@@ -2,6 +2,7 @@ package com.example.readingfoundations.ui.screens.home
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +30,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.readingfoundations.R
 
+private object EditorialMomentDimens {
+    val padding = 24.dp
+    val cornerRadiusVisible = 24.dp
+    val cornerRadiusHidden = 8.dp
+    val spacer1 = 12.dp
+    val spacer2 = 20.dp
+    val buttonCorner = 12.dp
+}
+
 @Composable
 fun EditorialMoment(
     onStartLearningClick: () -> Unit,
@@ -42,12 +52,12 @@ fun EditorialMoment(
     )
 
     val cornerRadius by animateDpAsState(
-        targetValue = if (isVisible) 24.dp else 8.dp,
+        targetValue = if (isVisible) EditorialMomentDimens.cornerRadiusVisible else EditorialMomentDimens.cornerRadiusHidden,
         animationSpec = spring()
     )
 
-    val animatedWeight by animateFloatAsState(
-        targetValue = if (isVisible) FontWeight.Bold.weight.toFloat() else FontWeight.Normal.weight.toFloat(),
+    val animatedWeight by animateIntAsState(
+        targetValue = if (isVisible) FontWeight.Bold.weight else FontWeight.Normal.weight,
         animationSpec = spring()
     )
 
@@ -66,26 +76,26 @@ fun EditorialMoment(
     ) {
         Column(
             modifier = Modifier
-                .padding(24.dp),
+                .padding(EditorialMomentDimens.padding),
             horizontalAlignment = Alignment.Start,
         ) {
             Text(
                 text = stringResource(R.string.todays_learning_spotlight),
                 style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight(animatedWeight.toInt()),
+                    fontWeight = FontWeight(animatedWeight),
                 ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(EditorialMomentDimens.spacer1))
             Text(
                 text = stringResource(R.string.spotlight_description),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(EditorialMomentDimens.spacer2))
             Button(
                 onClick = onStartLearningClick,
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(EditorialMomentDimens.buttonCorner),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiary
                 )
