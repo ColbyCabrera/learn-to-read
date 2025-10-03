@@ -59,7 +59,7 @@ fun HomeScreen(navController: NavController) {
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         EditorialMoment(
-            onStartLearningClick = { navController.navigate("phonetics") },
+            onStartLearningClick = { navController.navigate(menuItems.random().route) },
         )
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
