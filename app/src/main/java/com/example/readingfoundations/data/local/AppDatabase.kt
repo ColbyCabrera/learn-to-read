@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.readingfoundations.data.models.Phoneme
 import com.example.readingfoundations.data.models.Sentence
@@ -13,8 +14,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Word::class, Sentence::class, UserProgress::class, Phoneme::class], version = 2, exportSchema = false)
-
+@Database(entities = [Word::class, Sentence::class, UserProgress::class, Phoneme::class], version = 3, exportSchema = false)
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun wordDao(): WordDao
@@ -29,7 +30,6 @@ abstract class AppDatabase : RoomDatabase() {
         fun getDatabase(context: Context): AppDatabase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, AppDatabase::class.java, "reading_foundations_database")
-                    .fallbackToDestructiveMigration(true) // Handle schema changes by destroying old data
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)

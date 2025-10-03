@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.material.icons)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.savedstate)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.google.material)
 
@@ -73,6 +74,7 @@ dependencies {
     // Retrofit for placeholder RemoteDataSource
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+    implementation(libs.gson)
 
     // Testing
     testImplementation(libs.junit)

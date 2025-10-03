@@ -6,6 +6,6 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "user_progress")
 data class UserProgress(
     @PrimaryKey val id: Int = 1, // Singleton entry
-    val lastWordLevelCompleted: Int = 0,
-    val lastSentenceLevelCompleted: Int = 0
+    val wordLevels: List<Level> = emptyList(),
+    val sentenceLevels: List<Level> = emptyList()
 )

@@ -12,6 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.readingfoundations.data.models.Sentence
@@ -21,12 +24,25 @@ import com.example.readingfoundations.utils.TextToSpeechManager
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SentenceReadingScreen(
-    navController: NavController,
-    viewModel: SentenceReadingViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    navController: NavController
 ) {
+    val viewModel: SentenceReadingViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val ttsManager = remember { TextToSpeechManager(context) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(viewModel.navigationEvent, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.navigationEvent.collect { event ->
+                when (event) {
+                    is NavigationEvent.LevelComplete -> {
+                        navController.navigate("level_complete/${event.level}")
+                    }
+                }
+            }
+        }
+    }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -118,6 +134,22 @@ fun PracticeMode(
     val jumbledWords = remember(currentQuestion) { currentQuestion.text.split(" ").shuffled() }
     val assembledWords = remember(currentQuestion) { mutableStateListOf<String>() }
     val remainingWords = remember(currentQuestion) { mutableStateListOf(*jumbledWords.toTypedArray()) }
+
+    val progress = if (quizState.questions.isNotEmpty()) {
+        (quizState.currentQuestionIndex + 1).toFloat() / quizState.questions.size.toFloat()
+    } else {
+        0f
+    }
+    LinearProgressIndicator(
+        progress = { progress },
+        modifier = Modifier.fillMaxWidth()
+    )
+    Text(
+        text = "Question ${quizState.currentQuestionIndex + 1} of ${quizState.questions.size}",
+        style = MaterialTheme.typography.labelLarge,
+        modifier = Modifier.padding(vertical = 8.dp)
+    )
+    Spacer(modifier = Modifier.height(16.dp))
 
 
     Text("Unscramble the sentence:", style = MaterialTheme.typography.headlineMedium)

@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.readingfoundations.ui.screens.home.HomeScreen
+import com.example.readingfoundations.ui.screens.level_selection.LevelSelectionScreen
 import com.example.readingfoundations.ui.screens.phonetics.PhoneticsScreen
 import com.example.readingfoundations.ui.screens.punctuation.PunctuationScreen
 import com.example.readingfoundations.ui.screens.reading_sentence.SentenceReadingScreen
@@ -20,10 +21,32 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { HomeScreen(navController) }
         composable("phonetics") { PhoneticsScreen(navController) }
-        composable("word_building") { WordReadingScreen(navController) }
-        composable("sentence_reading") { SentenceReadingScreen(navController) }
         composable("punctuation") { PunctuationScreen(navController) }
         composable("settings") { SettingsScreen(navController) }
+
+        // Level Selection
+        composable(
+            "level_selection/{category}",
+            arguments = listOf(navArgument("category") { type = NavType.StringType })
+        ) {
+            LevelSelectionScreen(navController = navController)
+        }
+
+        // Reading Screens with Level
+        composable(
+            "word_reading/{levelNumber}",
+            arguments = listOf(navArgument("levelNumber") { type = NavType.IntType })
+        ) {
+            WordReadingScreen(navController = navController)
+        }
+        composable(
+            "sentence_reading/{levelNumber}",
+            arguments = listOf(navArgument("levelNumber") { type = NavType.IntType })
+        ) {
+            SentenceReadingScreen(navController = navController)
+        }
+
+        // Level Complete
         composable(
             "level_complete/{level}",
             arguments = listOf(navArgument("level") { type = NavType.IntType })

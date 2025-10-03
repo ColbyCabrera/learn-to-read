@@ -11,7 +11,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -19,22 +18,20 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.readingfoundations.data.models.Word
 import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
-import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordReadingScreen(
-    navController: NavController,
-    viewModel: WordReadingViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    navController: NavController
 ) {
+    val viewModel: WordReadingViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val ttsManager = remember { TextToSpeechManager(context) }
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     LaunchedEffect(viewModel.navigationEvent, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -47,12 +44,6 @@ fun WordReadingScreen(
             }
         }
     }
-
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    LaunchedEffect(currentBackStackEntry) {
-        viewModel.loadWords()
-    }
-
 
     DisposableEffect(Unit) {
         onDispose {
@@ -149,6 +140,22 @@ fun PracticeMode(
 
     val assembledAnswer = remember(currentQuestion) { mutableStateListOf<Char>() }
     val remainingLetters = remember(currentQuestion) { mutableStateListOf(*jumbledLetters.toTypedArray()) }
+
+    val progress = if (quizState.questions.isNotEmpty()) {
+        (quizState.currentQuestionIndex + 1).toFloat() / quizState.questions.size.toFloat()
+    } else {
+        0f
+    }
+    LinearProgressIndicator(
+        progress = { progress },
+        modifier = Modifier.fillMaxWidth()
+    )
+    Text(
+        text = "Question ${quizState.currentQuestionIndex + 1} of ${quizState.questions.size}",
+        style = MaterialTheme.typography.labelLarge,
+        modifier = Modifier.padding(vertical = 8.dp)
+    )
+    Spacer(modifier = Modifier.height(16.dp))
 
     Text("Unscramble the word:", style = MaterialTheme.typography.headlineMedium)
     Spacer(modifier = Modifier.height(16.dp))

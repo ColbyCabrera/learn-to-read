@@ -6,20 +6,22 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ChromeReaderMode
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.readingfoundations.R
+import com.example.readingfoundations.ui.AppViewModelProvider
 
 private data class MenuItem(
     val route: String,
@@ -30,13 +32,18 @@ private data class MenuItem(
 private val menuItems = listOf(
     MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver),
     MenuItem("word_building", R.string.word_building, Icons.Default.Construction),
-    MenuItem("sentence_reading", R.string.sentence_reading, Icons.Default.ChromeReaderMode),
+    MenuItem("sentence_reading", R.string.sentence_reading, Icons.AutoMirrored.Filled.ChromeReaderMode),
     MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote),
     MenuItem("settings", R.string.settings, Icons.Default.Settings)
 )
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController,
+    homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    val homeUiState by homeViewModel.homeUiState.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -54,7 +61,23 @@ fun HomeScreen(navController: NavController) {
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(menuItems) { item ->
-                MenuItemCard(item = item, onClick = { navController.navigate(item.route) })
+                val progress = when (item.route) {
+                    "word_building" -> homeUiState.wordCompletionPercentage
+                    "sentence_reading" -> homeUiState.sentenceCompletionPercentage
+                    else -> null
+                }
+                MenuItemCard(
+                    item = item,
+                    progress = progress,
+                    onClick = {
+                        val destination = if (item.route == "word_building" || item.route == "sentence_reading") {
+                            "level_selection/${item.route}"
+                        } else {
+                            item.route
+                        }
+                        navController.navigate(destination)
+                    }
+                )
             }
         }
     }
@@ -63,6 +86,7 @@ fun HomeScreen(navController: NavController) {
 @Composable
 private fun MenuItemCard(
     item: MenuItem,
+    progress: Float?,
     onClick: () -> Unit
 ) {
     Card(
@@ -88,6 +112,13 @@ private fun MenuItemCard(
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleMedium
             )
+            if (progress != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }

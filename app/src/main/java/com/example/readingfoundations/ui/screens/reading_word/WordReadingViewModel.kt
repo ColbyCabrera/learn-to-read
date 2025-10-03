@@ -1,5 +1,6 @@
 package com.example.readingfoundations.ui.screens.reading_word
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.readingfoundations.data.AppRepository
@@ -9,7 +10,12 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class WordReadingViewModel(private val appRepository: AppRepository) : ViewModel() {
+class WordReadingViewModel(
+    private val appRepository: AppRepository,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
+
+    private val level: Int = checkNotNull(savedStateHandle["levelNumber"])
 
     private val _uiState = MutableStateFlow(WordReadingUiState())
     val uiState: StateFlow<WordReadingUiState> = _uiState.asStateFlow()
@@ -21,14 +27,12 @@ class WordReadingViewModel(private val appRepository: AppRepository) : ViewModel
         loadWords()
     }
 
-    fun loadWords() {
+    private fun loadWords() {
         viewModelScope.launch {
-            val userProgress = appRepository.getUserProgress().first() ?: UserProgress()
-            val currentLevel = userProgress.lastWordLevelCompleted + 1
-            appRepository.getWordsByDifficulty(currentLevel).collect { words ->
+            appRepository.getWordsByDifficulty(level).collect { words ->
                 _uiState.value = WordReadingUiState(
                     words = words,
-                    currentLevel = currentLevel,
+                    currentLevel = level,
                     isPracticeMode = false,
                     quizState = null
                 )
@@ -54,9 +58,12 @@ class WordReadingViewModel(private val appRepository: AppRepository) : ViewModel
         val updatedQuestions = quizState.questions.toMutableList()
         updatedQuestions[quizState.currentQuestionIndex] = currentQuestion
 
+        val newCorrectAnswers = if (isCorrect) quizState.correctAnswers + 1 else quizState.correctAnswers
+
         val newQuizState = quizState.copy(
             questions = updatedQuestions,
-            isAnswerCorrect = isCorrect
+            isAnswerCorrect = isCorrect,
+            correctAnswers = newCorrectAnswers
         )
         _uiState.value = _uiState.value.copy(quizState = newQuizState)
     }
@@ -74,10 +81,17 @@ class WordReadingViewModel(private val appRepository: AppRepository) : ViewModel
             // Quiz finished
             viewModelScope.launch {
                 val userProgress = appRepository.getUserProgress().first() ?: UserProgress()
+                val updatedLevels = userProgress.wordLevels.map {
+                    if (it.levelNumber == level) {
+                        it.copy(questionsCorrect = quizState.correctAnswers, isCompleted = true)
+                    } else {
+                        it
+                    }
+                }
                 appRepository.updateUserProgress(
-                    userProgress.copy(lastWordLevelCompleted = _uiState.value.currentLevel)
+                    userProgress.copy(wordLevels = updatedLevels)
                 )
-                _navigationEvent.send(NavigationEvent.LevelComplete(_uiState.value.currentLevel))
+                _navigationEvent.send(NavigationEvent.LevelComplete(level))
             }
         }
     }
@@ -93,7 +107,8 @@ data class WordReadingUiState(
 data class QuizState(
     val questions: List<Word>,
     val currentQuestionIndex: Int,
-    val isAnswerCorrect: Boolean? = null
+    val isAnswerCorrect: Boolean? = null,
+    val correctAnswers: Int = 0
 )
 
 sealed class NavigationEvent {
