@@ -51,15 +51,12 @@ fun HomeScreen(navController: NavController) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(vertical = 16.dp)
         ) {
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             items(menuItems) { item ->
                 MenuItemCard(item = item, onClick = { navController.navigate(item.route) })
             }
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
