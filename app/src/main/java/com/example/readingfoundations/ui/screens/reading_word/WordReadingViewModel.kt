@@ -25,7 +25,7 @@ class WordReadingViewModel(
     private val _navigationEvent = Channel<NavigationEvent>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
-    private val level: Int = savedStateHandle.get<Int>("level")!!
+    private val level: Int = savedStateHandle.get<Int>("level") ?: 1
 
     init {
         loadWords(level)

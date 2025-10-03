@@ -7,7 +7,5 @@ import androidx.room.PrimaryKey
 data class UserProgress(
     @PrimaryKey val id: Int = 1, // Singleton entry
     val wordLevelsProgress: Map<Int, Int> = emptyMap(),
-    val sentenceLevelsProgress: Map<Int, Int> = emptyMap(),
-    val currentWordLevelInProgress: Int = 0,
-    val currentSentenceLevelInProgress: Int = 0
+    val sentenceLevelsProgress: Map<Int, Int> = emptyMap()
 )

@@ -59,7 +59,7 @@ fun HomeScreen(
             LevelSelection(
                 title = stringResource(R.string.word_building),
                 icon = Icons.Default.Construction,
-                numLevels = 5, // As per memory
+                numLevels = uiState.wordLevelCount,
                 progressMap = uiState.userProgress.wordLevelsProgress,
                 onLevelClick = { level -> navController.navigate("word_building/$level") }
             )
@@ -69,14 +69,13 @@ fun HomeScreen(
             LevelSelection(
                 title = stringResource(R.string.sentence_reading),
                 icon = Icons.AutoMirrored.Filled.ChromeReaderMode,
-                numLevels = 14, // As per memory
+                numLevels = uiState.sentenceLevelCount,
                 progressMap = uiState.userProgress.sentenceLevelsProgress,
                 onLevelClick = { level -> navController.navigate("sentence_reading/$level") }
             )
         }
 
-        items(staticMenuItems.size) { index ->
-            val item = staticMenuItems[index]
+        items(staticMenuItems) { item ->
             StaticMenuItemCard(
                 item = item,
                 onClick = { navController.navigate(item.route) }

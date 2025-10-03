@@ -14,6 +14,10 @@ interface DataSource {
 
     fun getSentencesByDifficulty(difficulty: Int): Flow<List<Sentence>>
 
+    fun getWordLevelCount(): Flow<Int>
+
+    fun getSentenceLevelCount(): Flow<Int>
+
     fun getUserProgress(): Flow<UserProgress?>
 
     suspend fun updateUserProgress(userProgress: UserProgress)

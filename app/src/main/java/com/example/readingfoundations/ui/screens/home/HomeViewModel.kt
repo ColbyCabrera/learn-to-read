@@ -6,22 +6,31 @@ import com.example.readingfoundations.data.AppRepository
 import com.example.readingfoundations.data.models.UserProgress
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
 class HomeViewModel(appRepository: AppRepository) : ViewModel() {
 
     val uiState: StateFlow<HomeUiState> =
-        appRepository.getUserProgress()
-            .map { it ?: UserProgress() }
-            .map { HomeUiState(it) }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = HomeUiState()
+        combine(
+            appRepository.getUserProgress(),
+            appRepository.getWordLevelCount(),
+            appRepository.getSentenceLevelCount()
+        ) { userProgress, wordLevelCount, sentenceLevelCount ->
+            HomeUiState(
+                userProgress = userProgress ?: UserProgress(),
+                wordLevelCount = wordLevelCount,
+                sentenceLevelCount = sentenceLevelCount
             )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = HomeUiState()
+        )
 }
 
 data class HomeUiState(
-    val userProgress: UserProgress = UserProgress()
+    val userProgress: UserProgress = UserProgress(),
+    val wordLevelCount: Int = 0,
+    val sentenceLevelCount: Int = 0
 )

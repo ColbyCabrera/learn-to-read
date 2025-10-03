@@ -15,6 +15,9 @@ interface WordDao {
     @Query("SELECT * FROM words WHERE difficulty = :difficulty ORDER BY RANDOM() LIMIT 10")
     fun getWordsByDifficulty(difficulty: Int): Flow<List<Word>>
 
+    @Query("SELECT MAX(difficulty) FROM words")
+    fun getHighestDifficulty(): Flow<Int>
+
     @Query("SELECT COUNT(*) FROM words")
     suspend fun getCount(): Int
 }

@@ -35,7 +35,7 @@ fun WordReadingScreen(
     val ttsManager = remember { TextToSpeechManager(context) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(viewModel.navigationEvent, lifecycleOwner) {
+    LaunchedEffect(Unit) {
         lifecycleOwner.lifecycleScope.launch {
             lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.navigationEvent.collect { event ->
@@ -81,8 +81,8 @@ fun WordReadingScreen(
                     CircularProgressIndicator()
                 }
             } else if (uiState.isPracticeMode && uiState.quizState != null) {
-                val quizState = uiState.quizState!!
-                val progress = (quizState.currentQuestionIndex.toFloat()) / quizState.questions.size
+                val quizState = uiState.quizState
+                val progress = (quizState.currentQuestionIndex + 1).toFloat() / quizState.questions.size
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     LinearProgressIndicator(
                         progress = { progress },
