@@ -2,16 +2,42 @@ package com.example.readingfoundations.ui.screens.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ChromeReaderMode
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Construction
+import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -61,8 +87,7 @@ fun HomeScreen(
                 icon = Icons.Default.Construction,
                 numLevels = uiState.wordLevelCount,
                 progressMap = uiState.userProgress.wordLevelsProgress,
-                onLevelClick = { level -> navController.navigate("word_building/$level") }
-            )
+                onLevelClick = { level -> navController.navigate("word_building/$level") })
         }
 
         item {
@@ -71,15 +96,12 @@ fun HomeScreen(
                 icon = Icons.AutoMirrored.Filled.ChromeReaderMode,
                 numLevels = uiState.sentenceLevelCount,
                 progressMap = uiState.userProgress.sentenceLevelsProgress,
-                onLevelClick = { level -> navController.navigate("sentence_reading/$level") }
-            )
+                onLevelClick = { level -> navController.navigate("sentence_reading/$level") })
         }
 
         items(items = staticMenuItems, key = { it.id }) { item ->
             StaticMenuItemCard(
-                item = item,
-                onClick = { navController.navigate(item.route) }
-            )
+                item = item, onClick = { navController.navigate(item.route) })
         }
     }
 }
@@ -95,9 +117,7 @@ private fun LevelSelection(
     var expanded by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = { expanded = !expanded }
-    ) {
+        modifier = Modifier.fillMaxWidth(), onClick = { expanded = !expanded }) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -125,8 +145,7 @@ private fun LevelSelection(
                         LevelCard(
                             level = levelNum,
                             progress = progress,
-                            onClick = { onLevelClick(levelNum) }
-                        )
+                            onClick = { onLevelClick(levelNum) })
                     }
                 }
             }
@@ -137,8 +156,7 @@ private fun LevelSelection(
 @Composable
 private fun LevelCard(level: Int, progress: Int, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.aspectRatio(1f),
-        onClick = onClick
+        modifier = Modifier.aspectRatio(1f), onClick = onClick
     ) {
         Box(contentAlignment = Alignment.Center) {
             CircularProgressIndicator(
@@ -169,7 +187,11 @@ private fun StaticMenuItemCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Icon(imageVector = item.icon, contentDescription = stringResource(item.title), modifier = Modifier.size(40.dp))
+            Icon(
+                imageVector = item.icon,
+                contentDescription = stringResource(item.title),
+                modifier = Modifier.size(40.dp)
+            )
             Text(text = stringResource(item.title), style = MaterialTheme.typography.titleLarge)
         }
     }

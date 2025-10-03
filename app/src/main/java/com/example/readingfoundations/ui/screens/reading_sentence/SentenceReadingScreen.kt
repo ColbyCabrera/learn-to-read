@@ -107,7 +107,7 @@ fun SentenceReadingScreen(
                     CircularProgressIndicator()
                 }
             } else if (uiState.isPracticeMode && uiState.quizState != null) {
-                val quizState = uiState.quizState
+                val quizState = uiState.quizState!!
                 val progress =
                     (quizState.currentQuestionIndex + 1).toFloat() / quizState.questions.size
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {

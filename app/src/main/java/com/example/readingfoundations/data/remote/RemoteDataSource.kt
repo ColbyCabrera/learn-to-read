@@ -72,6 +72,14 @@ class RemoteDataSource(/* private val ktorClient: HttpClient, private val retrof
 
         // Placeholder implementation
     }
+
+    override fun getWordLevelCount(): Flow<Int> {
+        return flow { emit(0) }
+    }
+
+    override fun getSentenceLevelCount(): Flow<Int> {
+        return flow { emit(0) }
+    }
 }
 
 /*

@@ -1,21 +1,49 @@
 package com.example.readingfoundations.ui.screens.reading_word
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -33,7 +61,7 @@ fun WordReadingScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val ttsManager = remember { TextToSpeechManager(context) }
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
     LaunchedEffect(Unit) {
         lifecycleOwner.lifecycleScope.launch {
@@ -65,10 +93,8 @@ fun WordReadingScreen(
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                }
-            )
-        }
-    ) { paddingValues ->
+                })
+        }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -81,12 +107,12 @@ fun WordReadingScreen(
                     CircularProgressIndicator()
                 }
             } else if (uiState.isPracticeMode && uiState.quizState != null) {
-                val quizState = uiState.quizState
-                val progress = (quizState.currentQuestionIndex + 1).toFloat() / quizState.questions.size
+                val quizState = uiState.quizState!!
+                val progress =
+                    (quizState.currentQuestionIndex + 1).toFloat() / quizState.questions.size
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     LinearProgressIndicator(
-                        progress = { progress },
-                        modifier = Modifier
+                        progress = { progress }, modifier = Modifier
                             .fillMaxWidth()
                             .height(8.dp)
                     )
@@ -100,15 +126,13 @@ fun WordReadingScreen(
                         quizState = quizState,
                         onAnswerSelected = { answer -> viewModel.submitAnswer(answer) },
                         onNextClicked = { viewModel.nextQuestion() },
-                        onSpeakClicked = { text -> ttsManager.speak(text) }
-                    )
+                        onSpeakClicked = { text -> ttsManager.speak(text) })
                 }
             } else {
                 LearnMode(
                     words = uiState.words,
                     onWordClicked = { word -> ttsManager.speak(word) },
-                    onStartPracticeClicked = { viewModel.startPractice() }
-                )
+                    onStartPracticeClicked = { viewModel.startPractice() })
             }
         }
     }
@@ -116,19 +140,15 @@ fun WordReadingScreen(
 
 @Composable
 fun LearnMode(
-    words: List<Word>,
-    onWordClicked: (String) -> Unit,
-    onStartPracticeClicked: () -> Unit
+    words: List<Word>, onWordClicked: (String) -> Unit, onStartPracticeClicked: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Learn these words:", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.weight(1f)
+            verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)
         ) {
             items(words) { word ->
                 Card(
@@ -165,14 +185,15 @@ fun PracticeMode(
     onSpeakClicked: (String) -> Unit
 ) {
     val currentQuestion = quizState.questions[quizState.currentQuestionIndex]
-    val jumbledLetters = remember(currentQuestion) { currentQuestion.text.toCharArray().toList().shuffled() }
+    val jumbledLetters =
+        remember(currentQuestion) { currentQuestion.text.toCharArray().toList().shuffled() }
 
     val assembledAnswer = remember(currentQuestion) { mutableStateListOf<Char>() }
-    val remainingLetters = remember(currentQuestion) { mutableStateListOf(*jumbledLetters.toTypedArray()) }
+    val remainingLetters =
+        remember(currentQuestion) { mutableStateListOf(*jumbledLetters.toTypedArray()) }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Unscramble the word:", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
@@ -219,8 +240,7 @@ fun PracticeMode(
         Spacer(modifier = Modifier.weight(1f))
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
         ) {
             Button(
                 onClick = { onAnswerSelected(assembledAnswer.joinToString("")) },
