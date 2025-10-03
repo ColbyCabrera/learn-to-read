@@ -40,13 +40,13 @@ fun HomeScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 96.dp, horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        Text(
-            text = stringResource(R.string.app_name),
-            style = MaterialTheme.typography.headlineLarge,
-            modifier = Modifier.padding(bottom = 32.dp)
+        EditorialMoment(
+            onStartLearningClick = { navController.navigate("phonetics") },
+            modifier = Modifier.padding(top = 72.dp)
         )
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
