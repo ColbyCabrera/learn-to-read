@@ -20,7 +20,10 @@ import com.example.readingfoundations.R
 
 @Composable
 fun LevelCompleteScreen(
-    navController: NavController, level: Int
+    navController: NavController,
+    level: Int,
+    score: Int,
+    totalQuestions: Int
 ) {
     Column(
         modifier = Modifier
@@ -37,14 +40,22 @@ fun LevelCompleteScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = stringResource(R.string.level_complete, level),
+            style = MaterialTheme.typography.headlineMedium,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "You scored $score out of $totalQuestions!",
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(32.dp))
         Button(onClick = {
-            navController.popBackStack()
+            navController.navigate("home") {
+                popUpTo("home") { inclusive = true }
+            }
         }) {
-            Text(stringResource(R.string.continue_button))
+            Text("Back to Home")
         }
     }
 }

@@ -11,7 +11,8 @@ class LocalDataSource(
     private val wordDao: WordDao,
     private val sentenceDao: SentenceDao,
     private val userProgressDao: UserProgressDao,
-    private val punctuationQuestionDao: PunctuationQuestionDao
+    private val punctuationQuestionDao: PunctuationQuestionDao,
+    private val phonemeDao: PhonemeDao
 ) : DataSource {
 
     override fun getAllPunctuationQuestions(): Flow<List<PunctuationQuestion>> {
@@ -24,6 +25,14 @@ class LocalDataSource(
 
     override fun getSentencesByDifficulty(difficulty: Int): Flow<List<Sentence>> {
         return sentenceDao.getSentencesByDifficulty(difficulty)
+    }
+
+    override fun getWordLevelCount(): Flow<Int> {
+        return wordDao.getHighestDifficulty()
+    }
+
+    override fun getSentenceLevelCount(): Flow<Int> {
+        return sentenceDao.getHighestDifficulty()
     }
 
     override fun getUserProgress(): Flow<UserProgress?> {

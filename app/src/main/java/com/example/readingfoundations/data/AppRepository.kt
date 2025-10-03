@@ -28,6 +28,14 @@ class AppRepository(
         return localDataSource.getSentencesByDifficulty(difficulty)
     }
 
+    override fun getWordLevelCount(): Flow<Int> {
+        return localDataSource.getWordLevelCount()
+    }
+
+    override fun getSentenceLevelCount(): Flow<Int> {
+        return localDataSource.getSentenceLevelCount()
+    }
+
     override fun getUserProgress(): Flow<UserProgress?> {
         return localDataSource.getUserProgress()
     }
