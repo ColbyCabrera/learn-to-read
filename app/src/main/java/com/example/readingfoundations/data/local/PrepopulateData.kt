@@ -1,10 +1,44 @@
 package com.example.readingfoundations.data.local
 
+import com.example.readingfoundations.data.models.PunctuationQuestion
 import com.example.readingfoundations.data.models.Phoneme
 import com.example.readingfoundations.data.models.Sentence
 import com.example.readingfoundations.data.models.Word
 
 object PrepopulateData {
+    val punctuationQuestions = listOf(
+        PunctuationQuestion(
+            text = "Which sentence uses commas correctly?",
+            options = listOf(
+                "Sarah, bought apples, oranges, and bananas.",
+                "Sarah bought apples, oranges, and bananas.",
+                "Sarah bought apples oranges and, bananas."
+            ),
+            correctAnswer = "Sarah bought apples, oranges, and bananas."
+        ),
+        PunctuationQuestion(
+            text = "Choose the correctly punctuated sentence:",
+            options = listOf(
+                "He said, \"I am going to the park.\"",
+                "He said \"I am going to the park.\"",
+                "He said, I am going to the park."
+            ),
+            correctAnswer = "He said, \"I am going to the park.\""
+        ),
+        PunctuationQuestion(
+            text = "Which sentence is correct?",
+            options = listOf(
+                "Its a beautiful day outside.",
+                "It's a beautiful day outside.",
+                "Its' a beautiful day outside."
+            ),
+            correctAnswer = "It's a beautiful day outside."
+        ),
+        PunctuationQuestion(
+            text = "Add the correct punctuation to the following sentence:\nI am so excited to go to the party",
+            correctAnswer = "I am so excited to go to the party!"
+        )
+    )
     val phonemes = listOf(
         // Phase 1: Individual Phonemes (Level 1)
         Phoneme(grapheme = "s", sound = "s", ttsText = "s as in sun", exampleWord = "sun", category = "CVC Phoneme", level = 1),

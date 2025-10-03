@@ -9,7 +9,8 @@ import androidx.navigation.navArgument
 import com.example.readingfoundations.ui.screens.home.HomeScreen
 import com.example.readingfoundations.ui.screens.level_selection.LevelSelectionScreen
 import com.example.readingfoundations.ui.screens.phonetics.PhoneticsScreen
-import com.example.readingfoundations.ui.screens.punctuation.PunctuationScreen
+import com.example.readingfoundations.ui.screens.punctuation.PunctuationPracticeScreen
+import com.example.readingfoundations.ui.screens.punctuation.QuizCompleteScreen
 import com.example.readingfoundations.ui.screens.reading_sentence.SentenceReadingScreen
 import com.example.readingfoundations.ui.screens.reading_word.LevelCompleteScreen
 import com.example.readingfoundations.ui.screens.reading_word.WordReadingScreen
@@ -21,7 +22,7 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { HomeScreen(navController) }
         composable("phonetics") { PhoneticsScreen(navController) }
-        composable("punctuation") { PunctuationScreen(navController) }
+        composable("punctuation") { PunctuationPracticeScreen(navController) }
         composable("settings") { SettingsScreen(navController) }
 
         // Level Selection
@@ -53,6 +54,23 @@ fun AppNavigation() {
         ) { backStackEntry ->
             val level = backStackEntry.arguments?.getInt("level") ?: 0
             LevelCompleteScreen(navController = navController, level = level)
+        }
+
+        // Quiz Complete
+        composable(
+            "quiz_complete/{score}/{totalQuestions}",
+            arguments = listOf(
+                navArgument("score") { type = NavType.IntType },
+                navArgument("totalQuestions") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val score = backStackEntry.arguments?.getInt("score") ?: 0
+            val totalQuestions = backStackEntry.arguments?.getInt("totalQuestions") ?: 0
+            QuizCompleteScreen(
+                navController = navController,
+                score = score,
+                totalQuestions = totalQuestions
+            )
         }
     }
 }

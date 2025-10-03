@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.readingfoundations.data.models.Phoneme
+import com.example.readingfoundations.data.models.PunctuationQuestion
 import com.example.readingfoundations.data.models.Sentence
 import com.example.readingfoundations.data.models.UserProgress
 import com.example.readingfoundations.data.models.Word
@@ -14,7 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Word::class, Sentence::class, UserProgress::class, Phoneme::class], version = 3, exportSchema = false)
+@Database(entities = [Word::class, Sentence::class, UserProgress::class, Phoneme::class, PunctuationQuestion::class], version = 3, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -22,6 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun sentenceDao(): SentenceDao
     abstract fun userProgressDao(): UserProgressDao
     abstract fun phonemeDao(): PhonemeDao
+    abstract fun punctuationQuestionDao(): PunctuationQuestionDao
 
     companion object {
         @Volatile
@@ -39,6 +41,7 @@ abstract class AppDatabase : RoomDatabase() {
                                     database.wordDao().insertAll(PrepopulateData.words)
                                     database.sentenceDao().insertAll(PrepopulateData.sentences)
                                     database.phonemeDao().insertAll(PrepopulateData.phonemes)
+                                    database.punctuationQuestionDao().insertAll(PrepopulateData.punctuationQuestions)
                                     // Initialize user progress
                                     database.userProgressDao().updateUserProgress(UserProgress())
                                 }

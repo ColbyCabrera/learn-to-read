@@ -7,7 +7,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ChromeReaderMode
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Construction
+import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -24,9 +27,7 @@ import com.example.readingfoundations.R
 import com.example.readingfoundations.ui.AppViewModelProvider
 
 private data class MenuItem(
-    val route: String,
-    val title: Int,
-    val icon: ImageVector
+    val route: String, val title: Int, val icon: ImageVector
 )
 
 private val menuItems = listOf(
@@ -47,18 +48,19 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 96.dp, horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(horizontal = 16.dp)
+            .statusBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        Text(
-            text = stringResource(R.string.app_name),
-            style = MaterialTheme.typography.headlineLarge,
-            modifier = Modifier.padding(bottom = 32.dp)
+        EditorialMoment(
+            onStartLearningClick = { navController.navigate(menuItems.filter { it.route != "settings" }.random().route) },
         )
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(vertical = 16.dp)
         ) {
             items(menuItems) { item ->
                 val progress = when (item.route) {
@@ -119,6 +121,31 @@ private fun MenuItemCard(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun EditorialMoment(
+    modifier: Modifier = Modifier,
+    onStartLearningClick: () -> Unit,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = stringResource(R.string.app_name),
+            style = MaterialTheme.typography.headlineLarge,
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = onStartLearningClick,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("Start Learning")
         }
     }
 }
