@@ -13,4 +13,7 @@
     <string name="back_button_desc">Back</string>
     <string name="stop_practice_desc">Stop Practice</string>
     <string name="start_practice_desc">Start Practice</string>
+    <string name="todays_learning_spotlight">Today\'s Learning Spotlight</string>
+    <string name="spotlight_description">Jump into a quick lesson to build your skills.</string>
+    <string name="start_learning">Start Learning</string>
 </resources>
