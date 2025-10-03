@@ -16,7 +16,7 @@ import androidx.navigation.NavController
 import com.example.readingfoundations.ui.AppViewModelProvider
 import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PunctuationPracticeScreen(
     navController: NavController,
@@ -58,7 +58,7 @@ fun PunctuationPracticeScreen(
         ) {
             if (uiState.questions.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    CircularWavyProgressIndicator()
                 }
             } else {
                 PunctuationQuestionCard(

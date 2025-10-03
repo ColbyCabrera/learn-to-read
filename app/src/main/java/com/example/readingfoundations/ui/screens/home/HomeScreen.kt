@@ -28,7 +28,8 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.CircularWavyProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -153,16 +154,16 @@ private fun LevelSelection(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun LevelCard(level: Int, progress: Int, onClick: () -> Unit) {
     Card(
         modifier = Modifier.aspectRatio(1f), onClick = onClick
     ) {
         Box(contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(
-                progress = { progress / 100f },
+            CircularWavyProgressIndicator(
+                progress = { progress.toFloat() / 100f },
                 modifier = Modifier.fillMaxSize(0.8f),
-                strokeWidth = 4.dp
             )
             Text(
                 text = level.toString(),
