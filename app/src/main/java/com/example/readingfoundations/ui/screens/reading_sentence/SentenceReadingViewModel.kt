@@ -1,35 +1,42 @@
 package com.example.readingfoundations.ui.screens.reading_sentence
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.readingfoundations.data.AppRepository
 import com.example.readingfoundations.data.models.Sentence
 import com.example.readingfoundations.data.models.UserProgress
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-class SentenceReadingViewModel(private val appRepository: AppRepository) : ViewModel() {
+class SentenceReadingViewModel(
+    private val appRepository: AppRepository,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SentenceReadingUiState())
     val uiState: StateFlow<SentenceReadingUiState> = _uiState.asStateFlow()
 
+    private val _navigationEvent = Channel<NavigationEvent>()
+    val navigationEvent = _navigationEvent.receiveAsFlow()
+
+    private val level: Int = savedStateHandle.get<Int>("level")!!
+
     init {
-        loadSentences()
+        loadSentences(level)
     }
 
-    private fun loadSentences() {
+    private fun loadSentences(level: Int) {
         viewModelScope.launch {
-            val userProgress = appRepository.getUserProgress().first() ?: UserProgress()
-            val currentLevel = userProgress.lastSentenceLevelCompleted + 1
-            appRepository.getSentencesByDifficulty(currentLevel).collect { sentences ->
+            appRepository.getSentencesByDifficulty(level).collect { sentences ->
                 _uiState.value = SentenceReadingUiState(
                     sentences = sentences,
-                    currentLevel = currentLevel,
-                    isPracticeMode = false,
-                    quizState = null
+                    currentLevel = level
                 )
             }
         }
@@ -40,7 +47,8 @@ class SentenceReadingViewModel(private val appRepository: AppRepository) : ViewM
             isPracticeMode = true,
             quizState = SentenceQuizState(
                 questions = _uiState.value.sentences.shuffled(),
-                currentQuestionIndex = 0
+                currentQuestionIndex = 0,
+                score = 0
             )
         )
     }
@@ -48,10 +56,16 @@ class SentenceReadingViewModel(private val appRepository: AppRepository) : ViewM
     fun submitAnswer(answer: String) {
         val quizState = _uiState.value.quizState ?: return
         val currentQuestion = quizState.questions[quizState.currentQuestionIndex]
-        val isCorrect = currentQuestion.text.equals(answer, ignoreCase = true)
+        val isCorrect = currentQuestion.text.equals(answer.trim(), ignoreCase = true)
 
-        val newQuizState = quizState.copy(isAnswerCorrect = isCorrect)
-        _uiState.value = _uiState.value.copy(quizState = newQuizState)
+        val newScore = if (isCorrect) quizState.score + 1 else quizState.score
+
+        _uiState.value = _uiState.value.copy(
+            quizState = quizState.copy(
+                isAnswerCorrect = isCorrect,
+                score = newScore
+            )
+        )
     }
 
     fun nextQuestion() {
@@ -67,10 +81,23 @@ class SentenceReadingViewModel(private val appRepository: AppRepository) : ViewM
             // Quiz finished
             viewModelScope.launch {
                 val userProgress = appRepository.getUserProgress().first() ?: UserProgress()
+                val score = quizState.score
+                val totalQuestions = quizState.questions.size
+                val progressPercentage = (score.toFloat() / totalQuestions * 100).toInt()
+
+                val updatedProgress = userProgress.sentenceLevelsProgress.toMutableMap()
+                updatedProgress[level] = progressPercentage
+
                 appRepository.updateUserProgress(
-                    userProgress.copy(lastSentenceLevelCompleted = _uiState.value.currentLevel)
+                    userProgress.copy(sentenceLevelsProgress = updatedProgress)
                 )
-                loadSentences() // Load next level
+                _navigationEvent.send(
+                    NavigationEvent.LevelComplete(
+                        level = level,
+                        score = score,
+                        totalQuestions = totalQuestions
+                    )
+                )
             }
         }
     }
@@ -86,5 +113,11 @@ data class SentenceReadingUiState(
 data class SentenceQuizState(
     val questions: List<Sentence>,
     val currentQuestionIndex: Int,
+    val score: Int = 0,
     val isAnswerCorrect: Boolean? = null
 )
+
+sealed class NavigationEvent {
+    data class LevelComplete(val level: Int, val score: Int, val totalQuestions: Int) :
+        NavigationEvent()
+}

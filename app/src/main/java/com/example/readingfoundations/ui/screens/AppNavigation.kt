@@ -21,16 +21,37 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { HomeScreen(navController) }
         composable("phonetics") { PhoneticsScreen(navController) }
-        composable("word_building") { WordReadingScreen(navController) }
-        composable("sentence_reading") { SentenceReadingScreen(navController) }
+        composable(
+            "word_building/{level}",
+            arguments = listOf(navArgument("level") { type = NavType.IntType })
+        ) {
+            WordReadingScreen(navController)
+        }
+        composable(
+            "sentence_reading/{level}",
+            arguments = listOf(navArgument("level") { type = NavType.IntType })
+        ) {
+            SentenceReadingScreen(navController)
+        }
         composable("punctuation") { PunctuationPracticeScreen(navController) }
         composable("settings") { SettingsScreen(navController) }
         composable(
-            "level_complete/{level}",
-            arguments = listOf(navArgument("level") { type = NavType.IntType })
+            "level_complete/{level}/{score}/{totalQuestions}",
+            arguments = listOf(
+                navArgument("level") { type = NavType.IntType },
+                navArgument("score") { type = NavType.IntType },
+                navArgument("totalQuestions") { type = NavType.IntType }
+            )
         ) { backStackEntry ->
             val level = backStackEntry.arguments?.getInt("level") ?: 0
-            LevelCompleteScreen(navController = navController, level = level)
+            val score = backStackEntry.arguments?.getInt("score") ?: 0
+            val totalQuestions = backStackEntry.arguments?.getInt("totalQuestions") ?: 0
+            LevelCompleteScreen(
+                navController = navController,
+                level = level,
+                score = score,
+                totalQuestions = totalQuestions
+            )
         }
         composable(
             "quiz_complete/{score}/{totalQuestions}",

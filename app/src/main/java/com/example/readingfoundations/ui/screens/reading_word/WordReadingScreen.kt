@@ -15,15 +15,14 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.readingfoundations.data.models.Word
 import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,28 +30,26 @@ fun WordReadingScreen(
     navController: NavController,
     viewModel: WordReadingViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val ttsManager = remember { TextToSpeechManager(context) }
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     LaunchedEffect(viewModel.navigationEvent, lifecycleOwner) {
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.navigationEvent.collect { event ->
-                when (event) {
-                    is NavigationEvent.LevelComplete -> {
-                        navController.navigate("level_complete/${event.level}")
+        lifecycleOwner.lifecycleScope.launch {
+            lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.navigationEvent.collect { event ->
+                    when (event) {
+                        is NavigationEvent.LevelComplete -> {
+                            navController.navigate("level_complete/${event.level}/${event.score}/${event.totalQuestions}") {
+                                popUpTo("home")
+                            }
+                        }
                     }
                 }
             }
         }
     }
-
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    LaunchedEffect(currentBackStackEntry) {
-        viewModel.loadWords()
-    }
-
 
     DisposableEffect(Unit) {
         onDispose {
@@ -84,12 +81,28 @@ fun WordReadingScreen(
                     CircularProgressIndicator()
                 }
             } else if (uiState.isPracticeMode && uiState.quizState != null) {
-                PracticeMode(
-                    quizState = uiState.quizState!!,
-                    onAnswerSelected = { answer -> viewModel.submitAnswer(answer) },
-                    onNextClicked = { viewModel.nextQuestion() },
-                    onSpeakClicked = { text -> ttsManager.speak(text) }
-                )
+                val quizState = uiState.quizState!!
+                val progress = (quizState.currentQuestionIndex.toFloat()) / quizState.questions.size
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                    )
+                    Text(
+                        text = "Word ${quizState.currentQuestionIndex + 1} of ${quizState.questions.size}",
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    PracticeMode(
+                        quizState = quizState,
+                        onAnswerSelected = { answer -> viewModel.submitAnswer(answer) },
+                        onNextClicked = { viewModel.nextQuestion() },
+                        onSpeakClicked = { text -> ttsManager.speak(text) }
+                    )
+                }
             } else {
                 LearnMode(
                     words = uiState.words,
@@ -107,7 +120,10 @@ fun LearnMode(
     onWordClicked: (String) -> Unit,
     onStartPracticeClicked: () -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text("Learn these words:", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(
@@ -130,7 +146,11 @@ fun LearnMode(
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onStartPracticeClicked, enabled = words.isNotEmpty()) {
+        Button(
+            onClick = onStartPracticeClicked,
+            enabled = words.isNotEmpty(),
+            modifier = Modifier.fillMaxWidth(0.5f)
+        ) {
             Text("Start Practice")
         }
     }
@@ -150,76 +170,85 @@ fun PracticeMode(
     val assembledAnswer = remember(currentQuestion) { mutableStateListOf<Char>() }
     val remainingLetters = remember(currentQuestion) { mutableStateListOf(*jumbledLetters.toTypedArray()) }
 
-    Text("Unscramble the word:", style = MaterialTheme.typography.headlineMedium)
-    Spacer(modifier = Modifier.height(16.dp))
-
-    Button(onClick = { onSpeakClicked(currentQuestion.text) }) {
-        Text("Hear the word")
-    }
-    Spacer(modifier = Modifier.height(16.dp))
-
-    // Assembled answer display
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = 60.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = assembledAnswer.joinToString(" "),
-            style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center,
+        Text("Unscramble the word:", style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = { onSpeakClicked(currentQuestion.text) }) {
+            Text("Hear the word")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Assembled answer display
+        Card(
             modifier = Modifier
-                .padding(16.dp)
                 .fillMaxWidth()
-        )
-    }
-    Spacer(modifier = Modifier.height(24.dp))
+                .defaultMinSize(minHeight = 60.dp),
+            elevation = CardDefaults.cardElevation(4.dp)
+        ) {
+            Text(
+                text = assembledAnswer.joinToString(" "),
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+            )
+        }
+        Spacer(modifier = Modifier.height(24.dp))
 
-    // Jumbled letter bank
-    FlowRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        remainingLetters.forEachIndexed { index, char ->
-            Button(onClick = {
-                assembledAnswer.add(char)
-                remainingLetters.removeAt(index)
-            }) {
-                Text(char.toString(), style = MaterialTheme.typography.headlineMedium)
+        // Jumbled letter bank
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            remainingLetters.forEachIndexed { index, char ->
+                Button(onClick = {
+                    assembledAnswer.add(char)
+                    remainingLetters.removeAt(index)
+                }) {
+                    Text(char.toString(), style = MaterialTheme.typography.headlineMedium)
+                }
             }
         }
-    }
-    Spacer(modifier = Modifier.height(24.dp))
 
-    Row {
-        Button(
-            onClick = { onAnswerSelected(assembledAnswer.joinToString("")) },
-            enabled = quizState.isAnswerCorrect == null && remainingLetters.isEmpty()
+        Spacer(modifier = Modifier.weight(1f))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
         ) {
-            Text("Submit")
+            Button(
+                onClick = { onAnswerSelected(assembledAnswer.joinToString("")) },
+                enabled = quizState.isAnswerCorrect == null && remainingLetters.isEmpty()
+            ) {
+                Text("Submit")
+            }
+            Spacer(Modifier.width(8.dp))
+            Button(onClick = {
+                assembledAnswer.clear()
+                remainingLetters.clear()
+                remainingLetters.addAll(jumbledLetters)
+            }) {
+                Text("Reset")
+            }
         }
-        Spacer(Modifier.width(8.dp))
-        Button(onClick = {
-            assembledAnswer.clear()
-            remainingLetters.clear()
-            remainingLetters.addAll(jumbledLetters)
-        }) {
-            Text("Reset")
-        }
-    }
 
-    quizState.isAnswerCorrect?.let { isCorrect ->
-        Text(
-            text = if (isCorrect) "Correct!" else "Incorrect. Try again!",
-            color = if (isCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(top = 16.dp)
-        )
-        if (isCorrect) {
-            Button(onClick = onNextClicked, modifier = Modifier.padding(top = 8.dp)) {
-                Text("Next Word")
+        quizState.isAnswerCorrect?.let { isCorrect ->
+            Text(
+                text = if (isCorrect) "Correct!" else "Incorrect. Try again!",
+                color = if (isCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+            if (isCorrect) {
+                Button(onClick = onNextClicked, modifier = Modifier.padding(top = 8.dp)) {
+                    Text("Next Word")
+                }
             }
         }
     }
