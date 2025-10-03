@@ -1,12 +1,24 @@
 package com.example.readingfoundations.ui.screens.home
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.ChromeReaderMode
+import androidx.compose.material.icons.filled.Construction
+import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -22,15 +34,15 @@ import androidx.navigation.NavController
 import com.example.readingfoundations.R
 
 private data class MenuItem(
-    val route: String,
-    val title: Int,
-    val icon: ImageVector
+    val route: String, val title: Int, val icon: ImageVector
 )
 
 private val menuItems = listOf(
     MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver),
     MenuItem("word_building", R.string.word_building, Icons.Default.Construction),
-    MenuItem("sentence_reading", R.string.sentence_reading, Icons.Default.ChromeReaderMode),
+    MenuItem(
+        "sentence_reading", R.string.sentence_reading, Icons.AutoMirrored.Filled.ChromeReaderMode
+    ),
     MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote),
     MenuItem("settings", R.string.settings, Icons.Default.Settings)
 )
@@ -63,8 +75,7 @@ fun HomeScreen(navController: NavController) {
 
 @Composable
 private fun MenuItemCard(
-    item: MenuItem,
-    onClick: () -> Unit
+    item: MenuItem, onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
