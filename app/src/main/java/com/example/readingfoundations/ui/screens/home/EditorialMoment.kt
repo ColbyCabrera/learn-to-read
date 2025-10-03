@@ -3,7 +3,6 @@ package com.example.readingfoundations.ui.screens.home
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -69,7 +68,6 @@ fun EditorialMoment(
             modifier = Modifier
                 .padding(24.dp),
             horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
                 text = stringResource(R.string.todays_learning_spotlight),
@@ -78,12 +76,13 @@ fun EditorialMoment(
                 ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = stringResource(R.string.spotlight_description),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             Button(
                 onClick = onStartLearningClick,
                 shape = RoundedCornerShape(12.dp),

@@ -40,7 +40,7 @@ fun HomeScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
@@ -53,9 +53,13 @@ fun HomeScreen(navController: NavController) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             items(menuItems) { item ->
                 MenuItemCard(item = item, onClick = { navController.navigate(item.route) })
             }
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
