@@ -2,6 +2,7 @@ package com.example.readingfoundations.ui.screens.home
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -39,17 +40,17 @@ fun EditorialMoment(
 
     val alpha by animateFloatAsState(
         targetValue = if (isVisible) 1f else 0f,
-        animationSpec = tween(durationMillis = 1000)
+        animationSpec = spring()
     )
 
     val cornerRadius by animateDpAsState(
         targetValue = if (isVisible) 24.dp else 8.dp,
-        animationSpec = tween(durationMillis = 800)
+        animationSpec = spring()
     )
 
     val animatedWeight by animateFloatAsState(
         targetValue = if (isVisible) FontWeight.Bold.weight.toFloat() else FontWeight.Normal.weight.toFloat(),
-        animationSpec = tween(durationMillis = 1200)
+        animationSpec = spring()
     )
 
     LaunchedEffect(Unit) {
