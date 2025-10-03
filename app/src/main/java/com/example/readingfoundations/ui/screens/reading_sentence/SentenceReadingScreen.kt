@@ -34,7 +34,7 @@ fun SentenceReadingScreen(
     val ttsManager = remember { TextToSpeechManager(context) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(viewModel.navigationEvent, lifecycleOwner) {
+    LaunchedEffect(Unit) {
         lifecycleOwner.lifecycleScope.launch {
             lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.navigationEvent.collect { event ->

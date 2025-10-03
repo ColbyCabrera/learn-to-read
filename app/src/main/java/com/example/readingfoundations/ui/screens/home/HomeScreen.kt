@@ -75,7 +75,7 @@ fun HomeScreen(
             )
         }
 
-        items(staticMenuItems) { item ->
+        items(items = staticMenuItems, key = { it.id }) { item ->
             StaticMenuItemCard(
                 item = item,
                 onClick = { navController.navigate(item.route) }
@@ -108,7 +108,7 @@ private fun LevelSelection(
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
                     imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = null
+                    contentDescription = if (expanded) "Collapse" else "Expand"
                 )
             }
             AnimatedVisibility(visible = expanded) {
@@ -169,7 +169,7 @@ private fun StaticMenuItemCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Icon(imageVector = item.icon, contentDescription = null, modifier = Modifier.size(40.dp))
+            Icon(imageVector = item.icon, contentDescription = stringResource(item.title), modifier = Modifier.size(40.dp))
             Text(text = stringResource(item.title), style = MaterialTheme.typography.titleLarge)
         }
     }

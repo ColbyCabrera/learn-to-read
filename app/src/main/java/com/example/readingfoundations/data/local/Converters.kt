@@ -20,12 +20,12 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromStringMap(value: String?): Map<Int, Int>? {
+    fun fromStringToMap(value: String?): Map<Int, Int>? {
         return value?.let { gson.fromJson(it, mapIntIntType) }
     }
 
     @TypeConverter
-    fun fromMap(map: Map<Int, Int>?): String? {
+    fun fromMapToString(map: Map<Int, Int>?): String? {
         return map?.let { gson.toJson(it, mapIntIntType) }
     }
 }
