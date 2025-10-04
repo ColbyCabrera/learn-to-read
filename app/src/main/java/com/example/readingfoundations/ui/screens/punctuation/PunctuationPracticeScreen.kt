@@ -84,6 +84,11 @@ fun PunctuationQuestionCard(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        LinearProgressIndicator(
+            progress = { uiState.progress },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "Question ${uiState.currentQuestionIndex + 1} of ${uiState.questions.size}",
             style = MaterialTheme.typography.titleMedium

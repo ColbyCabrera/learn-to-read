@@ -35,11 +35,18 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
         val currentState = _uiState.value
         val currentQuestion = currentState.questions[currentState.currentQuestionIndex]
         val isCorrect = currentQuestion.correctAnswer.equals(answer.trim(), ignoreCase = true)
+        val newScore = if (isCorrect) currentState.score + 1 else currentState.score
+        val progress = if (currentState.questions.isNotEmpty()) {
+            newScore.toFloat() / currentState.questions.size
+        } else {
+            0f
+        }
 
         _uiState.value = currentState.copy(
             isAnswerSubmitted = true,
             isAnswerCorrect = isCorrect,
-            score = if (isCorrect) currentState.score + 1 else currentState.score
+            score = newScore,
+            progress = progress
         )
     }
 
@@ -65,7 +72,8 @@ data class PunctuationUiState(
     val currentQuestionIndex: Int = 0,
     val isAnswerSubmitted: Boolean = false,
     val isAnswerCorrect: Boolean = false,
-    val score: Int = 0
+    val score: Int = 0,
+    val progress: Float = 0f
 )
 
 sealed class NavigationEvent {
