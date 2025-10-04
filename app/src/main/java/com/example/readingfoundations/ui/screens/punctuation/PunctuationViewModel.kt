@@ -58,6 +58,13 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
             }
         }
     }
+
+    fun tryAgain() {
+        _uiState.value = _uiState.value.copy(
+            isAnswerSubmitted = false,
+            isAnswerCorrect = false
+        )
+    }
 }
 
 data class PunctuationUiState(

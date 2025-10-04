@@ -64,7 +64,8 @@ fun PunctuationPracticeScreen(
                 PunctuationQuestionCard(
                     uiState = uiState,
                     onAnswerSelected = { answer -> viewModel.submitAnswer(answer) },
-                    onNextClicked = { viewModel.nextQuestion() }
+                    onNextClicked = { viewModel.nextQuestion() },
+                    onTryAgainClicked = viewModel::tryAgain
                 )
             }
         }
@@ -75,7 +76,8 @@ fun PunctuationPracticeScreen(
 fun PunctuationQuestionCard(
     uiState: PunctuationUiState,
     onAnswerSelected: (String) -> Unit,
-    onNextClicked: () -> Unit
+    onNextClicked: () -> Unit,
+    onTryAgainClicked: () -> Unit
 ) {
     val question = uiState.questions.getOrNull(uiState.currentQuestionIndex) ?: return
     var userAnswer by remember { mutableStateOf("") }
@@ -130,8 +132,19 @@ fun PunctuationQuestionCard(
                 style = MaterialTheme.typography.headlineMedium
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = onNextClicked) {
-                Text(if (uiState.currentQuestionIndex < uiState.questions.size - 1) "Next" else "Finish")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                if (uiState.isAnswerCorrect) {
+                    Button(onClick = onNextClicked) {
+                        Text(if (uiState.currentQuestionIndex < uiState.questions.size - 1) "Next" else "Finish")
+                    }
+                } else {
+                    Button(onClick = onTryAgainClicked) {
+                        Text("Try Again")
+                    }
+                }
             }
         }
     }
