@@ -1,5 +1,6 @@
 package com.example.readingfoundations.ui.screens.punctuation
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -7,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,23 +51,26 @@ fun PunctuationPracticeScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            contentAlignment = Alignment.Center
         ) {
             if (uiState.questions.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
+                CircularProgressIndicator()
             } else {
-                PunctuationQuestionCard(
-                    uiState = uiState,
-                    onAnswerSelected = { answer -> viewModel.submitAnswer(answer) },
-                    onNextClicked = { viewModel.nextQuestion() }
-                )
+                AnimatedContent(
+                    targetState = uiState.currentQuestionIndex,
+                    label = "question"
+                ) {
+                    PunctuationQuestionCard(
+                        uiState = uiState,
+                        onAnswerSelected = { answer -> viewModel.submitAnswer(answer) },
+                        onNextClicked = { viewModel.nextQuestion() }
+                    )
+                }
             }
         }
     }
@@ -78,60 +83,77 @@ fun PunctuationQuestionCard(
     onNextClicked: () -> Unit
 ) {
     val question = uiState.questions.getOrNull(uiState.currentQuestionIndex) ?: return
-    var userAnswer by remember { mutableStateOf("") }
+    var userAnswer by remember(question) { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Text(
-            text = "Question ${uiState.currentQuestionIndex + 1} of ${uiState.questions.size}",
-            style = MaterialTheme.typography.titleMedium
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = question.text,
-            style = MaterialTheme.typography.headlineSmall
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-
-        if (question.options.isNullOrEmpty()) {
-            OutlinedTextField(
-                value = userAnswer,
-                onValueChange = { userAnswer = it },
-                label = { Text("Your answer") },
-                modifier = Modifier.fillMaxWidth()
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Question ${uiState.currentQuestionIndex + 1} of ${uiState.questions.size}",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = { onAnswerSelected(userAnswer) },
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                enabled = !uiState.isAnswerSubmitted
-            ) {
-                Text(text = "Submit")
-            }
-        } else {
-            question.options.forEach { option ->
-                Button(
-                    onClick = { onAnswerSelected(option) },
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                    enabled = !uiState.isAnswerSubmitted,
-                ) {
-                    Text(text = option)
-                }
-            }
-        }
-
-        if (uiState.isAnswerSubmitted) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = if (uiState.isAnswerCorrect) "Correct!" else "Incorrect!",
-                color = if (uiState.isAnswerCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.headlineMedium
+                text = question.text,
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = onNextClicked) {
-                Text(if (uiState.currentQuestionIndex < uiState.questions.size - 1) "Next" else "Finish")
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (question.options.isNullOrEmpty()) {
+                OutlinedTextField(
+                    value = userAnswer,
+                    onValueChange = { userAnswer = it },
+                    label = { Text("Your answer") },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = uiState.isAnswerSubmitted
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = { onAnswerSelected(userAnswer) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    enabled = !uiState.isAnswerSubmitted && userAnswer.isNotBlank()
+                ) {
+                    Text(text = "Submit")
+                }
+            } else {
+                question.options.forEach { option ->
+                    FilledTonalButton(
+                        onClick = { onAnswerSelected(option) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        enabled = !uiState.isAnswerSubmitted,
+                    ) {
+                        Text(text = option)
+                    }
+                }
+            }
+
+            if (uiState.isAnswerSubmitted) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = if (uiState.isAnswerCorrect) "Correct!" else "Incorrect! The answer is: ${question.correctAnswer}",
+                    color = if (uiState.isAnswerCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = onNextClicked, modifier = Modifier.fillMaxWidth()) {
+                    Text(if (uiState.currentQuestionIndex < uiState.questions.size - 1) "Next Question" else "Finish Quiz")
+                }
             }
         }
     }

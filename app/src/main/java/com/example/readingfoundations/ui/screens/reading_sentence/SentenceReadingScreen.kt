@@ -6,11 +6,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Backspace
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -106,7 +108,7 @@ fun LearnMode(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun PracticeMode(
     quizState: SentenceQuizState,
@@ -120,86 +122,122 @@ fun PracticeMode(
     val remainingWords = remember(currentQuestion) { mutableStateListOf(*jumbledWords.toTypedArray()) }
 
 
-    Text("Unscramble the sentence:", style = MaterialTheme.typography.headlineMedium)
-    Spacer(modifier = Modifier.height(16.dp))
-
-    Button(onClick = { onSpeakClicked(currentQuestion.text) }) {
-        Text("Hear the sentence")
-    }
-    Spacer(modifier = Modifier.height(16.dp))
-
-    // Assembled sentence display
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = 100.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        FlowRow(
-            modifier = Modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            assembledWords.forEachIndexed { index, word ->
-                Button(
-                    onClick = {
-                        remainingWords.add(word)
-                        assembledWords.removeAt(index)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-                ) {
-                    Text(word)
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                "Unscramble the sentence:",
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedButton(onClick = { onSpeakClicked(currentQuestion.text) }) {
+                Text("Hear the sentence")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Assembled sentence display
+            OutlinedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 100.dp),
+            ) {
+                if (assembledWords.isEmpty()) {
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                        Text(
+                            text = "Tap words below to build the sentence",
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                } else {
+                    FlowRow(
+                        modifier = Modifier.padding(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        assembledWords.forEach { word ->
+                            Text(
+                                text = word,
+                                style = MaterialTheme.typography.titleLarge,
+                            )
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Jumbled words bank
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                remainingWords.forEachIndexed { index, word ->
+                    FilledTonalButton(onClick = {
+                        assembledWords.add(word)
+                        remainingWords.removeAt(index)
+                    }) {
+                        Text(word)
+                    }
                 }
             }
         }
-    }
-    Spacer(modifier = Modifier.height(16.dp))
 
-    // Jumbled words bank
-    FlowRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        remainingWords.forEachIndexed { index, word ->
-            Button(onClick = {
-                assembledWords.add(word)
-                remainingWords.removeAt(index)
-            }) {
-                Text(word)
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            quizState.isAnswerCorrect?.let { isCorrect ->
+                Text(
+                    text = if (isCorrect) "Correct!" else "Incorrect. The answer is: ${currentQuestion.text}",
+                    color = if (isCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    textAlign = TextAlign.Center
+                )
+                Button(onClick = onNextClicked, modifier = Modifier.fillMaxWidth()) {
+                    Text("Next Sentence")
+                }
             }
-        }
-    }
-    Spacer(modifier = Modifier.height(24.dp))
 
-    Row {
-        Button(
-            onClick = { onAnswerSubmitted(assembledWords.joinToString(" ")) },
-            enabled = quizState.isAnswerCorrect == null && remainingWords.isEmpty()
-        ) {
-            Text("Submit")
-        }
-        Spacer(Modifier.width(8.dp))
-        Button(onClick = {
-            assembledWords.clear()
-            remainingWords.clear()
-            remainingWords.addAll(jumbledWords)
-        }) {
-            Text("Reset")
-        }
-    }
-
-
-    quizState.isAnswerCorrect?.let { isCorrect ->
-        Text(
-            text = if (isCorrect) "Correct!" else "Incorrect. Try again!",
-            color = if (isCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(top = 16.dp)
-        )
-        if (isCorrect) {
-            Button(onClick = onNextClicked, modifier = Modifier.padding(top = 8.dp)) {
-                Text("Next Sentence")
+            if (quizState.isAnswerCorrect == null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(
+                        onClick = { onAnswerSubmitted(assembledWords.joinToString(" ")) },
+                        enabled = remainingWords.isEmpty(),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Submit")
+                    }
+                    OutlinedButton(onClick = {
+                        assembledWords.clear()
+                        remainingWords.clear()
+                        remainingWords.addAll(jumbledWords)
+                    }) {
+                        Text("Reset")
+                    }
+                    IconButton(
+                        onClick = {
+                            if (assembledWords.isNotEmpty()) {
+                                val lastWord = assembledWords.removeLast()
+                                remainingWords.add(lastWord)
+                            }
+                        },
+                        enabled = assembledWords.isNotEmpty()
+                    ) {
+                        Icon(Icons.Outlined.Backspace, contentDescription = "Backspace")
+                    }
+                }
             }
         }
     }
