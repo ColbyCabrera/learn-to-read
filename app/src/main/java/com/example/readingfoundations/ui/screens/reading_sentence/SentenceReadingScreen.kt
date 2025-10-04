@@ -123,7 +123,6 @@ fun SentenceReadingScreen(
                         stroke = Stroke(
                            width = WavyProgressIndicatorDefaults.linearIndicatorStroke.width * 2,
                             cap = StrokeCap.Round,
-
                         ),
                         trackStroke = Stroke(
                             width = WavyProgressIndicatorDefaults.linearTrackStroke.width * 2,

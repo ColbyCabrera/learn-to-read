@@ -129,6 +129,7 @@ fun WordReadingScreen(
                             WavyProgressIndicatorDefaults.linearTrackStroke.width * 2,
                             cap = StrokeCap.Round
                         ),
+                        amplitude = { 0.5F },
                     )
                     Text(
                         text = "${quizState.currentQuestionIndex + 1} of ${quizState.questions.size}",
