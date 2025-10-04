@@ -52,10 +52,21 @@ fun PunctuationPracticeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
+                .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if (uiState.progress > 0) {
+                LinearProgressIndicator(
+                    progress = { uiState.progress },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
             if (uiState.questions.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularWavyProgressIndicator()
@@ -66,6 +77,7 @@ fun PunctuationPracticeScreen(
                     onAnswerSelected = { answer -> viewModel.submitAnswer(answer) },
                     onNextClicked = { viewModel.nextQuestion() }
                 )
+            }
             }
         }
     }

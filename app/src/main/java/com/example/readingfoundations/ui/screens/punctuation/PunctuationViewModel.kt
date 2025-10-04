@@ -22,10 +22,13 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
 
     private fun loadQuestions() {
         viewModelScope.launch {
-            appRepository.getAllPunctuationQuestions().collectLatest { questions ->
+            // Use .first() to ensure questions are loaded only once and the quiz state is stable.
+            val questions = appRepository.getAllPunctuationQuestions().first().shuffled()
+            if (questions.isNotEmpty()) {
                 _uiState.value = PunctuationUiState(
-                    questions = questions.shuffled(),
-                    currentQuestionIndex = 0
+                    questions = questions,
+                    currentQuestionIndex = 0,
+                    progress = 1f / questions.size
                 )
             }
         }
@@ -46,10 +49,12 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
     fun nextQuestion() {
         val currentState = _uiState.value
         if (currentState.currentQuestionIndex < currentState.questions.size - 1) {
+            val nextIndex = currentState.currentQuestionIndex + 1
             _uiState.value = currentState.copy(
-                currentQuestionIndex = currentState.currentQuestionIndex + 1,
+                currentQuestionIndex = nextIndex,
                 isAnswerSubmitted = false,
-                isAnswerCorrect = false
+                isAnswerCorrect = false,
+                progress = (nextIndex + 1).toFloat() / currentState.questions.size
             )
         } else {
             // Quiz finished
@@ -65,7 +70,8 @@ data class PunctuationUiState(
     val currentQuestionIndex: Int = 0,
     val isAnswerSubmitted: Boolean = false,
     val isAnswerCorrect: Boolean = false,
-    val score: Int = 0
+    val score: Int = 0,
+    val progress: Float = 0f
 )
 
 sealed class NavigationEvent {
