@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.WavyProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +41,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -113,13 +116,23 @@ fun SentenceReadingScreen(
                     (quizState.currentQuestionIndex + 1).toFloat() / quizState.questions.size
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     LinearWavyProgressIndicator(
-                        progress = { progress }, modifier = Modifier
+                        progress = { progress },
+                        modifier = Modifier
                             .fillMaxWidth()
-                            .height(8.dp)
+                            .height(8.dp),
+                        stroke = Stroke(
+                            WavyProgressIndicatorDefaults.linearIndicatorStroke.width * 2,
+                            cap = StrokeCap.Round
+                        ),
+                        trackStroke = Stroke(
+                            WavyProgressIndicatorDefaults.linearIndicatorStroke.width * 2,
+                            cap = StrokeCap.Round
+                        ),
                     )
                     Text(
                         text = "Sentence ${quizState.currentQuestionIndex + 1} of ${quizState.questions.size}",
                         style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                     Spacer(modifier = Modifier.height(16.dp))

@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.WavyProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -39,10 +40,13 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -62,7 +66,7 @@ fun WordReadingScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val ttsManager = remember { TextToSpeechManager(context) }
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     LaunchedEffect(Unit) {
         lifecycleOwner.lifecycleScope.launch {
@@ -113,14 +117,24 @@ fun WordReadingScreen(
                     (quizState.currentQuestionIndex + 1).toFloat() / quizState.questions.size
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     LinearWavyProgressIndicator(
-                        progress = { progress }, modifier = Modifier
+                        progress = { progress },
+                        modifier = Modifier
                             .fillMaxWidth()
-                            .height(8.dp)
+                            .height(16.dp),
+                        stroke = Stroke(
+                            WavyProgressIndicatorDefaults.linearIndicatorStroke.width * 2,
+                            cap = StrokeCap.Round
+                        ),
+                        trackStroke = Stroke(
+                            WavyProgressIndicatorDefaults.linearIndicatorStroke.width * 2,
+                            cap = StrokeCap.Round
+                        ),
                     )
                     Text(
-                        text = "Word ${quizState.currentQuestionIndex + 1} of ${quizState.questions.size}",
+                        text = "${quizState.currentQuestionIndex + 1} of ${quizState.questions.size}",
                         style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(top = 4.dp)
+                        modifier = Modifier.padding(top = 4.dp).align(Alignment.End),
+                        color = MaterialTheme.colorScheme.secondary,
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     PracticeMode(

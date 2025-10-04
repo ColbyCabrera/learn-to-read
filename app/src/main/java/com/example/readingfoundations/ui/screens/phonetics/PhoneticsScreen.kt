@@ -143,7 +143,7 @@ fun PracticeContent(
             items(uiState.options) { option ->
                 val color = when {
                     uiState.isCorrect == true && option == uiState.targetLetter -> Color.Green
-                    uiState.isCorrect == false && option == uiState.selectedLetter -> MaterialTheme.colorScheme.error
+                    uiState.isCorrect == false && option == uiState.selectedLetter -> MaterialTheme.colorScheme.errorContainer
                     else -> Color.Unspecified
                 }
                 PracticeLetterCard(

@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.google.material)
+    implementation(libs.androidx.compose.ui.graphics)
 
     // Room Database
     implementation(libs.bundles.room)
