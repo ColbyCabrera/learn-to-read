@@ -87,7 +87,8 @@ fun PunctuationPracticeScreen(
                     progress = { animatedProgress },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(16.dp),
+                        .height(16.dp)
+                        .padding(horizontal = 16.dp),
                     stroke = Stroke(
                         WavyProgressIndicatorDefaults.linearIndicatorStroke.width * 2,
                         cap = StrokeCap.Round
@@ -96,7 +97,8 @@ fun PunctuationPracticeScreen(
                         WavyProgressIndicatorDefaults.linearIndicatorStroke.width * 2,
                         cap = StrokeCap.Round
                     ),
-                    amplitude = { 0.5F })
+                    amplitude = { 0.5F }
+                )
             }
             Column(
                 modifier = Modifier
