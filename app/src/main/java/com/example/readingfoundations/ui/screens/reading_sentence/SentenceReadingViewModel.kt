@@ -101,6 +101,15 @@ class SentenceReadingViewModel(
             }
         }
     }
+
+    fun tryAgain() {
+        val quizState = _uiState.value.quizState ?: return
+        _uiState.value = _uiState.value.copy(
+            quizState = quizState.copy(
+                isAnswerCorrect = null
+            )
+        )
+    }
 }
 
 data class SentenceReadingUiState(

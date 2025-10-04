@@ -127,6 +127,7 @@ fun WordReadingScreen(
                         quizState = quizState,
                         onAnswerSelected = { answer -> viewModel.submitAnswer(answer) },
                         onNextClicked = { viewModel.nextQuestion() },
+                        onTryAgainClicked = viewModel::tryAgain,
                         onSpeakClicked = { text -> ttsManager.speak(text) })
                 }
             } else {
@@ -183,6 +184,7 @@ fun PracticeMode(
     quizState: QuizState,
     onAnswerSelected: (String) -> Unit,
     onNextClicked: () -> Unit,
+    onTryAgainClicked: () -> Unit,
     onSpeakClicked: (String) -> Unit
 ) {
     val currentQuestion = quizState.questions[quizState.currentQuestionIndex]
@@ -261,14 +263,28 @@ fun PracticeMode(
 
         quizState.isAnswerCorrect?.let { isCorrect ->
             Text(
-                text = if (isCorrect) "Correct!" else "Incorrect. Try again!",
+                text = if (isCorrect) "Correct!" else "Incorrect!",
                 color = if (isCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(top = 16.dp)
             )
-            if (isCorrect) {
-                Button(onClick = onNextClicked, modifier = Modifier.padding(top = 8.dp)) {
-                    Text("Next Word")
+            Row(
+                modifier = Modifier.padding(top = 8.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                if (isCorrect) {
+                    Button(onClick = onNextClicked) {
+                        Text("Next Word")
+                    }
+                } else {
+                    Button(onClick = {
+                        onTryAgainClicked()
+                        assembledAnswer.clear()
+                        remainingLetters.clear()
+                        remainingLetters.addAll(jumbledLetters)
+                    }) {
+                        Text("Try Again")
+                    }
                 }
             }
         }
