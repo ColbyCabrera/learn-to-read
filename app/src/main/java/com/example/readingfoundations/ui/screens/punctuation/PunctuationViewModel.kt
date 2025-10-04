@@ -7,6 +7,7 @@ import com.example.readingfoundations.data.models.PunctuationQuestion
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import android.util.Log
 
 class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel() {
 
@@ -22,14 +23,19 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
 
     private fun loadQuestions() {
         viewModelScope.launch {
-            // Use .first() to ensure questions are loaded only once and the quiz state is stable.
-            val questions = appRepository.getAllPunctuationQuestions().first().shuffled()
-            if (questions.isNotEmpty()) {
-                _uiState.value = PunctuationUiState(
-                    questions = questions,
-                    currentQuestionIndex = 0,
-                    progress = 1f / questions.size
-                )
+            try {
+                // Use .first() to ensure questions are loaded only once and the quiz state is stable.
+                val questions = appRepository.getAllPunctuationQuestions().first().shuffled()
+                if (questions.isNotEmpty()) {
+                    _uiState.value = PunctuationUiState(
+                        questions = questions,
+                        currentQuestionIndex = 0,
+                        progress = 1f / questions.size
+                    )
+                }
+            } catch (e: Exception) {
+                // TODO: Update UI state to show an error to the user
+                Log.e("PunctuationViewModel", "Failed to load questions", e)
             }
         }
     }
