@@ -54,7 +54,7 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
                 currentQuestionIndex = nextIndex,
                 isAnswerSubmitted = false,
                 isAnswerCorrect = false,
-                progress = (nextIndex + 1).toFloat() / currentState.questions.size
+                progress = (nextIndex).toFloat() / currentState.questions.size
             )
         } else {
             // Quiz finished
