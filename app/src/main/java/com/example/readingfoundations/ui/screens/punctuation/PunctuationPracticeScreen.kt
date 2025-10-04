@@ -102,7 +102,7 @@ fun PunctuationPracticeScreen(
             }
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .weight(1F)
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
