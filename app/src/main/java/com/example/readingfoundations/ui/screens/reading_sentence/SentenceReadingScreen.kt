@@ -56,7 +56,7 @@ import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SentenceReadingScreen(
     navController: NavController,
@@ -119,15 +119,17 @@ fun SentenceReadingScreen(
                         progress = { progress },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(8.dp),
+                            .height(16.dp),
                         stroke = Stroke(
-                            WavyProgressIndicatorDefaults.linearIndicatorStroke.width * 2,
-                            cap = StrokeCap.Round
+                           width = WavyProgressIndicatorDefaults.linearIndicatorStroke.width * 2,
+                            cap = StrokeCap.Round,
+
                         ),
                         trackStroke = Stroke(
-                            WavyProgressIndicatorDefaults.linearTrackStroke.width * 2,
+                            width = WavyProgressIndicatorDefaults.linearTrackStroke.width * 2,
                             cap = StrokeCap.Round
                         ),
+                        amplitude = { 0.5F },
                     )
                     Text(
                         text = "${quizState.currentQuestionIndex + 1} of ${quizState.questions.size}",
