@@ -25,7 +25,8 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
             appRepository.getAllPunctuationQuestions().collectLatest { questions ->
                 _uiState.value = PunctuationUiState(
                     questions = questions.shuffled(),
-                    currentQuestionIndex = 0
+                    currentQuestionIndex = 0,
+                    progress = 0f
                 )
             }
         }
@@ -35,28 +36,28 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
         val currentState = _uiState.value
         val currentQuestion = currentState.questions[currentState.currentQuestionIndex]
         val isCorrect = currentQuestion.correctAnswer.equals(answer.trim(), ignoreCase = true)
-        val newScore = if (isCorrect) currentState.score + 1 else currentState.score
-        val progress = if (currentState.questions.isNotEmpty()) {
-            newScore.toFloat() / currentState.questions.size
-        } else {
-            0f
-        }
 
         _uiState.value = currentState.copy(
             isAnswerSubmitted = true,
             isAnswerCorrect = isCorrect,
-            score = newScore,
-            progress = progress
+            score = if (isCorrect) currentState.score + 1 else currentState.score,
+            progress = if (isCorrect) {
+                (currentState.currentQuestionIndex + 1).toFloat() / currentState.questions.size
+            } else {
+                currentState.progress
+            }
         )
     }
 
     fun nextQuestion() {
         val currentState = _uiState.value
         if (currentState.currentQuestionIndex < currentState.questions.size - 1) {
+            val newIndex = currentState.currentQuestionIndex + 1
             _uiState.value = currentState.copy(
-                currentQuestionIndex = currentState.currentQuestionIndex + 1,
+                currentQuestionIndex = newIndex,
                 isAnswerSubmitted = false,
-                isAnswerCorrect = false
+                isAnswerCorrect = false,
+                progress = (newIndex.toFloat() / currentState.questions.size)
             )
         } else {
             // Quiz finished
