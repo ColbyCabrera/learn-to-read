@@ -130,10 +130,10 @@ fun SentenceReadingScreen(
                         ),
                     )
                     Text(
-                        text = "Sentence ${quizState.currentQuestionIndex + 1} of ${quizState.questions.size}",
+                        text = "${quizState.currentQuestionIndex + 1} of ${quizState.questions.size}",
                         style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(top = 4.dp).align(Alignment.End),
                         color = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.padding(top = 4.dp)
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     PracticeMode(
