@@ -126,14 +126,16 @@ fun WordReadingScreen(
                             cap = StrokeCap.Round
                         ),
                         trackStroke = Stroke(
-                            WavyProgressIndicatorDefaults.linearIndicatorStroke.width * 2,
+                            WavyProgressIndicatorDefaults.linearTrackStroke.width * 2,
                             cap = StrokeCap.Round
                         ),
                     )
                     Text(
                         text = "${quizState.currentQuestionIndex + 1} of ${quizState.questions.size}",
                         style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(top = 4.dp).align(Alignment.End),
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .align(Alignment.End),
                         color = MaterialTheme.colorScheme.secondary,
                     )
                     Spacer(modifier = Modifier.height(16.dp))
