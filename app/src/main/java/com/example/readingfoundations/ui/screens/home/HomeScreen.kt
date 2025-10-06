@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ChromeReaderMode
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Construction
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.ExpandLess
@@ -57,6 +58,7 @@ private data class MenuItem(
 private val staticMenuItems = listOf(
     MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics"),
     MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation"),
+    MenuItem("reading_comprehension", R.string.reading_comprehension, Icons.AutoMirrored.Filled.MenuBook, "reading_comprehension"),
     MenuItem("settings", R.string.settings, Icons.Default.Settings, "settings")
 )
 

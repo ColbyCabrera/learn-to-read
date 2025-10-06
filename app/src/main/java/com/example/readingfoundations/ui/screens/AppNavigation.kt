@@ -12,6 +12,7 @@ import com.example.readingfoundations.ui.screens.punctuation.PunctuationPractice
 import com.example.readingfoundations.ui.screens.punctuation.QuizCompleteScreen
 import com.example.readingfoundations.ui.screens.reading_sentence.SentenceReadingScreen
 import com.example.readingfoundations.ui.screens.reading_word.LevelCompleteScreen
+import com.example.readingfoundations.ui.screens.reading_comprehension.ReadingComprehensionScreen
 import com.example.readingfoundations.ui.screens.reading_word.WordReadingScreen
 import com.example.readingfoundations.ui.screens.settings.SettingsScreen
 
@@ -21,6 +22,7 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { HomeScreen(navController) }
         composable("phonetics") { PhoneticsScreen(navController) }
+        composable("reading_comprehension") { ReadingComprehensionScreen(navController) }
         composable(
             "word_building/{level}",
             arguments = listOf(navArgument("level") { type = NavType.IntType })

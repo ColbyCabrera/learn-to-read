@@ -1,11 +1,47 @@
 package com.example.readingfoundations.data.local
 
-import com.example.readingfoundations.data.models.PunctuationQuestion
 import com.example.readingfoundations.data.models.Phoneme
+import com.example.readingfoundations.data.models.PunctuationQuestion
+import com.example.readingfoundations.data.models.ReadingComprehensionQuestion
+import com.example.readingfoundations.data.models.ReadingComprehensionText
 import com.example.readingfoundations.data.models.Sentence
 import com.example.readingfoundations.data.models.Word
 
 object PrepopulateData {
+    val readingComprehensionTexts = listOf(
+        // Level 0
+        ReadingComprehensionText(id = 1, text = "The dog chased the ball.", level = 0),
+        // Level 1
+        ReadingComprehensionText(id = 2, text = "A girl has a red kite. She flies the kite high.", level = 1),
+        // Level 2
+        ReadingComprehensionText(id = 3, text = "The sun is bright today. A boy goes to the park to play. He sees a blue bird in a tree. The bird sings a happy song.", level = 2),
+        // Level 3
+        ReadingComprehensionText(id = 4, text = "The little gray mouse quietly crept across the kitchen floor. He was looking for a tasty crumb of cheese. Suddenly, he heard a loud noise and felt scared. He quickly ran back to his small hole in the wall.", level = 3),
+        // Level 4
+        ReadingComprehensionText(id = 5, text = "Once, there was a curious cat named Leo. Leo loved to explore the garden behind his house. One sunny afternoon, he saw a bright blue butterfly. He decided to follow it.\n\nThe butterfly fluttered over a tall fence. Leo, determined to keep up, took a big leap and landed softly on the other side. He found himself in a new, exciting place he had never seen before. It was a meadow full of colorful wildflowers.\n\nLeo forgot all about the butterfly and spent the rest of the day happily rolling in the flowers and chasing grasshoppers. He knew he had found his new favorite place to play.", level = 4)
+    )
+
+    val readingComprehensionQuestions = listOf(
+        // Level 0
+        ReadingComprehensionQuestion(id = 1, textId = 1, questionText = "Who chased the ball?", correctAnswer = "The dog", questionType = "Literal"),
+        ReadingComprehensionQuestion(id = 2, textId = 1, questionText = "What did the dog chase?", correctAnswer = "The ball", questionType = "Literal"),
+        // Level 1
+        ReadingComprehensionQuestion(id = 3, textId = 2, questionText = "What does the girl have?", correctAnswer = "A red kite", questionType = "Literal"),
+        ReadingComprehensionQuestion(id = 4, textId = 2, questionText = "Who flies the kite?", correctAnswer = "She", questionType = "Literal"),
+        // Level 2
+        ReadingComprehensionQuestion(id = 5, textId = 3, questionText = "Where does the boy go to play?", correctAnswer = "The park", questionType = "Literal"),
+        ReadingComprehensionQuestion(id = 6, textId = 3, questionText = "What does the boy see in the tree?", correctAnswer = "A blue bird", questionType = "Literal"),
+        ReadingComprehensionQuestion(id = 7, textId = 3, questionText = "What is this paragraph mostly about?", correctAnswer = "A boy playing in the park", questionType = "Main Idea"),
+        // Level 3
+        ReadingComprehensionQuestion(id = 8, textId = 4, questionText = "How did the mouse feel when he heard a noise?", correctAnswer = "Scared", questionType = "Inferential"),
+        ReadingComprehensionQuestion(id = 9, textId = 4, questionText = "The text says the mouse 'quietly crept'. What was the mouse doing?", correctAnswer = "Moving silently", questionType = "Vocabulary in Context"),
+        ReadingComprehensionQuestion(id = 10, textId = 4, questionText = "Why did the mouse run back to his hole?", correctAnswer = "Because he was scared", questionType = "Inferential"),
+        // Level 4
+        ReadingComprehensionQuestion(id = 11, textId = 5, questionText = "What happened after Leo jumped over the fence?", correctAnswer = "He found a meadow", questionType = "Sequencing"),
+        ReadingComprehensionQuestion(id = 12, textId = 5, questionText = "What is the main idea of the story?", correctAnswer = "A cat discovers a new favorite place", questionType = "Main Idea"),
+        ReadingComprehensionQuestion(id = 13, textId = 5, questionText = "Based on the story, what do you think Leo will do tomorrow?", correctAnswer = "Go back to the meadow", questionType = "Predictive")
+    )
+
     val punctuationQuestions = listOf(
         PunctuationQuestion(
             text = "Which sentence uses commas correctly?",
