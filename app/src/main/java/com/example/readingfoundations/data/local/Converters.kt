@@ -28,4 +28,14 @@ class Converters {
     fun fromMapToString(map: Map<Int, Int>?): String? {
         return map?.let { gson.toJson(it, mapIntIntType) }
     }
+
+    @TypeConverter
+    fun fromQuestionType(questionType: com.example.readingfoundations.data.models.QuestionType): String {
+        return questionType.name
+    }
+
+    @TypeConverter
+    fun toQuestionType(value: String): com.example.readingfoundations.data.models.QuestionType {
+        return com.example.readingfoundations.data.models.QuestionType.valueOf(value)
+    }
 }

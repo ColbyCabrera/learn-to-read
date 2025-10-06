@@ -25,18 +25,24 @@ fun ReadingComprehensionScreen(
     viewModel: ReadingComprehensionViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var userAnswer by remember { mutableStateOf(TextFieldValue("")) }
+    var userAnswer by remember { mutableStateOf("") }
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(uiState.feedback) {
-        if (uiState.feedback.isNotEmpty() && (uiState.feedback.contains("challenging") || uiState.feedback.contains("easier"))) {
-            // Show a snackbar or dialog with the feedback message
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is ReadingComprehensionEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+            }
         }
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text("Reading Comprehension - Level ${uiState.level}") },
+                title = { Text(stringResource(R.string.reading_comprehension_level, uiState.level)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back_button_desc))
@@ -45,7 +51,7 @@ fun ReadingComprehensionScreen(
                 actions = {
                     if (uiState.level > 0) {
                         IconButton(onClick = { viewModel.previousLevel() }) {
-                            Icon(Icons.Default.ArrowDownward, contentDescription = "Go to previous level")
+                            Icon(Icons.Default.ArrowDownward, contentDescription = stringResource(R.string.previous_level_desc))
                         }
                     }
                 }
@@ -70,7 +76,7 @@ fun ReadingComprehensionScreen(
                     OutlinedTextField(
                         value = userAnswer,
                         onValueChange = { userAnswer = it },
-                        label = { Text("Your answer") },
+                        label = { Text(stringResource(R.string.your_answer)) },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !uiState.answerChecked
                     )
@@ -87,19 +93,19 @@ fun ReadingComprehensionScreen(
                     if (uiState.answerChecked) {
                         Button(onClick = {
                             viewModel.nextQuestion()
-                            userAnswer = TextFieldValue("")
+                            userAnswer = ""
                         }) {
-                            Text("Next")
+                            Text(stringResource(R.string.next))
                         }
                     } else {
-                        Button(onClick = { viewModel.checkAnswer(userAnswer.text) }) {
-                            Text("Check Answer")
+                        Button(onClick = { viewModel.checkAnswer(userAnswer) }) {
+                            Text(stringResource(R.string.check_answer))
                         }
                     }
                 } else {
-                    Text("Loading questions...")
+                    Text(stringResource(R.string.loading_questions))
                 }
-            } ?: Text("Loading text...")
+            } ?: Text(stringResource(R.string.loading_text))
         }
     }
 }

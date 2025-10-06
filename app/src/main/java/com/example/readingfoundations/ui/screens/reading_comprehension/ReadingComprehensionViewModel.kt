@@ -5,12 +5,18 @@ import androidx.lifecycle.viewModelScope
 import com.example.readingfoundations.data.ReadingComprehensionRepository
 import com.example.readingfoundations.data.models.ReadingComprehensionQuestion
 import com.example.readingfoundations.data.models.ReadingComprehensionText
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+sealed class ReadingComprehensionEvent {
+    data class ShowSnackbar(val message: String) : ReadingComprehensionEvent()
+}
 
 class ReadingComprehensionViewModel(
     private val repository: ReadingComprehensionRepository
@@ -19,7 +25,12 @@ class ReadingComprehensionViewModel(
     private val _uiState = MutableStateFlow(ReadingComprehensionUiState())
     val uiState: StateFlow<ReadingComprehensionUiState> = _uiState.asStateFlow()
 
+    private val _eventChannel = Channel<ReadingComprehensionEvent>()
+    val events = _eventChannel.receiveAsFlow()
+
     private var consecutiveCorrectAnswers = 0
+    private var consecutiveIncorrectAnswers = 0
+    private var nextLevel: Int? = null
 
     init {
         loadLevel(0)
@@ -28,18 +39,30 @@ class ReadingComprehensionViewModel(
     fun checkAnswer(userAnswer: String) {
         val currentQuestion = _uiState.value.questions[_uiState.value.currentQuestionIndex]
         val isCorrect = userAnswer.trim().equals(currentQuestion.correctAnswer, ignoreCase = true)
+        val currentLevel = _uiState.value.level
 
         if (isCorrect) {
             consecutiveCorrectAnswers++
+            consecutiveIncorrectAnswers = 0
             _uiState.update { it.copy(feedback = "That's exactly right!", answerChecked = true, isCorrect = true) }
+
+            if (consecutiveCorrectAnswers >= CORRECT_ANSWERS_TO_LEVEL_UP && currentLevel < MAX_LEVEL) {
+                nextLevel = currentLevel + 1
+            }
         } else {
             consecutiveCorrectAnswers = 0
+            consecutiveIncorrectAnswers++
+            val feedback = "That's a good try! Let's look at this part of the story again: \"${_uiState.value.currentText?.text}\""
             _uiState.update {
                 it.copy(
-                    feedback = "That's a good try! Let's look at the story again.",
+                    feedback = feedback,
                     answerChecked = true,
                     isCorrect = false
                 )
+            }
+
+            if (consecutiveIncorrectAnswers >= INCORRECT_ANSWERS_TO_LEVEL_DOWN && currentLevel > 0) {
+                nextLevel = currentLevel - 1
             }
         }
     }
@@ -56,9 +79,18 @@ class ReadingComprehensionViewModel(
                 )
             }
         } else {
-            // Level complete
-            if (consecutiveCorrectAnswers >= 3 && currentState.level < 4) {
-                loadLevel(currentState.level + 1, "You're doing so well, let's try something a little more challenging!")
+            // Level complete, check if we need to change levels
+            val levelToLoad = nextLevel
+            if (levelToLoad != null) {
+                val message = if (levelToLoad > currentState.level) {
+                    "You're doing so well, let's try something a little more challenging!"
+                } else {
+                    "No problem at all! Let's go back and practice one that's a bit easier to build our strength."
+                }
+                viewModelScope.launch {
+                    _eventChannel.send(ReadingComprehensionEvent.ShowSnackbar(message))
+                }
+                loadLevel(levelToLoad)
             } else {
                 loadLevel(currentState.level, "Great job! Let's try another one at this level.")
             }
@@ -73,6 +105,9 @@ class ReadingComprehensionViewModel(
     }
 
     private fun loadLevel(level: Int, message: String = "") {
+        consecutiveCorrectAnswers = 0
+        consecutiveIncorrectAnswers = 0
+        nextLevel = null
         viewModelScope.launch {
             val texts = repository.getTextsByLevel(level).first()
             if (texts.isNotEmpty()) {
@@ -88,10 +123,15 @@ class ReadingComprehensionViewModel(
                 }
             } else {
                 // Handle case where there are no texts for the level
-                 _uiState.update { it.copy(feedback = "Congratulations! You have completed all levels.") }
+                _uiState.update { it.copy(feedback = "Congratulations! You have completed all levels.") }
             }
         }
-        consecutiveCorrectAnswers = 0
+    }
+
+    companion object {
+        private const val CORRECT_ANSWERS_TO_LEVEL_UP = 3
+        private const val INCORRECT_ANSWERS_TO_LEVEL_DOWN = 2
+        private const val MAX_LEVEL = 4
     }
 }
 
@@ -100,7 +140,6 @@ data class ReadingComprehensionUiState(
     val currentText: ReadingComprehensionText? = null,
     val questions: List<ReadingComprehensionQuestion> = emptyList(),
     val currentQuestionIndex: Int = 0,
-    val userAnswer: String = "",
     val feedback: String = "",
     val answerChecked: Boolean = false,
     val isCorrect: Boolean? = null

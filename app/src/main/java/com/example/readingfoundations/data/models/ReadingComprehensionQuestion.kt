@@ -4,6 +4,15 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
+enum class QuestionType {
+    LITERAL,
+    INFERENTIAL,
+    VOCABULARY_IN_CONTEXT,
+    SEQUENCING,
+    MAIN_IDEA,
+    PREDICTIVE
+}
+
 @Entity(
     tableName = "reading_comprehension_questions",
     foreignKeys = [
@@ -21,5 +30,5 @@ data class ReadingComprehensionQuestion(
     val textId: Int,
     val questionText: String,
     val correctAnswer: String,
-    val questionType: String // e.g., "Literal", "Inferential", "Vocabulary"
+    val questionType: QuestionType
 )

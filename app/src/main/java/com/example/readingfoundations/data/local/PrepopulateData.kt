@@ -1,7 +1,9 @@
 package com.example.readingfoundations.data.local
 
 import com.example.readingfoundations.data.models.Phoneme
+import com.example.readingfoundations.data.models.Phoneme
 import com.example.readingfoundations.data.models.PunctuationQuestion
+import com.example.readingfoundations.data.models.QuestionType
 import com.example.readingfoundations.data.models.ReadingComprehensionQuestion
 import com.example.readingfoundations.data.models.ReadingComprehensionText
 import com.example.readingfoundations.data.models.Sentence
@@ -23,23 +25,23 @@ object PrepopulateData {
 
     val readingComprehensionQuestions = listOf(
         // Level 0
-        ReadingComprehensionQuestion(id = 1, textId = 1, questionText = "Who chased the ball?", correctAnswer = "The dog", questionType = "Literal"),
-        ReadingComprehensionQuestion(id = 2, textId = 1, questionText = "What did the dog chase?", correctAnswer = "The ball", questionType = "Literal"),
+        ReadingComprehensionQuestion(id = 1, textId = 1, questionText = "Who chased the ball?", correctAnswer = "The dog", questionType = QuestionType.LITERAL),
+        ReadingComprehensionQuestion(id = 2, textId = 1, questionText = "What did the dog chase?", correctAnswer = "The ball", questionType = QuestionType.LITERAL),
         // Level 1
-        ReadingComprehensionQuestion(id = 3, textId = 2, questionText = "What does the girl have?", correctAnswer = "A red kite", questionType = "Literal"),
-        ReadingComprehensionQuestion(id = 4, textId = 2, questionText = "Who flies the kite?", correctAnswer = "She", questionType = "Literal"),
+        ReadingComprehensionQuestion(id = 3, textId = 2, questionText = "What does the girl have?", correctAnswer = "A red kite", questionType = QuestionType.LITERAL),
+        ReadingComprehensionQuestion(id = 4, textId = 2, questionText = "Who flies the kite?", correctAnswer = "She", questionType = QuestionType.LITERAL),
         // Level 2
-        ReadingComprehensionQuestion(id = 5, textId = 3, questionText = "Where does the boy go to play?", correctAnswer = "The park", questionType = "Literal"),
-        ReadingComprehensionQuestion(id = 6, textId = 3, questionText = "What does the boy see in the tree?", correctAnswer = "A blue bird", questionType = "Literal"),
-        ReadingComprehensionQuestion(id = 7, textId = 3, questionText = "What is this paragraph mostly about?", correctAnswer = "A boy playing in the park", questionType = "Main Idea"),
+        ReadingComprehensionQuestion(id = 5, textId = 3, questionText = "Where does the boy go to play?", correctAnswer = "The park", questionType = QuestionType.LITERAL),
+        ReadingComprehensionQuestion(id = 6, textId = 3, questionText = "What does the boy see in the tree?", correctAnswer = "A blue bird", questionType = QuestionType.LITERAL),
+        ReadingComprehensionQuestion(id = 7, textId = 3, questionText = "What is this paragraph mostly about?", correctAnswer = "A boy playing in the park", questionType = QuestionType.MAIN_IDEA),
         // Level 3
-        ReadingComprehensionQuestion(id = 8, textId = 4, questionText = "How did the mouse feel when he heard a noise?", correctAnswer = "Scared", questionType = "Inferential"),
-        ReadingComprehensionQuestion(id = 9, textId = 4, questionText = "The text says the mouse 'quietly crept'. What was the mouse doing?", correctAnswer = "Moving silently", questionType = "Vocabulary in Context"),
-        ReadingComprehensionQuestion(id = 10, textId = 4, questionText = "Why did the mouse run back to his hole?", correctAnswer = "Because he was scared", questionType = "Inferential"),
+        ReadingComprehensionQuestion(id = 8, textId = 4, questionText = "How did the mouse feel when he heard a noise?", correctAnswer = "Scared", questionType = QuestionType.INFERENTIAL),
+        ReadingComprehensionQuestion(id = 9, textId = 4, questionText = "The text says the mouse 'quietly crept'. What was the mouse doing?", correctAnswer = "Moving silently", questionType = QuestionType.VOCABULARY_IN_CONTEXT),
+        ReadingComprehensionQuestion(id = 10, textId = 4, questionText = "Why did the mouse run back to his hole?", correctAnswer = "Because he was scared", questionType = QuestionType.INFERENTIAL),
         // Level 4
-        ReadingComprehensionQuestion(id = 11, textId = 5, questionText = "What happened after Leo jumped over the fence?", correctAnswer = "He found a meadow", questionType = "Sequencing"),
-        ReadingComprehensionQuestion(id = 12, textId = 5, questionText = "What is the main idea of the story?", correctAnswer = "A cat discovers a new favorite place", questionType = "Main Idea"),
-        ReadingComprehensionQuestion(id = 13, textId = 5, questionText = "Based on the story, what do you think Leo will do tomorrow?", correctAnswer = "Go back to the meadow", questionType = "Predictive")
+        ReadingComprehensionQuestion(id = 11, textId = 5, questionText = "What happened after Leo jumped over the fence?", correctAnswer = "He found a meadow", questionType = QuestionType.SEQUENCING),
+        ReadingComprehensionQuestion(id = 12, textId = 5, questionText = "What is the main idea of the story?", correctAnswer = "A cat discovers a new favorite place", questionType = QuestionType.MAIN_IDEA),
+        ReadingComprehensionQuestion(id = 13, textId = 5, questionText = "Based on the story, what do you think Leo will do tomorrow?", correctAnswer = "Go back to the meadow", questionType = QuestionType.PREDICTIVE)
     )
 
     val punctuationQuestions = listOf(
