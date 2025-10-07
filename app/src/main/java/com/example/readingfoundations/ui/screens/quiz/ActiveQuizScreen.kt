@@ -9,6 +9,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.readingfoundations.data.models.QuizQuestion
+import com.example.readingfoundations.data.models.QuizQuestion.PhonemeQuestion
+import com.example.readingfoundations.data.models.QuizQuestion.SentenceQuestion
+import com.example.readingfoundations.data.models.QuizQuestion.WordQuestion
+import com.example.readingfoundations.data.models.QuizQuestion.PunctuationQuestionItem
 import com.example.readingfoundations.ui.AppViewModelProvider
 
 @Composable
@@ -65,10 +70,10 @@ fun QuizContent(
         )
 
         when (question) {
-            is QuizQuestion.PhonemeQuestion -> PhonemeQuestionContent(question, quizUiState.userAnswer, onAnswerSelected)
-            is QuizQuestion.WordQuestion -> WordQuestionContent(question, quizUiState.userAnswer, onAnswerSelected)
-            is QuizQuestion.SentenceQuestion -> SentenceQuestionContent(question, quizUiState.userAnswer, onAnswerSelected)
-            is QuizQuestion.PunctuationQuestionItem -> PunctuationQuestionContent(question, quizUiState.userAnswer, onAnswerSelected)
+            is PhonemeQuestion -> PhonemeQuestionContent(question, quizUiState.userAnswer, onAnswerSelected)
+            is WordQuestion -> WordQuestionContent(question, quizUiState.userAnswer, onAnswerSelected)
+            is SentenceQuestion -> SentenceQuestionContent(question, quizUiState.userAnswer, onAnswerSelected)
+            is PunctuationQuestionItem -> PunctuationQuestionContent(question, quizUiState.userAnswer, onAnswerSelected)
         }
 
         if (quizUiState.isAnswerCorrect != null) {
@@ -86,7 +91,7 @@ fun QuizContent(
 }
 
 @Composable
-fun PhonemeQuestionContent(question: QuizQuestion.PhonemeQuestion, userAnswer: String, onAnswerSelected: (String) -> Unit) {
+fun PhonemeQuestionContent(question: PhonemeQuestion, userAnswer: String, onAnswerSelected: (String) -> Unit) {
     Text(text = "What letters make the sound in \"${question.phoneme.exampleWord}\"?")
     OutlinedTextField(
         value = userAnswer,
@@ -96,7 +101,7 @@ fun PhonemeQuestionContent(question: QuizQuestion.PhonemeQuestion, userAnswer: S
 }
 
 @Composable
-fun WordQuestionContent(question: QuizQuestion.WordQuestion, userAnswer: String, onAnswerSelected: (String) -> Unit) {
+fun WordQuestionContent(question: WordQuestion, userAnswer: String, onAnswerSelected: (String) -> Unit) {
     Text(text = "Spell the word you hear.")
     Text(text = "(Pretend you heard: ${question.word.text})", style = MaterialTheme.typography.bodySmall)
     OutlinedTextField(
@@ -107,7 +112,7 @@ fun WordQuestionContent(question: QuizQuestion.WordQuestion, userAnswer: String,
 }
 
 @Composable
-fun SentenceQuestionContent(question: QuizQuestion.SentenceQuestion, userAnswer: String, onAnswerSelected: (String) -> Unit) {
+fun SentenceQuestionContent(question: SentenceQuestion, userAnswer: String, onAnswerSelected: (String) -> Unit) {
     Text(text = "Write the sentence you hear.")
     Text(text = "(Pretend you heard: ${question.sentence.text})", style = MaterialTheme.typography.bodySmall)
     OutlinedTextField(
@@ -119,7 +124,7 @@ fun SentenceQuestionContent(question: QuizQuestion.SentenceQuestion, userAnswer:
 }
 
 @Composable
-fun PunctuationQuestionContent(question: QuizQuestion.PunctuationQuestionItem, userAnswer: String, onAnswerSelected: (String) -> Unit) {
+fun PunctuationQuestionContent(question: PunctuationQuestionItem, userAnswer: String, onAnswerSelected: (String) -> Unit) {
     val punctuationQuestion = question.punctuationQuestion
     Text(text = punctuationQuestion.text)
 
