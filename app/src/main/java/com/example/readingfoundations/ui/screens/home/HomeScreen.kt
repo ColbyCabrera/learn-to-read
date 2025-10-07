@@ -62,6 +62,13 @@ private val staticMenuItems = listOf(
     MenuItem("settings", R.string.settings, Icons.Default.Settings, "settings")
 )
 
+private val contentRoutes = listOf(
+    "phonetics",
+    "reading_word/1",
+    "sentence_reading/1",
+    "reading_comprehension"
+)
+
 @Composable
 fun HomeScreen(
     navController: NavController,
@@ -80,7 +87,7 @@ fun HomeScreen(
     ) {
         item {
             EditorialMoment(
-                onStartLearningClick = { navController.navigate("word_building/1") },
+                onStartLearningClick = { navController.navigate(contentRoutes.random()) },
             )
         }
 
@@ -90,7 +97,7 @@ fun HomeScreen(
                 icon = Icons.Default.Construction,
                 numLevels = uiState.wordLevelCount,
                 progressMap = uiState.userProgress.wordLevelsProgress,
-                onLevelClick = { level -> navController.navigate("word_building/$level") })
+                onLevelClick = { level -> navController.navigate("reading_word/$level") })
         }
 
         item {
