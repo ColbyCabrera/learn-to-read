@@ -28,4 +28,13 @@ class AppDataContainer(private val context: Context) : AppContainer {
     override val userPreferencesRepository: UserPreferencesRepository by lazy {
         UserPreferencesRepository(context)
     }
+
+    override val quizRepository: QuizRepository by lazy {
+        OfflineQuizRepository(
+            AppDatabase.getDatabase(context).phonemeDao(),
+            AppDatabase.getDatabase(context).wordDao(),
+            AppDatabase.getDatabase(context).sentenceDao(),
+            AppDatabase.getDatabase(context).punctuationQuestionDao()
+        )
+    }
 }

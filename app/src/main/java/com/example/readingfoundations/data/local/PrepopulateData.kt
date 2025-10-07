@@ -14,7 +14,8 @@ object PrepopulateData {
                 "Sarah bought apples, oranges, and bananas.",
                 "Sarah bought apples oranges and, bananas."
             ),
-            correctAnswer = "Sarah bought apples, oranges, and bananas."
+            correctAnswer = "Sarah bought apples, oranges, and bananas.",
+            difficulty = 2
         ),
         PunctuationQuestion(
             text = "Choose the correctly punctuated sentence:",
@@ -23,7 +24,8 @@ object PrepopulateData {
                 "He said \"I am going to the park.\"",
                 "He said, I am going to the park."
             ),
-            correctAnswer = "He said, \"I am going to the park.\""
+            correctAnswer = "He said, \"I am going to the park.\"",
+            difficulty = 3
         ),
         PunctuationQuestion(
             text = "Which sentence is correct?",
@@ -32,11 +34,13 @@ object PrepopulateData {
                 "It's a beautiful day outside.",
                 "Its' a beautiful day outside."
             ),
-            correctAnswer = "It's a beautiful day outside."
+            correctAnswer = "It's a beautiful day outside.",
+            difficulty = 1
         ),
         PunctuationQuestion(
             text = "Add the correct punctuation to the following sentence:\nI am so excited to go to the party",
-            correctAnswer = "I am so excited to go to the party!"
+            correctAnswer = "I am so excited to go to the party!",
+            difficulty = 1
         )
     )
     val phonemes = listOf(

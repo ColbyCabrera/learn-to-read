@@ -13,6 +13,8 @@ import com.example.readingfoundations.ui.screens.punctuation.QuizCompleteScreen
 import com.example.readingfoundations.ui.screens.reading_sentence.SentenceReadingScreen
 import com.example.readingfoundations.ui.screens.reading_word.LevelCompleteScreen
 import com.example.readingfoundations.ui.screens.reading_word.WordReadingScreen
+import com.example.readingfoundations.ui.screens.quiz.ActiveQuizScreen
+import com.example.readingfoundations.ui.screens.quiz.UnitSelectionScreen
 import com.example.readingfoundations.ui.screens.settings.SettingsScreen
 
 @Composable
@@ -20,6 +22,23 @@ fun AppNavigation() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { HomeScreen(navController) }
+        composable("unit_selection") {
+            UnitSelectionScreen(
+                onLevelSelected = { levelId ->
+                    navController.navigate("active_quiz/$levelId")
+                }
+            )
+        }
+        composable(
+            "active_quiz/{levelId}",
+            arguments = listOf(navArgument("levelId") { type = NavType.IntType })
+        ) {
+            ActiveQuizScreen(
+                onQuizComplete = {
+                    navController.popBackStack("unit_selection", inclusive = false)
+                }
+            )
+        }
         composable("phonetics") { PhoneticsScreen(navController) }
         composable(
             "word_building/{level}",

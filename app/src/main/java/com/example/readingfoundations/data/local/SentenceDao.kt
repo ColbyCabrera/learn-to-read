@@ -20,4 +20,7 @@ interface SentenceDao {
 
     @Query("SELECT COUNT(*) FROM sentences")
     suspend fun getCount(): Int
+
+    @Query("SELECT * FROM sentences WHERE difficulty = :difficulty ORDER BY RANDOM() LIMIT :limit")
+    fun getRandomSentencesByDifficulty(difficulty: Int, limit: Int): Flow<List<Sentence>>
 }

@@ -11,6 +11,7 @@ import com.example.readingfoundations.ui.screens.phonetics.PhoneticsViewModel
 import com.example.readingfoundations.ui.screens.punctuation.PunctuationViewModel
 import com.example.readingfoundations.ui.screens.reading_sentence.SentenceReadingViewModel
 import com.example.readingfoundations.ui.screens.reading_word.WordReadingViewModel
+import com.example.readingfoundations.ui.screens.quiz.QuizViewModel
 import com.example.readingfoundations.ui.screens.settings.SettingsViewModel
 
 object AppViewModelProvider {
@@ -45,6 +46,13 @@ object AppViewModelProvider {
         initializer {
             SettingsViewModel(
                 readingFoundationsApplication().container.userPreferencesRepository
+            )
+        }
+        initializer {
+            val savedStateHandle = createSavedStateHandle()
+            QuizViewModel(
+                readingFoundationsApplication().container.quizRepository,
+                savedStateHandle
             )
         }
     }

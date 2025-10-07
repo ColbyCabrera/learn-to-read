@@ -8,4 +8,5 @@ interface AppContainer {
     val remoteDataSource: RemoteDataSource
     val appRepository: AppRepository
     val userPreferencesRepository: UserPreferencesRepository
+    val quizRepository: QuizRepository
 }

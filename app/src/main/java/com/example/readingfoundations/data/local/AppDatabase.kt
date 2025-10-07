@@ -16,7 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Word::class, Sentence::class, UserProgress::class, Phoneme::class, PunctuationQuestion::class], version = 3, exportSchema = false)
+@Database(entities = [Word::class, Sentence::class, UserProgress::class, Phoneme::class, PunctuationQuestion::class], version = 4, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -50,7 +50,7 @@ abstract class AppDatabase : RoomDatabase() {
                             }
                         }
                     })
-                    .addMigrations(MIGRATION_2_3)
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
                     .build()
                     .also { Instance = it }
             }
@@ -59,6 +59,12 @@ abstract class AppDatabase : RoomDatabase() {
         private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("CREATE TABLE `punctuation_questions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `text` TEXT NOT NULL, `correctAnswer` TEXT NOT NULL, `options` TEXT)")
+            }
+        }
+
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `punctuation_questions` ADD COLUMN `difficulty` INTEGER NOT NULL DEFAULT 1")
             }
         }
     }

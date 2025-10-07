@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Construction
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
@@ -55,6 +56,7 @@ private data class MenuItem(
 )
 
 private val staticMenuItems = listOf(
+    MenuItem("units", R.string.units, Icons.Default.MenuBook, "unit_selection"),
     MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics"),
     MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation"),
     MenuItem("settings", R.string.settings, Icons.Default.Settings, "settings")

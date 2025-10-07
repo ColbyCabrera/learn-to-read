@@ -17,4 +17,7 @@ interface PunctuationQuestionDao {
 
     @Query("SELECT * FROM punctuation_questions")
     fun getAllQuestions(): Flow<List<PunctuationQuestion>>
+
+    @Query("SELECT * FROM punctuation_questions WHERE difficulty = :difficulty ORDER BY RANDOM() LIMIT :limit")
+    fun getRandomPunctuationQuestionsByDifficulty(difficulty: Int, limit: Int): Flow<List<PunctuationQuestion>>
 }

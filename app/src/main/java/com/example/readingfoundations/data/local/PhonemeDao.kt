@@ -20,4 +20,7 @@ interface PhonemeDao {
 
     @Query("SELECT * FROM phonemes WHERE category = :category ORDER BY level, id")
     fun getPhonemesByCategory(category: String): Flow<List<Phoneme>>
+
+    @Query("SELECT * FROM phonemes WHERE level = :level ORDER BY RANDOM() LIMIT :limit")
+    fun getRandomPhonemesByLevel(level: Int, limit: Int): Flow<List<Phoneme>>
 }
