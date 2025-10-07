@@ -23,5 +23,5 @@
     <string name="your_answer">Your answer</string>
     <string name="next">Next</string>
     <string name="check_answer">Check Answer</string>
-    <string name="reading_comprehension_level">Reading Comprehension - Level %1$d</string>
+    <string name="reading_comprehension_level">Comprehension - Level %1$d</string>
 </resources>
