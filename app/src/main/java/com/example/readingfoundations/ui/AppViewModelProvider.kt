@@ -9,6 +9,7 @@ import com.example.readingfoundations.ReadingFoundationsApp
 import com.example.readingfoundations.ui.screens.home.HomeViewModel
 import com.example.readingfoundations.ui.screens.phonetics.PhoneticsViewModel
 import com.example.readingfoundations.ui.screens.punctuation.PunctuationViewModel
+import com.example.readingfoundations.ui.screens.reading_comprehension.ReadingComprehensionViewModel
 import com.example.readingfoundations.ui.screens.reading_sentence.SentenceReadingViewModel
 import com.example.readingfoundations.ui.screens.reading_word.WordReadingViewModel
 import com.example.readingfoundations.ui.screens.settings.SettingsViewModel
@@ -45,6 +46,11 @@ object AppViewModelProvider {
         initializer {
             SettingsViewModel(
                 readingFoundationsApplication().container.userPreferencesRepository
+            )
+        }
+        initializer {
+            ReadingComprehensionViewModel(
+                readingFoundationsApplication().container.readingComprehensionRepository
             )
         }
     }

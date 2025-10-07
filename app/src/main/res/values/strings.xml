@@ -16,4 +16,12 @@
     <string name="todays_learning_spotlight">Today\'s Learning Spotlight</string>
     <string name="spotlight_description">Jump into a quick lesson to build your skills.</string>
     <string name="start_learning">Start Learning</string>
+    <string name="reading_comprehension">Reading Comprehension</string>
+    <string name="previous_level_desc">Go to previous level</string>
+    <string name="loading_questions">Loading questions...</string>
+    <string name="loading_text">Loading text...</string>
+    <string name="your_answer">Your answer</string>
+    <string name="next">Next</string>
+    <string name="check_answer">Check Answer</string>
+    <string name="reading_comprehension_level">Comprehension - Level %1$d</string>
 </resources>
