@@ -63,6 +63,18 @@ fun ReadingComprehensionScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect { event ->
+            when (event) {
+                is NavigationEvent.LevelComplete -> {
+                    navController.navigate(
+                        "levelComplete/${event.level}/${event.score}/${event.totalQuestions}"
+                    )
+                }
+            }
+        }
+    }
+
     Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }, topBar = {
         TopAppBar(title = {
             Text(
@@ -126,7 +138,7 @@ fun ReadingComprehensionScreen(
                 if (uiState.questions.isNotEmpty()) {
                     val question = uiState.questions[uiState.currentQuestionIndex]
                     Text(
-                        text = question.questionText,
+                        text = question.question.questionText,
                         style = MaterialTheme.typography.headlineSmall
                     )
                     Spacer(modifier = Modifier.height(8.dp))

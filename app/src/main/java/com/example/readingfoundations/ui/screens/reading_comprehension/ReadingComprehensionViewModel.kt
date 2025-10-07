@@ -18,6 +18,11 @@ sealed class ReadingComprehensionEvent {
     data class ShowSnackbar(val message: String) : ReadingComprehensionEvent()
 }
 
+sealed class NavigationEvent {
+    data class LevelComplete(val level: Int, val score: Int, val totalQuestions: Int) :
+        NavigationEvent()
+}
+
 class ReadingComprehensionViewModel(
     private val repository: ReadingComprehensionRepository
 ) : ViewModel() {
@@ -28,6 +33,9 @@ class ReadingComprehensionViewModel(
     private val _eventChannel = Channel<ReadingComprehensionEvent>()
     val events = _eventChannel.receiveAsFlow()
 
+    private val _navigationEvent = Channel<NavigationEvent>()
+    val navigationEvent = _navigationEvent.receiveAsFlow()
+
     private var consecutiveCorrectAnswers = 0
     private var consecutiveIncorrectAnswers = 0
     private var nextLevel: Int? = null
@@ -37,14 +45,23 @@ class ReadingComprehensionViewModel(
     }
 
     fun checkAnswer(userAnswer: String) {
-        val currentQuestion = _uiState.value.questions[_uiState.value.currentQuestionIndex]
-        val isCorrect = userAnswer.trim().equals(currentQuestion.correctAnswer, ignoreCase = true)
+        val currentQuestionWrapper = _uiState.value.questions[_uiState.value.currentQuestionIndex]
+        val isCorrect = userAnswer.trim().equals(currentQuestionWrapper.question.correctAnswer, ignoreCase = true)
         val currentLevel = _uiState.value.level
 
         if (isCorrect) {
             consecutiveCorrectAnswers++
             consecutiveIncorrectAnswers = 0
-            _uiState.update { it.copy(feedback = "That's exactly right!", answerChecked = true, isCorrect = true) }
+            _uiState.update {
+                val updatedQuestions = it.questions.toMutableList()
+                updatedQuestions[it.currentQuestionIndex] = updatedQuestions[it.currentQuestionIndex].copy(isCorrect = true)
+                it.copy(
+                    feedback = "That's exactly right!",
+                    answerChecked = true,
+                    isCorrect = true,
+                    questions = updatedQuestions
+                )
+            }
 
             if (consecutiveCorrectAnswers >= CORRECT_ANSWERS_TO_LEVEL_UP && currentLevel < MAX_LEVEL) {
                 nextLevel = currentLevel + 1
@@ -54,10 +71,13 @@ class ReadingComprehensionViewModel(
             consecutiveIncorrectAnswers++
             val feedback = "That's a good try! Let's look at this part of the story again: \"${_uiState.value.currentText?.text}\""
             _uiState.update {
+                val updatedQuestions = it.questions.toMutableList()
+                updatedQuestions[it.currentQuestionIndex] = updatedQuestions[it.currentQuestionIndex].copy(isCorrect = false)
                 it.copy(
                     feedback = feedback,
                     answerChecked = true,
-                    isCorrect = false
+                    isCorrect = false,
+                    questions = updatedQuestions
                 )
             }
 
@@ -93,7 +113,15 @@ class ReadingComprehensionViewModel(
                 }
                 loadLevel(levelToLoad)
             } else {
-                loadLevel(currentState.level, "Great job! Let's try another one at this level.")
+                viewModelScope.launch {
+                    _navigationEvent.send(
+                        NavigationEvent.LevelComplete(
+                            level = currentState.level,
+                            score = uiState.value.questions.count { it.isCorrect ?: false },
+                            totalQuestions = uiState.value.questions.size
+                        )
+                    )
+                }
             }
         }
     }
@@ -102,6 +130,13 @@ class ReadingComprehensionViewModel(
         val currentLevel = _uiState.value.level
         if (currentLevel > 0) {
             loadLevel(currentLevel - 1, "No problem at all! Let's go back and practice one that's a bit easier to build our strength.")
+        }
+    }
+
+    fun loadNextLevel() {
+        val currentLevel = _uiState.value.level
+        if (currentLevel < MAX_LEVEL) {
+            loadLevel(currentLevel + 1)
         }
     }
 
@@ -118,7 +153,7 @@ class ReadingComprehensionViewModel(
                     ReadingComprehensionUiState(
                         level = level,
                         currentText = text,
-                        questions = questions,
+                        questions = questions.map { ReadingComprehensionQuestionWrapper(question = it) },
                         feedback = message,
                         totalQuestions = questions.size,
                         currentProgress = 1
@@ -138,10 +173,15 @@ class ReadingComprehensionViewModel(
     }
 }
 
+data class ReadingComprehensionQuestionWrapper(
+    val question: ReadingComprehensionQuestion,
+    val isCorrect: Boolean? = null
+)
+
 data class ReadingComprehensionUiState(
     val level: Int = 0,
     val currentText: ReadingComprehensionText? = null,
-    val questions: List<ReadingComprehensionQuestion> = emptyList(),
+    val questions: List<ReadingComprehensionQuestionWrapper> = emptyList(),
     val currentQuestionIndex: Int = 0,
     val feedback: String = "",
     val answerChecked: Boolean = false,

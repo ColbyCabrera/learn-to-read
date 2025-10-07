@@ -8,44 +8,36 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.readingfoundations.ui.screens.home.HomeScreen
 import com.example.readingfoundations.ui.screens.phonetics.PhoneticsScreen
-import com.example.readingfoundations.ui.screens.punctuation.PunctuationPracticeScreen
-import com.example.readingfoundations.ui.screens.punctuation.QuizCompleteScreen
+import com.example.readingfoundations.ui.screens.reading_comprehension.ReadingComprehensionScreen
 import com.example.readingfoundations.ui.screens.reading_sentence.SentenceReadingScreen
 import com.example.readingfoundations.ui.screens.reading_word.LevelCompleteScreen
-import com.example.readingfoundations.ui.screens.reading_comprehension.ReadingComprehensionScreen
 import com.example.readingfoundations.ui.screens.reading_word.WordReadingScreen
-import com.example.readingfoundations.ui.screens.settings.SettingsScreen
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "home") {
-        composable("home") { HomeScreen(navController) }
-        composable("phonetics") { PhoneticsScreen(navController) }
-        composable("reading_comprehension") { ReadingComprehensionScreen(navController) }
-        composable(
-            "word_building/{level}",
-            arguments = listOf(navArgument("level") { type = NavType.IntType })
-        ) {
-            WordReadingScreen(navController)
+        composable("home") {
+            HomeScreen(navController = navController)
+        }
+        composable("phonetics") {
+            PhoneticsScreen(navController = navController)
         }
         composable(
-            "sentence_reading/{level}",
+            route = "reading_word/{level}",
             arguments = listOf(navArgument("level") { type = NavType.IntType })
         ) {
-            SentenceReadingScreen(navController)
+            WordReadingScreen(navController = navController)
         }
-        composable("punctuation") { PunctuationPracticeScreen(navController) }
-        composable("settings") { SettingsScreen(navController) }
         composable(
-            "level_complete/{level}/{score}/{totalQuestions}",
+            route = "levelComplete/{level}/{score}/{totalQuestions}",
             arguments = listOf(
                 navArgument("level") { type = NavType.IntType },
                 navArgument("score") { type = NavType.IntType },
                 navArgument("totalQuestions") { type = NavType.IntType }
             )
         ) { backStackEntry ->
-            val level = backStackEntry.arguments?.getInt("level") ?: 0
+            val level = backStackEntry.arguments?.getInt("level") ?: 1
             val score = backStackEntry.arguments?.getInt("score") ?: 0
             val totalQuestions = backStackEntry.arguments?.getInt("totalQuestions") ?: 0
             LevelCompleteScreen(
@@ -56,19 +48,15 @@ fun AppNavigation() {
             )
         }
         composable(
-            "quiz_complete/{score}/{totalQuestions}",
-            arguments = listOf(
-                navArgument("score") { type = NavType.IntType },
-                navArgument("totalQuestions") { type = NavType.IntType }
+            "sentence_reading/{level}",
+            arguments = listOf(navArgument("level") { type = NavType.IntType })
+        ) {
+            SentenceReadingScreen(
+                navController = navController
             )
-        ) { backStackEntry ->
-            val score = backStackEntry.arguments?.getInt("score") ?: 0
-            val totalQuestions = backStackEntry.arguments?.getInt("totalQuestions") ?: 0
-            QuizCompleteScreen(
-                navController = navController,
-                score = score,
-                totalQuestions = totalQuestions
-            )
+        }
+        composable("reading_comprehension") {
+            ReadingComprehensionScreen(navController = navController)
         }
     }
 }
