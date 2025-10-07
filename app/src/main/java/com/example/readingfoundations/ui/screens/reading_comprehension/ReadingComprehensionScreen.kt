@@ -79,8 +79,7 @@ fun ReadingComprehensionScreen(
         TopAppBar(title = {
             Text(
                 stringResource(
-                    R.string.reading_comprehension_level,
-                    uiState.level
+                    R.string.reading_comprehension_level, uiState.level
                 )
             )
         }, navigationIcon = {
@@ -109,7 +108,8 @@ fun ReadingComprehensionScreen(
         ) {
 
             if (uiState.totalQuestions > 0) {
-                val progress = uiState.currentProgress.toFloat() / uiState.totalQuestions.toFloat()
+                val progress =
+                    (uiState.currentProgress.toFloat() - 1) / uiState.totalQuestions.toFloat()
                 val animatedProgress by animateFloatAsState(
                     targetValue = progress,
                     animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
