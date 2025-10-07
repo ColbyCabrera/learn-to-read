@@ -79,7 +79,8 @@ fun ReadingComprehensionScreen(
         TopAppBar(title = {
             Text(
                 stringResource(
-                    R.string.reading_comprehension_level, uiState.level
+                    R.string.reading_comprehension_level,
+                    uiState.level
                 )
             )
         }, navigationIcon = {
