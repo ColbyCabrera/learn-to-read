@@ -75,7 +75,8 @@ class ReadingComprehensionViewModel(
                     currentQuestionIndex = it.currentQuestionIndex + 1,
                     feedback = "",
                     answerChecked = false,
-                    isCorrect = null
+                    isCorrect = null,
+                    currentProgress = it.currentProgress + 1
                 )
             }
         } else {
@@ -118,7 +119,9 @@ class ReadingComprehensionViewModel(
                         level = level,
                         currentText = text,
                         questions = questions,
-                        feedback = message
+                        feedback = message,
+                        totalQuestions = questions.size,
+                        currentProgress = 1
                     )
                 }
             } else {
@@ -142,5 +145,7 @@ data class ReadingComprehensionUiState(
     val currentQuestionIndex: Int = 0,
     val feedback: String = "",
     val answerChecked: Boolean = false,
-    val isCorrect: Boolean? = null
+    val isCorrect: Boolean? = null,
+    val currentProgress: Int = 0,
+    val totalQuestions: Int = 0
 )
