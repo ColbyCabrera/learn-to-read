@@ -6,6 +6,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.readingfoundations.data.ContentType
+import com.example.readingfoundations.ui.UnitDetailsScreen
+import com.example.readingfoundations.ui.UnitsScreen
 import com.example.readingfoundations.ui.screens.home.HomeScreen
 import com.example.readingfoundations.ui.screens.phonetics.PhoneticsScreen
 import com.example.readingfoundations.ui.screens.reading_comprehension.ReadingComprehensionScreen
@@ -19,6 +22,28 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = "home") {
         composable("home") {
             HomeScreen(navController = navController)
+        }
+        composable("units") {
+            UnitsScreen(onUnitClick = { unitId ->
+                navController.navigate("unit_details/$unitId")
+            })
+        }
+        composable(
+            route = "unit_details/{unitId}",
+            arguments = listOf(navArgument("unitId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val unitId = backStackEntry.arguments?.getString("unitId") ?: ""
+            UnitDetailsScreen(
+                unitId = unitId,
+                onLevelClick = { contentType, level ->
+                    val route = when (contentType) {
+                        ContentType.PHONETICS -> "phonetics" // Phonetics might not have levels in the same way
+                        ContentType.WORD_BUILDING -> "reading_word/$level"
+                        ContentType.SENTENCE_BUILDING -> "sentence_reading/$level"
+                    }
+                    navController.navigate(route)
+                }
+            )
         }
         composable("phonetics") {
             PhoneticsScreen(navController = navController)
