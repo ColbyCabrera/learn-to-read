@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularWavyProgressIndicator
@@ -56,6 +57,7 @@ private data class MenuItem(
 )
 
 private val staticMenuItems = listOf(
+    MenuItem("units", R.string.units, Icons.Default.School, "units"),
     MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics"),
     MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation"),
     MenuItem("reading_comprehension", R.string.reading_comprehension, Icons.AutoMirrored.Filled.MenuBook, "reading_comprehension"),
