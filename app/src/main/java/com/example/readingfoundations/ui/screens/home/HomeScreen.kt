@@ -33,16 +33,21 @@ import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -58,16 +63,19 @@ private data class MenuItem(
 private val staticMenuItems = listOf(
     MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics"),
     MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation"),
-    MenuItem("reading_comprehension", R.string.reading_comprehension, Icons.AutoMirrored.Filled.MenuBook, "reading_comprehension"),
+    MenuItem(
+        "reading_comprehension",
+        R.string.reading_comprehension,
+        Icons.AutoMirrored.Filled.MenuBook,
+        "reading_comprehension"
+    ),
     MenuItem("settings", R.string.settings, Icons.Default.Settings, "settings")
 )
 
 private val contentRoutes = listOf(
-    "phonetics",
-    "reading_word/1",
-    "sentence_reading/1",
-    "reading_comprehension"
+    "phonetics", "reading_word/1", "sentence_reading/1", "reading_comprehension"
 )
+
 
 @Composable
 fun HomeScreen(
@@ -75,43 +83,68 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var selectedItem by remember { mutableIntStateOf(0) }
+    val items = listOf("Home", "Subjects")
+    val selectedIcons = listOf(R.drawable.home_filled_24px, R.drawable.school_filled_24px)
+    val unselectedIcons = listOf(R.drawable.home_24px, R.drawable.school_24px)
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
-            .statusBarsPadding(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(bottom = 16.dp)
-    ) {
-        item {
-            EditorialMoment(
-                onStartLearningClick = { navController.navigate(contentRoutes.random()) },
-            )
-        }
 
-        item {
-            LevelSelection(
-                title = stringResource(R.string.word_building),
-                icon = Icons.Default.Construction,
-                numLevels = uiState.wordLevelCount,
-                progressMap = uiState.userProgress.wordLevelsProgress,
-                onLevelClick = { level -> navController.navigate("reading_word/$level") })
-        }
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                items.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        icon = {
+                            Icon(
+                                painter = painterResource(if (selectedItem == index) selectedIcons[index] else unselectedIcons[index]),
+                                contentDescription = item,
+                            )
+                        },
+                        label = { Text(item) },
+                        selected = selectedItem == index,
+                        onClick = { selectedItem = index },
+                    )
+                }
+            }
+        },
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+                .statusBarsPadding(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = paddingValues
+        ) {
+            item {
+                EditorialMoment(
+                    onStartLearningClick = { navController.navigate(contentRoutes.random()) },
+                )
+            }
 
-        item {
-            LevelSelection(
-                title = stringResource(R.string.sentence_reading),
-                icon = Icons.AutoMirrored.Filled.ChromeReaderMode,
-                numLevels = uiState.sentenceLevelCount,
-                progressMap = uiState.userProgress.sentenceLevelsProgress,
-                onLevelClick = { level -> navController.navigate("sentence_reading/$level") })
-        }
+            item {
+                LevelSelection(
+                    title = stringResource(R.string.word_building),
+                    icon = Icons.Default.Construction,
+                    numLevels = uiState.wordLevelCount,
+                    progressMap = uiState.userProgress.wordLevelsProgress,
+                    onLevelClick = { level -> navController.navigate("reading_word/$level") })
+            }
 
-        items(items = staticMenuItems, key = { it.id }) { item ->
-            StaticMenuItemCard(
-                item = item, onClick = { navController.navigate(item.route) })
+            item {
+                LevelSelection(
+                    title = stringResource(R.string.sentence_reading),
+                    icon = Icons.AutoMirrored.Filled.ChromeReaderMode,
+                    numLevels = uiState.sentenceLevelCount,
+                    progressMap = uiState.userProgress.sentenceLevelsProgress,
+                    onLevelClick = { level -> navController.navigate("sentence_reading/$level") })
+            }
+
+            items(items = staticMenuItems, key = { it.id }) { item ->
+                StaticMenuItemCard(
+                    item = item, onClick = { navController.navigate(item.route) })
+            }
         }
     }
 }
