@@ -17,6 +17,12 @@ import com.example.readingfoundations.ui.screens.settings.SettingsViewModel
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
+            val savedStateHandle = createSavedStateHandle()
+            UnitDetailsViewModel(
+                savedStateHandle
+            )
+        }
+        initializer {
             HomeViewModel(
                 readingFoundationsApplication().container.appRepository
             )

@@ -31,10 +31,8 @@ fun AppNavigation() {
         composable(
             route = "unit_details/{unitId}",
             arguments = listOf(navArgument("unitId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val unitId = backStackEntry.arguments?.getString("unitId") ?: ""
+        ) {
             UnitDetailsScreen(
-                unitId = unitId,
                 onLevelClick = { contentType, level ->
                     val route = when (contentType) {
                         ContentType.PHONETICS -> "phonetics" // Phonetics might not have levels in the same way
