@@ -1,5 +1,6 @@
 package com.example.readingfoundations.data
 
+import com.example.readingfoundations.data.local.PhonemeDao
 import com.example.readingfoundations.data.local.PunctuationQuestionDao
 import com.example.readingfoundations.data.local.ReadingComprehensionDao
 import com.example.readingfoundations.data.local.SentenceDao
@@ -31,7 +32,7 @@ interface UnitRepository {
 @Singleton
 class UnitRepositoryImpl @Inject constructor(
     private val userProgressDao: UserProgressDao,
-    private val phonemeDao: com.example.readingfoundations.data.local.PhonemeDao,
+    private val phonemeDao: PhonemeDao,
     private val wordDao: WordDao,
     private val sentenceDao: SentenceDao,
     private val punctuationQuestionDao: PunctuationQuestionDao,
@@ -47,25 +48,38 @@ class UnitRepositoryImpl @Inject constructor(
         val readingComprehensionLevelFlow = readingComprehensionDao.getHighestLevel()
 
         return combine(
-            progressFlow,
-            phonemeLevelFlow,
-            wordLevelFlow,
-            sentenceLevelFlow,
-            punctuationLevelFlow
-        ) { userProgress, maxPhonemeLevel, maxWordLevel, maxSentenceLevel, maxPunctuationLevel ->
-            Triple(userProgress, maxPhonemeLevel, listOf(maxWordLevel, maxSentenceLevel, maxPunctuationLevel))
-        }.combine(readingComprehensionLevelFlow) { (userProgress, maxPhonemeLevel, otherLevels), maxReadingComprehensionLevel ->
-            val allLevels = otherLevels + maxReadingComprehensionLevel
-            val minLevels = (allLevels + maxPhonemeLevel).minOrNull() ?: 0
+            listOf(
+                progressFlow,
+                phonemeLevelFlow,
+                wordLevelFlow,
+                sentenceLevelFlow,
+                punctuationLevelFlow,
+                readingComprehensionLevelFlow
+            )
+        ) { array ->
+            val userProgress = array[0] as UserProgress?
+            val maxPhonemeLevel = array[1] as Int
+            val maxWordLevel = array[2] as Int
+            val maxSentenceLevel = array[3] as Int
+            val maxPunctuationLevel = array[4] as Int
+            val maxReadingComprehensionLevel = array[5] as Int
+
+            val minLevels = minOf(
+                maxPhonemeLevel,
+                maxWordLevel,
+                maxSentenceLevel,
+                maxPunctuationLevel,
+                maxReadingComprehensionLevel
+            )
             val totalUnits = (minLevels + 1) / 2
 
             (1..totalUnits).map { unitId ->
                 val levels = mutableListOf<Level>()
                 val subjects = mapOf(
                     Subjects.PHONETICS to maxPhonemeLevel,
-                    Subjects.WORD_BUILDING to allLevels[0],
-                    Subjects.SENTENCE_READING to allLevels[1],
-                    Subjects.PUNCTUATION to allLevels[2],
+                    Subjects.WORD_BUILDING to maxWordLevel,
+                    Subjects.SENTENCE_READING to maxSentenceLevel,
+                    Subjects.PUNCTUATION to maxPunctuationLevel,
                     Subjects.READING_COMPREHENSION to maxReadingComprehensionLevel
                 )
                 for ((subject, maxLevel) in subjects) {
@@ -112,8 +126,6 @@ class UnitRepositoryImpl @Inject constructor(
     override fun getAllPunctuationQuestions(): Flow<List<PunctuationQuestion>> {
         return punctuationQuestionDao.getAllQuestions()
     }
-
-
 
     override fun getReadingComprehensionQuestions(level: Int): Flow<List<ReadingComprehensionQuestion>> {
         return readingComprehensionDao.getQuestionsForText(level)
