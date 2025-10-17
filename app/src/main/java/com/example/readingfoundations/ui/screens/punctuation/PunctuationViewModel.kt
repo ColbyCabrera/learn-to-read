@@ -2,14 +2,14 @@ package com.example.readingfoundations.ui.screens.punctuation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.readingfoundations.data.AppRepository
+import com.example.readingfoundations.data.UnitRepository
 import com.example.readingfoundations.data.models.PunctuationQuestion
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import android.util.Log
 
-class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel() {
+class PunctuationViewModel(private val unitRepository: UnitRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PunctuationUiState())
     val uiState: StateFlow<PunctuationUiState> = _uiState.asStateFlow()
@@ -25,7 +25,7 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
         viewModelScope.launch {
             try {
                 // Use .first() to ensure questions are loaded only once and the quiz state is stable.
-                val questions = appRepository.getAllPunctuationQuestions().first().shuffled()
+                val questions = unitRepository.getAllPunctuationQuestions().first().shuffled()
                 if (questions.isNotEmpty()) {
                     _uiState.value = PunctuationUiState(
                         questions = questions,
@@ -65,6 +65,7 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
         } else {
             // Quiz finished
             viewModelScope.launch {
+                unitRepository.updateProgress("Punctuation", 1)
                 _navigationEvent.send(NavigationEvent.QuizComplete(currentState.score, currentState.questions.size))
             }
         }

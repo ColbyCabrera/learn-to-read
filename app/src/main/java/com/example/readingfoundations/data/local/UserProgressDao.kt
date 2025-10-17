@@ -13,4 +13,7 @@ interface UserProgressDao {
 
     @Query("SELECT * FROM user_progress WHERE id = 1")
     fun getUserProgress(): Flow<UserProgress?>
+
+    @Query("SELECT * FROM user_progress WHERE id = 1")
+    suspend fun getUserProgressSync(): UserProgress?
 }

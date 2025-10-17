@@ -9,4 +9,5 @@ interface AppContainer {
     val appRepository: AppRepository
     val userPreferencesRepository: UserPreferencesRepository
     val readingComprehensionRepository: ReadingComprehensionRepository
+    val unitRepository: UnitRepository
 }

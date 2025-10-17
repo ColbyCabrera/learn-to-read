@@ -3,9 +3,8 @@ package com.example.readingfoundations.ui.screens.reading_sentence
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.readingfoundations.data.AppRepository
+import com.example.readingfoundations.data.UnitRepository
 import com.example.readingfoundations.data.models.Sentence
-import com.example.readingfoundations.data.models.UserProgress
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +14,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class SentenceReadingViewModel(
-    private val appRepository: AppRepository,
+    private val unitRepository: UnitRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -33,7 +32,7 @@ class SentenceReadingViewModel(
 
     private fun loadSentences(level: Int) {
         viewModelScope.launch {
-            appRepository.getSentencesByDifficulty(level).collect { sentences ->
+            unitRepository.getSentencesByDifficulty(level).collect { sentences ->
                 _uiState.value = SentenceReadingUiState(
                     sentences = sentences,
                     currentLevel = level
@@ -80,22 +79,13 @@ class SentenceReadingViewModel(
         } else {
             // Quiz finished
             viewModelScope.launch {
-                val userProgress = appRepository.getUserProgress().first() ?: UserProgress()
                 val score = quizState.score
-                val totalQuestions = quizState.questions.size
-                val progressPercentage = (score.toFloat() / totalQuestions * 100).toInt()
-
-                val updatedProgress = userProgress.sentenceLevelsProgress.toMutableMap()
-                updatedProgress[level] = progressPercentage
-
-                appRepository.updateUserProgress(
-                    userProgress.copy(sentenceLevelsProgress = updatedProgress)
-                )
+                unitRepository.updateProgress("Sentence Reading", level)
                 _navigationEvent.send(
                     NavigationEvent.LevelComplete(
                         level = level,
                         score = score,
-                        totalQuestions = totalQuestions
+                        totalQuestions = quizState.questions.size
                     )
                 )
             }

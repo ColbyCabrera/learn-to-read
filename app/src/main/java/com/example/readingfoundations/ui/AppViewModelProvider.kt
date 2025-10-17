@@ -18,28 +18,30 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             HomeViewModel(
-                readingFoundationsApplication().container.appRepository
+                readingFoundationsApplication().container.unitRepository
             )
         }
         initializer {
-            PhoneticsViewModel()
+            PhoneticsViewModel(
+                readingFoundationsApplication().container.unitRepository
+            )
         }
         initializer {
             PunctuationViewModel(
-                readingFoundationsApplication().container.appRepository
+                readingFoundationsApplication().container.unitRepository
             )
         }
         initializer {
             val savedStateHandle = createSavedStateHandle()
             WordReadingViewModel(
-                readingFoundationsApplication().container.appRepository,
+                readingFoundationsApplication().container.unitRepository,
                 savedStateHandle
             )
         }
         initializer {
             val savedStateHandle = createSavedStateHandle()
             SentenceReadingViewModel(
-                readingFoundationsApplication().container.appRepository,
+                readingFoundationsApplication().container.unitRepository,
                 savedStateHandle
             )
         }

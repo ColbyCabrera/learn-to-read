@@ -17,4 +17,7 @@ interface PunctuationQuestionDao {
 
     @Query("SELECT * FROM punctuation_questions")
     fun getAllQuestions(): Flow<List<PunctuationQuestion>>
+
+    @Query("SELECT COALESCE(MAX(level), 0) FROM punctuation_questions")
+    fun getHighestLevel(): Flow<Int>
 }

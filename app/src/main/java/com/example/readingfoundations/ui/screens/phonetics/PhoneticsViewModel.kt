@@ -11,7 +11,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class PhoneticsViewModel : ViewModel() {
+import com.example.readingfoundations.data.UnitRepository
+
+class PhoneticsViewModel(private val unitRepository: UnitRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PhoneticsUiState())
     val uiState: StateFlow<PhoneticsUiState> = _uiState.asStateFlow()
@@ -39,6 +41,7 @@ class PhoneticsViewModel : ViewModel() {
         practiceJob = viewModelScope.launch {
             delay(1000) // wait for 1 second
             if (isCorrect) {
+                unitRepository.updateProgress("Phonetics", 1)
                 generateNewQuestion()
             } else {
                 _uiState.update { it.copy(isCorrect = null) } // Reset for another try
