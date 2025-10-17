@@ -65,7 +65,10 @@ fun AppNavigation() {
                 navController = navController
             )
         }
-        composable("reading_comprehension") {
+        composable(
+            route = "reading_comprehension/{level}",
+            arguments = listOf(navArgument("level") { type = NavType.IntType })
+        ) {
             ReadingComprehensionScreen(navController = navController)
         }
     }

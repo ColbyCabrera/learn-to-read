@@ -128,6 +128,6 @@ class UnitRepositoryImpl @Inject constructor(
     }
 
     override fun getReadingComprehensionQuestions(level: Int): Flow<List<ReadingComprehensionQuestion>> {
-        return readingComprehensionDao.getQuestionsForText(level)
+        return readingComprehensionDao.getQuestionsByLevel(level)
     }
 }
