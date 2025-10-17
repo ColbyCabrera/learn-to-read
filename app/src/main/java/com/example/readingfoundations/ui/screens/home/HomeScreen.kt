@@ -166,7 +166,9 @@ fun UnitPathScreen(
             PuffyDiamond,
             SemiCircle,
             SoftBoom,
-            Sunny
+            SoftBurst,
+            Sunny,
+            VerySunny
         )
     }
     val unitShapes = remember(units.size) {
