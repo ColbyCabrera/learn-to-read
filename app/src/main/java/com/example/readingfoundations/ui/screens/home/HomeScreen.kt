@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -42,6 +43,7 @@ import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
@@ -313,14 +315,15 @@ fun UnitShape(
         ) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                 if (isCurrent) {
-                    CircularWavyProgressIndicator(
+                    CircularProgressIndicator(
                         progress = { unit.progress },
-                        modifier = Modifier.fillMaxSize(0.8f),
-                        color = contentColor
+                        modifier = Modifier.fillMaxSize(0.55f),
+                        color = contentColor,
+                        strokeWidth = ProgressIndicatorDefaults.CircularStrokeWidth * 2,
                     )
                 }
                 Text(
-                    text = "Unit ${unit.id}",
+                    text = "${unit.id}",
                     style = MaterialTheme.typography.headlineMedium,
                     textAlign = TextAlign.Center,
                     color = contentColor
