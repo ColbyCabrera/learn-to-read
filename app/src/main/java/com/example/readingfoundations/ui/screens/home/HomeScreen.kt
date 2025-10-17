@@ -66,6 +66,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.readingfoundations.R
+import com.example.readingfoundations.data.Subjects
 import com.example.readingfoundations.data.models.Level
 import com.example.readingfoundations.ui.AppViewModelProvider
 import kotlin.random.Random
@@ -76,8 +77,8 @@ private data class MenuItem(
 )
 
 private val staticMenuItems = listOf(
-    MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics/1"),
-    MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation/1"),
+    MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics"),
+    MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation"),
     MenuItem(
         "reading_comprehension",
         R.string.reading_comprehension,
@@ -123,11 +124,11 @@ fun HomeScreen(
                 units = homeUiState.units,
                 onUnitClick = { subject, level ->
                     val route = when (subject) {
-                        com.example.readingfoundations.data.Subjects.PHONETICS -> "phonetics/$level"
-                        com.example.readingfoundations.data.Subjects.WORD_BUILDING -> "reading_word/$level"
-                        com.example.readingfoundations.data.Subjects.SENTENCE_READING -> "sentence_reading/$level"
-                        com.example.readingfoundations.data.Subjects.PUNCTUATION -> "punctuation/$level"
-                        com.example.readingfoundations.data.Subjects.READING_COMPREHENSION -> "reading_comprehension/$level"
+                        Subjects.PHONETICS -> "phonetics/$level"
+                        Subjects.WORD_BUILDING -> "reading_word/$level"
+                        Subjects.SENTENCE_READING -> "sentence_reading/$level"
+                        Subjects.PUNCTUATION -> "punctuation/$level"
+                        Subjects.READING_COMPREHENSION -> "reading_comprehension/$level"
                         else -> ""
                     }
                     if (route.isNotEmpty()) {
@@ -194,7 +195,7 @@ fun UnitPathScreen(
 }
 
 fun getNextLevel(unit: DataUnit): Level? {
-    val subjectOrder = com.example.readingfoundations.data.Subjects.ALL
+    val subjectOrder = Subjects.ALL
     val sortedLevels =
         unit.levels.sortedWith(compareBy<Level> { it.levelNumber }.thenBy { subjectOrder.indexOf(it.subject) })
     return sortedLevels.firstOrNull { !it.isCompleted }
@@ -337,6 +338,15 @@ fun InfoBox(level: Level) {
     }
 }
 
+private fun getNextIncompleteLevel(subject: String, homeUiState: HomeUiState): Int {
+    val completedLevels = homeUiState.userProgress.completedLevels[subject] ?: emptyList()
+    var level = 1
+    while (completedLevels.contains(level)) {
+        level++
+    }
+    return level
+}
+
 
 // The old screen, adapted for the "Subjects" tab
 @Composable
@@ -345,30 +355,30 @@ fun SubjectsScreen(
 ) {
     val wordLevelCount = remember(homeUiState.units.size, homeUiState.units.hashCode()) {
         homeUiState.units.flatMap { it.levels }
-            .filter { it.subject == com.example.readingfoundations.data.Subjects.WORD_BUILDING }
+            .filter { it.subject == Subjects.WORD_BUILDING }
             .maxOfOrNull { it.levelNumber } ?: 0
     }
     val sentenceLevelCount = remember(homeUiState.units.size, homeUiState.units.hashCode()) {
         homeUiState.units.flatMap { it.levels }
-            .filter { it.subject == com.example.readingfoundations.data.Subjects.SENTENCE_READING }
+            .filter { it.subject == Subjects.SENTENCE_READING }
             .maxOfOrNull { it.levelNumber } ?: 0
     }
     val readingComprehensionLevelCount = remember(homeUiState.units.size, homeUiState.units.hashCode()) {
         homeUiState.units.flatMap { it.levels }
-            .filter { it.subject == com.example.readingfoundations.data.Subjects.READING_COMPREHENSION }
+            .filter { it.subject == Subjects.READING_COMPREHENSION }
             .maxOfOrNull { it.levelNumber } ?: 0
     }
 
     val wordProgressMap = remember(homeUiState.userProgress) {
-        homeUiState.userProgress.completedLevels[com.example.readingfoundations.data.Subjects.WORD_BUILDING]?.associateWith { 100 }
+        homeUiState.userProgress.completedLevels[Subjects.WORD_BUILDING]?.associateWith { 100 }
             ?: emptyMap()
     }
     val sentenceProgressMap = remember(homeUiState.userProgress) {
-        homeUiState.userProgress.completedLevels[com.example.readingfoundations.data.Subjects.SENTENCE_READING]?.associateWith { 100 }
+        homeUiState.userProgress.completedLevels[Subjects.SENTENCE_READING]?.associateWith { 100 }
             ?: emptyMap()
     }
     val readingComprehensionProgressMap = remember(homeUiState.userProgress) {
-        homeUiState.userProgress.completedLevels[com.example.readingfoundations.data.Subjects.READING_COMPREHENSION]?.associateWith { 100 }
+        homeUiState.userProgress.completedLevels[Subjects.READING_COMPREHENSION]?.associateWith { 100 }
             ?: emptyMap()
     }
 
@@ -410,7 +420,20 @@ fun SubjectsScreen(
 
         items(items = staticMenuItems, key = { it.id }) { item ->
             StaticMenuItemCard(
-                item = item, onClick = { navController.navigate(item.route) })
+                item = item, onClick = {
+                    val subject = when (item.id) {
+                        "phonetics" -> Subjects.PHONETICS
+                        "punctuation" -> Subjects.PUNCTUATION
+                        "reading_comprehension" -> Subjects.READING_COMPREHENSION
+                        else -> null
+                    }
+                    if (subject != null) {
+                        val level = getNextIncompleteLevel(subject, homeUiState)
+                        navController.navigate("${item.route}/$level")
+                    } else {
+                        navController.navigate(item.route)
+                    }
+                })
         }
     }
 }
