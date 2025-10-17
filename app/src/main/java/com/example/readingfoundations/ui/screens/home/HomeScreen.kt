@@ -40,7 +40,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,6 +52,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.readingfoundations.R
 import com.example.readingfoundations.ui.AppViewModelProvider
 
@@ -62,11 +63,13 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var selectedItem by remember { mutableIntStateOf(0) }
     val items = listOf("Home", "Subjects")
     val routes = listOf("home", "subjects")
     val selectedIcons = listOf(R.drawable.home_filled_24px, R.drawable.school_filled_24px)
     val unselectedIcons = listOf(R.drawable.home_24px, R.drawable.school_24px)
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val selectedItem = routes.indexOf(currentRoute)
 
 
     Scaffold(
@@ -83,8 +86,13 @@ fun HomeScreen(
                         label = { Text(item) },
                         selected = selectedItem == index,
                         onClick = {
-                            selectedItem = index
-                            navController.navigate(routes[index])
+                            navController.navigate(routes[index]) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         },
                     )
                 }
