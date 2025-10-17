@@ -80,7 +80,7 @@ class WordReadingViewModel(
             // Quiz finished
             viewModelScope.launch {
                 val score = quizState.score
-                unitRepository.updateProgress("Word Building", level)
+                unitRepository.updateProgress(com.example.readingfoundations.data.Subjects.WORD_BUILDING, level)
                 _navigationEvent.send(
                     NavigationEvent.LevelComplete(
                         level = level,

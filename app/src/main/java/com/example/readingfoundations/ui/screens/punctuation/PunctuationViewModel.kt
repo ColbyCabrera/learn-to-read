@@ -9,8 +9,14 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import android.util.Log
 
-class PunctuationViewModel(private val unitRepository: UnitRepository) : ViewModel() {
+import androidx.lifecycle.SavedStateHandle
 
+class PunctuationViewModel(
+    private val unitRepository: UnitRepository,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
+
+    private val level: Int = savedStateHandle.get<Int>("level") ?: 1
     private val _uiState = MutableStateFlow(PunctuationUiState())
     val uiState: StateFlow<PunctuationUiState> = _uiState.asStateFlow()
 
@@ -25,7 +31,7 @@ class PunctuationViewModel(private val unitRepository: UnitRepository) : ViewMod
         viewModelScope.launch {
             try {
                 // Use .first() to ensure questions are loaded only once and the quiz state is stable.
-                val questions = unitRepository.getAllPunctuationQuestions().first().shuffled()
+                val questions = unitRepository.getAllPunctuationQuestions().first().filter { it.level == level }.shuffled()
                 if (questions.isNotEmpty()) {
                     _uiState.value = PunctuationUiState(
                         questions = questions,
@@ -65,7 +71,7 @@ class PunctuationViewModel(private val unitRepository: UnitRepository) : ViewMod
         } else {
             // Quiz finished
             viewModelScope.launch {
-                unitRepository.updateProgress("Punctuation", 1)
+                unitRepository.updateProgress(com.example.readingfoundations.data.Subjects.PUNCTUATION, level)
                 _navigationEvent.send(NavigationEvent.QuizComplete(currentState.score, currentState.questions.size))
             }
         }

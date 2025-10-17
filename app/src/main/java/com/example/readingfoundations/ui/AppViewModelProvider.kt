@@ -22,13 +22,17 @@ object AppViewModelProvider {
             )
         }
         initializer {
+            val savedStateHandle = createSavedStateHandle()
             PhoneticsViewModel(
-                readingFoundationsApplication().container.unitRepository
+                readingFoundationsApplication().container.unitRepository,
+                savedStateHandle
             )
         }
         initializer {
+            val savedStateHandle = createSavedStateHandle()
             PunctuationViewModel(
-                readingFoundationsApplication().container.unitRepository
+                readingFoundationsApplication().container.unitRepository,
+                savedStateHandle
             )
         }
         initializer {

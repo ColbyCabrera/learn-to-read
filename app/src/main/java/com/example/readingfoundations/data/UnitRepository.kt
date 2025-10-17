@@ -42,10 +42,16 @@ class UnitRepositoryImpl @Inject constructor(
 
             (1..totalUnits).map { unitId ->
                 val levels = mutableListOf<Level>()
-                val subjects = listOf("Phonetics", "Word Building", "Sentence Reading", "Punctuation")
-                for (subject in subjects) {
+                val subjects = mapOf(
+                    Subjects.PHONETICS to maxPhonemeLevel,
+                    Subjects.WORD_BUILDING to maxWordLevel,
+                    Subjects.SENTENCE_READING to maxSentenceLevel,
+                    Subjects.PUNCTUATION to maxPunctuationLevel
+                )
+                for ((subject, maxLevel) in subjects) {
                     for (i in 1..2) {
                         val levelNumber = (unitId - 1) * 2 + i
+                        if (levelNumber > maxLevel) continue
                         val isCompleted = userProgress?.completedLevels?.get(subject)?.contains(levelNumber) ?: false
                         levels.add(Level(subject, levelNumber, isCompleted))
                     }
@@ -58,7 +64,7 @@ class UnitRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateProgress(subject: String, level: Int) {
-        val userProgress = userProgressDao.getUserProgressSync() ?: UserProgress()
+        val userProgress = userProgressDao.getUserProgress().first() ?: UserProgress()
         val completedLevels = userProgress.completedLevels.toMutableMap()
         val subjectLevels = completedLevels.getOrPut(subject) { emptyList() }.toMutableList()
         if (!subjectLevels.contains(level)) {

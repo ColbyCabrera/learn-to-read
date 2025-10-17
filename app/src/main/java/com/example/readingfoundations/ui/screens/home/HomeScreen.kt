@@ -92,7 +92,7 @@ fun HomeScreen(
 ) {
     val homeUiState by viewModel.uiState.collectAsState()
     var selectedItem by remember { mutableIntStateOf(0) }
-    val items = listOf("Home", "Subjects")
+    val items = listOf(stringResource(R.string.home), stringResource(R.string.subjects))
     val selectedIcons = listOf(R.drawable.home_filled_24px, R.drawable.school_filled_24px)
     val unselectedIcons = listOf(R.drawable.home_24px, R.drawable.school_24px)
 
@@ -121,10 +121,10 @@ fun HomeScreen(
                 units = homeUiState.units,
                 onUnitClick = { subject, level ->
                     val route = when (subject) {
-                        "Phonetics" -> "phonetics/$level"
-                        "Word Building" -> "reading_word/$level"
-                        "Sentence Reading" -> "sentence_reading/$level"
-                        "Punctuation" -> "punctuation/$level"
+                        com.example.readingfoundations.data.Subjects.PHONETICS -> "phonetics/$level"
+                        com.example.readingfoundations.data.Subjects.WORD_BUILDING -> "reading_word/$level"
+                        com.example.readingfoundations.data.Subjects.SENTENCE_READING -> "sentence_reading/$level"
+                        com.example.readingfoundations.data.Subjects.PUNCTUATION -> "punctuation/$level"
                         else -> ""
                     }
                     if (route.isNotEmpty()) {
@@ -178,12 +178,10 @@ fun UnitPathScreen(
 }
 
 fun getNextLevel(unit: Unit): Level? {
-    val subjectOrder = listOf("Phonetics", "Word Building", "Sentence Reading", "Punctuation")
+    val subjectOrder = com.example.readingfoundations.data.Subjects.ALL
     val sortedLevels = unit.levels.sortedWith(
-        compareBy(
-            { it.levelNumber % 2 },
-            { subjectOrder.indexOf(it.subject) }
-        )
+        compareBy<Level> { it.levelNumber }
+            .thenBy { subjectOrder.indexOf(it.subject) }
     )
     return sortedLevels.firstOrNull { !it.isCompleted }
 }
@@ -337,11 +335,11 @@ fun SubjectsScreen(
     homeUiState: HomeUiState,
     navController: NavController
 ) {
-    val wordLevelCount = homeUiState.units.flatMap { it.levels }.filter { it.subject == "Word Building" }.maxOfOrNull { it.levelNumber } ?: 0
-    val sentenceLevelCount = homeUiState.units.flatMap { it.levels }.filter { it.subject == "Sentence Reading" }.maxOfOrNull { it.levelNumber } ?: 0
+    val wordLevelCount = remember(homeUiState.units) { homeUiState.units.flatMap { it.levels }.filter { it.subject == com.example.readingfoundations.data.Subjects.WORD_BUILDING }.maxOfOrNull { it.levelNumber } ?: 0 }
+    val sentenceLevelCount = remember(homeUiState.units) { homeUiState.units.flatMap { it.levels }.filter { it.subject == com.example.readingfoundations.data.Subjects.SENTENCE_READING }.maxOfOrNull { it.levelNumber } ?: 0 }
 
-    val wordProgressMap = homeUiState.userProgress.completedLevels["Word Building"]?.associateWith { 100 } ?: emptyMap()
-    val sentenceProgressMap = homeUiState.userProgress.completedLevels["Sentence Reading"]?.associateWith { 100 } ?: emptyMap()
+    val wordProgressMap = remember(homeUiState.userProgress) { homeUiState.userProgress.completedLevels[com.example.readingfoundations.data.Subjects.WORD_BUILDING]?.associateWith { 100 } ?: emptyMap() }
+    val sentenceProgressMap = remember(homeUiState.userProgress) { homeUiState.userProgress.completedLevels[com.example.readingfoundations.data.Subjects.SENTENCE_READING]?.associateWith { 100 } ?: emptyMap() }
 
 
     LazyColumn(

@@ -24,14 +24,11 @@ class HomeViewModel(private val unitRepository: UnitRepository) : ViewModel() {
             initialValue = HomeUiState()
         )
 
-    fun updateProgress(subject: String, level: Int) {
-        viewModelScope.launch {
-            unitRepository.updateProgress(subject, level)
-        }
-    }
 }
+
+import com.example.readingfoundations.data.models.UserProgress
 
 data class HomeUiState(
     val units: List<Unit> = emptyList(),
-    val userProgress: com.example.readingfoundations.data.models.UserProgress = com.example.readingfoundations.data.models.UserProgress()
+    val userProgress: UserProgress = UserProgress()
 )
