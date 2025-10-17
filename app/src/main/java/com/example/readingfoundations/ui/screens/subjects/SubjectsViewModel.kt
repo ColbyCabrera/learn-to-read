@@ -1,4 +1,4 @@
-package com.example.readingfoundations.ui.screens.sections
+package com.example.readingfoundations.ui.screens.subjects
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

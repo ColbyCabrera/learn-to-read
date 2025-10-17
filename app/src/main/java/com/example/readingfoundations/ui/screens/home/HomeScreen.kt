@@ -56,27 +56,6 @@ import androidx.navigation.NavController
 import com.example.readingfoundations.R
 import com.example.readingfoundations.ui.AppViewModelProvider
 
-private data class MenuItem(
-    val id: String, val title: Int, val icon: ImageVector, val route: String
-)
-
-private val staticMenuItems = listOf(
-    MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics"),
-    MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation"),
-    MenuItem(
-        "reading_comprehension",
-        R.string.reading_comprehension,
-        Icons.AutoMirrored.Filled.MenuBook,
-        "reading_comprehension"
-    ),
-    MenuItem("settings", R.string.settings, Icons.Default.Settings, "settings")
-)
-
-private val contentRoutes = listOf(
-    "phonetics", "reading_word/1", "sentence_reading/1", "reading_comprehension"
-)
-
-
 @Composable
 fun HomeScreen(
     navController: NavController,
@@ -102,7 +81,10 @@ fun HomeScreen(
                         },
                         label = { Text(item) },
                         selected = selectedItem == index,
-                        onClick = { selectedItem = index },
+                        onClick = {
+                            selectedItem = index
+                            navController.navigate(item)
+                        },
                     )
                 }
             }
@@ -117,12 +99,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = paddingValues
         ) {
-            item {
-                EditorialMoment(
-                    onStartLearningClick = { navController.navigate(contentRoutes.random()) },
-                )
-            }
+
         }
     }
 }
-

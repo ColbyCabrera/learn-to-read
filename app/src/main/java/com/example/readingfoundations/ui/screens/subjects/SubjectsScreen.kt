@@ -1,4 +1,4 @@
-package com.example.readingfoundations.ui.screens.sections
+package com.example.readingfoundations.ui.screens.subjects
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
