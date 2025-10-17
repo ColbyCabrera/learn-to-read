@@ -91,7 +91,7 @@ fun ReadingComprehensionScreen(
                 )
             }
         }, actions = {
-            if (uiState.level > 0) {
+            if (uiState.level > 1) {
                 IconButton(onClick = { viewModel.previousLevel() }) {
                     Icon(
                         Icons.Default.ArrowDownward,

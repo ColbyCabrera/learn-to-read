@@ -44,7 +44,7 @@ class ReadingComprehensionViewModel(
     private var consecutiveCorrectAnswers = 0
     private var consecutiveIncorrectAnswers = 0
     private var nextLevel: Int? = null
-    private val level: Int = savedStateHandle["level"] ?: 0
+    private val level: Int = savedStateHandle["level"] ?: 1
 
     init {
         loadLevel(level)
@@ -87,7 +87,7 @@ class ReadingComprehensionViewModel(
                 )
             }
 
-            if (consecutiveIncorrectAnswers >= INCORRECT_ANSWERS_TO_LEVEL_DOWN && currentLevel > 0) {
+            if (consecutiveIncorrectAnswers >= INCORRECT_ANSWERS_TO_LEVEL_DOWN && currentLevel > 1) {
                 nextLevel = currentLevel - 1
             }
         }
@@ -137,7 +137,7 @@ class ReadingComprehensionViewModel(
 
     fun previousLevel() {
         val currentLevel = _uiState.value.level
-        if (currentLevel > 0) {
+        if (currentLevel > 1) {
             loadLevel(currentLevel - 1, "No problem at all! Let's go back and practice one that's a bit easier to build our strength.")
         }
     }
@@ -188,7 +188,7 @@ data class ReadingComprehensionQuestionWrapper(
 )
 
 data class ReadingComprehensionUiState(
-    val level: Int = 0,
+    val level: Int = 1,
     val currentText: ReadingComprehensionText? = null,
     val questions: List<ReadingComprehensionQuestionWrapper> = emptyList(),
     val currentQuestionIndex: Int = 0,
