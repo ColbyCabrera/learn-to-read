@@ -150,11 +150,10 @@ fun UnitPathScreen(
 ) {
     val shapes = with(MaterialShapes) {
         listOf(
-            Pill,
-            Arch,
-            Bun,
-            ClamShell,
-            Clover4Leaf,
+            Clover8Leaf,
+            Cookie6Sided,
+            Cookie7Sided,
+            Cookie9Sided,
             Cookie12Sided,
             Fan,
             Flower,
