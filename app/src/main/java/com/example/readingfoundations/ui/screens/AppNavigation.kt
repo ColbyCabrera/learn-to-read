@@ -13,6 +13,7 @@ import com.example.readingfoundations.ui.screens.reading_comprehension.ReadingCo
 import com.example.readingfoundations.ui.screens.reading_sentence.SentenceReadingScreen
 import com.example.readingfoundations.ui.screens.reading_word.LevelCompleteScreen
 import com.example.readingfoundations.ui.screens.reading_word.WordReadingScreen
+import com.example.readingfoundations.ui.screens.subjects.SubjectsScreen
 
 @Composable
 fun AppNavigation() {

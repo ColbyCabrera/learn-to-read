@@ -50,7 +50,6 @@ import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -67,6 +66,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.readingfoundations.R
 import com.example.readingfoundations.data.Subjects
 import com.example.readingfoundations.data.models.Level
@@ -100,6 +101,9 @@ fun HomeScreen(
     val items = listOf(stringResource(R.string.home), stringResource(R.string.subjects))
     val selectedIcons = listOf(R.drawable.home_filled_24px, R.drawable.school_filled_24px)
     val unselectedIcons = listOf(R.drawable.home_24px, R.drawable.school_24px)
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val selectedItem = routes.indexOf(currentRoute)
 
     Scaffold(
         bottomBar = {
@@ -114,7 +118,15 @@ fun HomeScreen(
                         },
                         label = { Text(item) },
                         selected = selectedItem == index,
-                        onClick = { selectedItem = index },
+                        onClick = {
+                            navController.navigate(routes[index]) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
                     )
                 }
             }
@@ -491,46 +503,6 @@ private fun LevelSelection(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun LevelCard(level: Int, progress: Int, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier.aspectRatio(1f), onClick = onClick
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            CircularWavyProgressIndicator(
-                progress = { progress.toFloat() / 100f },
-                modifier = Modifier.fillMaxSize(0.8f),
-            )
-            Text(
-                text = level.toString(),
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
-@Composable
-private fun StaticMenuItemCard(
-    item: MenuItem, onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Icon(
-                imageVector = item.icon,
-                contentDescription = stringResource(item.title),
-                modifier = Modifier.size(40.dp)
-            )
-            Text(text = stringResource(item.title), style = MaterialTheme.typography.titleLarge)
         }
     }
 }
