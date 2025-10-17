@@ -343,17 +343,17 @@ fun InfoBox(level: Level) {
 fun SubjectsScreen(
     paddingValues: PaddingValues, homeUiState: HomeUiState, navController: NavController
 ) {
-    val wordLevelCount = remember(homeUiState.units) {
+    val wordLevelCount = remember(homeUiState.units.size, homeUiState.units.hashCode()) {
         homeUiState.units.flatMap { it.levels }
             .filter { it.subject == com.example.readingfoundations.data.Subjects.WORD_BUILDING }
             .maxOfOrNull { it.levelNumber } ?: 0
     }
-    val sentenceLevelCount = remember(homeUiState.units) {
+    val sentenceLevelCount = remember(homeUiState.units.size, homeUiState.units.hashCode()) {
         homeUiState.units.flatMap { it.levels }
             .filter { it.subject == com.example.readingfoundations.data.Subjects.SENTENCE_READING }
             .maxOfOrNull { it.levelNumber } ?: 0
     }
-    val readingComprehensionLevelCount = remember(homeUiState.units) {
+    val readingComprehensionLevelCount = remember(homeUiState.units.size, homeUiState.units.hashCode()) {
         homeUiState.units.flatMap { it.levels }
             .filter { it.subject == com.example.readingfoundations.data.Subjects.READING_COMPREHENSION }
             .maxOfOrNull { it.levelNumber } ?: 0
