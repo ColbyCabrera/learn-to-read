@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.readingfoundations.data.UnitRepository
 import com.example.readingfoundations.data.models.Unit
+import com.example.readingfoundations.data.models.UserProgress
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -25,8 +26,6 @@ class HomeViewModel(private val unitRepository: UnitRepository) : ViewModel() {
         )
 
 }
-
-import com.example.readingfoundations.data.models.UserProgress
 
 data class HomeUiState(
     val units: List<Unit> = emptyList(),

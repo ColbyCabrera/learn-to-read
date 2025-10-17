@@ -10,5 +10,5 @@ data class PunctuationQuestion(
     val text: String,
     val correctAnswer: String,
     val options: List<String>? = null,
-    val level: Int
+    val level: Int = 1 // Added default value for level
 )
