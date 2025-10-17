@@ -39,10 +39,12 @@ import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -141,12 +143,31 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UnitPathScreen(
     paddingValues: PaddingValues, units: List<DataUnit>, onUnitClick: (String, Int) -> Unit
 ) {
-    val shapes = with(MaterialTheme.shapes) {
-        listOf(extraSmall, small, medium, large, extraLarge)
+    val shapes = with(MaterialShapes) {
+        listOf(
+            Pill,
+            Arch,
+            Bun,
+            ClamShell,
+            Clover4Leaf,
+            Cookie12Sided,
+            Fan,
+            Flower,
+            Gem,
+            Heart,
+            Oval,
+            Pentagon,
+            Puffy,
+            PuffyDiamond,
+            SemiCircle,
+            SoftBoom,
+            Sunny
+        )
     }
     val unitShapes = remember(units.size) {
         units.map { shapes.random(Random(it.id)) }
@@ -165,7 +186,7 @@ fun UnitPathScreen(
         itemsIndexed(units) { index, unit ->
             UnitPathItem(
                 unit = unit,
-                shape = unitShapes[index],
+                shape = unitShapes[index].toShape(),
                 isCurrent = index == currentUnitIndex,
                 isCompleted = index < currentUnitIndex,
                 isFirst = index == 0,
