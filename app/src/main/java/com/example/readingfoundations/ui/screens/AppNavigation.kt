@@ -21,7 +21,7 @@ fun AppNavigation() {
         composable("home") {
             HomeScreen(navController = navController)
         }
-        composable("sections") {
+        composable("subjects") {
             SubjectsScreen(navController = navController)
         }
         composable("phonetics") {
