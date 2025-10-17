@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
-class SectionsViewModel(appRepository: AppRepository) : ViewModel() {
+class SubjectsViewModel(appRepository: AppRepository) : ViewModel() {
 
     val uiState: StateFlow<HomeUiState> =
         combine(

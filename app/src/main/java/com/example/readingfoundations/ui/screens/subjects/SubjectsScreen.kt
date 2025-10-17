@@ -80,7 +80,7 @@ private val contentRoutes = listOf(
 
 
 @Composable
-fun SectionsScreen(
+fun SubjectsScreen(
     navController: NavController,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
