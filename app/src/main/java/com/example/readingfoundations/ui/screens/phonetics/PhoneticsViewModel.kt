@@ -34,6 +34,15 @@ class PhoneticsViewModel(private val unitRepository: UnitRepository) : ViewModel
         _uiState.value = PhoneticsUiState()
     }
 
+    /**
+     * Records the user's selected option for the current question and advances practice state.
+     *
+     * Updates UI state with the chosen option and whether it matches the current target. After a short delay,
+     * if the selection is correct the user's phonetics progress is incremented and a new question is generated;
+     * if incorrect the correctness state is cleared to allow another attempt.
+     *
+     * @param selectedOption The option the user selected (a grapheme or example word depending on the question).
+     */
     fun checkAnswer(selectedOption: String) {
         val isCorrect = selectedOption == _uiState.value.targetLetter
         _uiState.update { it.copy(isCorrect = isCorrect, selectedLetter = selectedOption) }

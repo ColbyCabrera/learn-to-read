@@ -21,6 +21,12 @@ class PunctuationViewModel(private val unitRepository: UnitRepository) : ViewMod
         loadQuestions()
     }
 
+    /**
+     * Loads punctuation questions from the repository, shuffles them, and initializes the UI state
+     * with the loaded questions, a current index of 0, and the initial progress value.
+     *
+     * On failure, an error is logged and the UI state is left unchanged (TODO: surface an error to the user).
+     */
     private fun loadQuestions() {
         viewModelScope.launch {
             try {
@@ -52,6 +58,13 @@ class PunctuationViewModel(private val unitRepository: UnitRepository) : ViewMod
         )
     }
 
+    /**
+     * Advances the quiz to the next question or completes the quiz if on the last question.
+     *
+     * If there are more questions, increments the current question index, resets answer-related flags,
+     * and updates progress. If the current question is the last one, records completion in the repository
+     * and emits a QuizComplete navigation event with the final score and total question count.
+     */
     fun nextQuestion() {
         val currentState = _uiState.value
         if (currentState.currentQuestionIndex < currentState.questions.size - 1) {

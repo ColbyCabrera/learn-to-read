@@ -30,6 +30,11 @@ class SentenceReadingViewModel(
         loadSentences(level)
     }
 
+    /**
+     * Loads sentences for the specified difficulty and updates the UI state with the fetched sentences and current level.
+     *
+     * @param level The difficulty level whose sentences should be loaded.
+     */
     private fun loadSentences(level: Int) {
         viewModelScope.launch {
             unitRepository.getSentencesByDifficulty(level).collect { sentences ->
@@ -67,6 +72,13 @@ class SentenceReadingViewModel(
         )
     }
 
+    /**
+     * Advances the quiz to the next question or completes the quiz when on the last question.
+     *
+     * If the quiz has remaining questions, increments the current question index and resets the answer correctness state.
+     * If the quiz is finished, updates repository progress for "Sentence Reading" at the current level and emits a
+     * LevelComplete navigation event with the level, final score, and total number of questions.
+     */
     fun nextQuestion() {
         val quizState = _uiState.value.quizState ?: return
         if (quizState.currentQuestionIndex < quizState.questions.size - 1) {

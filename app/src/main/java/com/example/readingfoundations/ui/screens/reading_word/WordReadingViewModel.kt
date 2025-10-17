@@ -30,6 +30,13 @@ class WordReadingViewModel(
         loadWords(level)
     }
 
+    /**
+     * Loads words for the specified difficulty level and updates the UI state with the results.
+     *
+     * Updates the ViewModel's UI state so `words` contains the retrieved list and `currentLevel` is set to `level`.
+     *
+     * @param level The difficulty level whose words should be loaded.
+     */
     private fun loadWords(level: Int) {
         viewModelScope.launch {
             unitRepository.getWordsByDifficulty(level).collect { words ->
@@ -67,6 +74,12 @@ class WordReadingViewModel(
         )
     }
 
+    /**
+     * Advances the quiz to the next question or finishes the quiz if the current question is the last.
+     *
+     * When a next question exists, increments the quiz's currentQuestionIndex and resets the answer correctness flag.
+     * When the quiz is finished, updates progress for the current level and emits a LevelComplete navigation event with the level, final score, and total question count.
+     */
     fun nextQuestion() {
         val quizState = _uiState.value.quizState ?: return
         if (quizState.currentQuestionIndex < quizState.questions.size - 1) {

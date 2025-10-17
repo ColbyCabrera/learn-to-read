@@ -18,9 +18,20 @@ interface PhonemeDao {
     @Query("SELECT * FROM phonemes WHERE level = :level ORDER BY id")
     fun getPhonemesByLevel(level: Int): Flow<List<Phoneme>>
 
+    /**
+     * Observes phonemes that belong to the specified category.
+     *
+     * @param category The phoneme category to filter by (exact match).
+     * @return Lists of phonemes in the specified category, ordered by `level` then `id`.
+     */
     @Query("SELECT * FROM phonemes WHERE category = :category ORDER BY level, id")
     fun getPhonemesByCategory(category: String): Flow<List<Phoneme>>
 
+    /**
+     * Provides the current highest phoneme level in the database.
+     *
+     * @return The highest phoneme level as an Int; 0 if the table contains no phonemes.
+     */
     @Query("SELECT COALESCE(MAX(level), 0) FROM phonemes")
     fun getHighestLevel(): Flow<Int>
 }

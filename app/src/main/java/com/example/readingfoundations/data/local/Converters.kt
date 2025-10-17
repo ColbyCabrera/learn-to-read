@@ -24,6 +24,12 @@ class Converters {
         return value?.let { gson.fromJson(it, mapIntIntType) }
     }
 
+    /**
+     * Serializes a Map<Int, Int> to its JSON string representation for Room storage.
+     *
+     * @param map The map to serialize; when `null`, no serialization is performed.
+     * @return The JSON string representing `map`, or `null` if `map` is `null`.
+     */
     @TypeConverter
     fun fromMapToString(map: Map<Int, Int>?): String? {
         return map?.let { gson.toJson(it, mapIntIntType) }
@@ -31,16 +37,34 @@ class Converters {
 
     private val mapStringListIntType = object : TypeToken<Map<String, List<Int>>>() {}.type
 
+    /**
+     * Converts a JSON string into a map from strings to lists of integers.
+     *
+     * @param value JSON representation of the map, or null.
+     * @return The parsed `Map<String, List<Int>>`, or `null` if `value` is null.
+     */
     @TypeConverter
     fun fromStringToMapStringListInt(value: String?): Map<String, List<Int>>? {
         return value?.let { gson.fromJson(it, mapStringListIntType) }
     }
 
+    /**
+     * Converts a Map<String, List<Int>> to its JSON string representation.
+     *
+     * @param map The map to serialize; may be null.
+     * @return The JSON string representation of the map, or `null` if `map` is null.
+     */
     @TypeConverter
     fun fromMapStringListIntToString(map: Map<String, List<Int>>?): String? {
         return map?.let { gson.toJson(it, mapStringListIntType) }
     }
 
+    /**
+     * Convert a QuestionType enum to its string name.
+     *
+     * @param questionType The QuestionType to convert.
+     * @return The enum constant's name as a String.
+     */
     @TypeConverter
     fun fromQuestionType(questionType: com.example.readingfoundations.data.models.QuestionType): String {
         return questionType.name

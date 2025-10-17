@@ -85,6 +85,14 @@ private val staticMenuItems = listOf(
     MenuItem("settings", R.string.settings, Icons.Default.Settings, "settings")
 )
 
+/**
+ * Home screen composable that provides a two-tab layout ("Home" and "Subjects") and routes to content based on the selected tab.
+ *
+ * Displays a bottom navigation bar to switch between the UnitPath view and the Subjects view, observes UI state from the provided view model, and performs navigation to specific subject/level routes when a unit or level is selected.
+ *
+ * @param navController NavController used to navigate to subject and level destinations.
+ * @param viewModel HomeViewModel that supplies the screen's UI state (units and progress); a default instance is provided by the app's ViewModel factory.
+ */
 @Composable
 fun HomeScreen(
     navController: NavController,
@@ -141,6 +149,16 @@ fun HomeScreen(
     }
 }
 
+/**
+ * Display a vertically scrolling list of unit path items that reflect each unit's progress and allow navigation to the next level.
+ *
+ * Each unit is rendered with a deterministic shape and receives flags indicating whether it is the current unit (first with progress < 1.0),
+ * completed (before the current unit), the first, or the last. Tapping a current unit triggers navigation via [onUnitClick].
+ *
+ * @param paddingValues Window insets and scaffold padding to apply around the content.
+ * @param units The ordered list of units to display; each unit's progress determines current/completed state.
+ * @param onUnitClick Called when the user selects a unit's actionable entry. Receives the subject identifier and the level number to navigate to.
+ */
 @Composable
 fun UnitPathScreen(
     paddingValues: PaddingValues,
@@ -177,6 +195,12 @@ fun UnitPathScreen(
     }
 }
 
+/**
+ * Selects the next incomplete Level within the given Unit according to the app's progression order.
+ *
+ * @param unit The Unit whose levels will be examined.
+ * @return The next incomplete Level, or `null` if every level in the unit is completed.
+ */
 fun getNextLevel(unit: Unit): Level? {
     val subjectOrder = listOf("Phonetics", "Word Building", "Sentence Reading", "Punctuation")
     val sortedLevels = unit.levels.sortedWith(
@@ -189,6 +213,17 @@ fun getNextLevel(unit: Unit): Level? {
 }
 
 
+/**
+ * Renders a single row in the unit path showing the unit card, a vertical progress node, and an optional info box.
+ *
+ * @param unit The unit model to display.
+ * @param shape The shape applied to the unit card.
+ * @param isCurrent True when this unit is the current active unit.
+ * @param isCompleted True when this unit is completed.
+ * @param isFirst True when this unit is the first item in the list.
+ * @param isLast True when this unit is the last item in the list.
+ * @param onUnitClick Callback invoked with a subject and level number to navigate into a level; called when the unit is current and a next level exists.
+ */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UnitPathItem(
@@ -232,6 +267,17 @@ fun UnitPathItem(
     }
 }
 
+/**
+ * Renders a vertical path node with connector lines whose appearance reflects completion and position.
+ *
+ * The node is drawn as a circle; the top connector is shown only when `isCompleted` is true and `isFirst` is false,
+ * and the bottom connector is omitted when `isLast` is true. Completed state uses the theme primary color;
+ * pending state uses the theme surfaceVariant color.
+ *
+ * @param isCompleted Whether the node and its preceding connector should appear in the completed state.
+ * @param isFirst Whether this node is the first in the path (suppresses the top connector).
+ * @param isLast Whether this node is the last in the path (suppresses the bottom connector).
+ */
 @Composable
 fun UnitPathNode(isCompleted: Boolean, isFirst: Boolean, isLast: Boolean) {
     val lineColor = if (isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
@@ -265,6 +311,17 @@ fun UnitPathNode(isCompleted: Boolean, isFirst: Boolean, isLast: Boolean) {
     }
 }
 
+/**
+ * Displays a shaped card representing a unit with visual states for current or completed and an optional click action.
+ *
+ * The card shows the unit label and, when `isCurrent` is true, an animated circular progress indicator reflecting `unit.progress`.
+ *
+ * @param unit The unit model (provides `id` for the label and `progress` for the indicator).
+ * @param shape The shape used to clip and draw the card container.
+ * @param isCurrent If true, highlights the card as the active unit and enables click interaction and progress display.
+ * @param isCompleted If true, styles the card with the completed color scheme.
+ * @param onClick Callback invoked when the card is clicked; only triggered when `isCurrent` is true.
+ */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UnitShape(
@@ -316,6 +373,11 @@ fun UnitShape(
     }
 }
 
+/**
+ * Shows a small card presenting the level's subject and its level number.
+ *
+ * @param level The `Level` whose subject and level number are displayed.
+ */
 @Composable
 fun InfoBox(level: Level) {
     Card(
@@ -330,7 +392,16 @@ fun InfoBox(level: Level) {
 }
 
 
-// The old screen, adapted for the "Subjects" tab
+/**
+ * Renders the "Subjects" screen: level selectors for Word Building and Sentence Reading and a list of static menu items.
+ *
+ * The screen computes the available level counts and completed-level progress for each subject from the provided UI state,
+ * then presents two expandable LevelSelection sections (Word Building and Sentence Reading) and a list of static menu items
+ * that navigate via the provided NavController when selected.
+ *
+ * @param paddingValues Window/content padding to apply around the screen content.
+ * @param homeUiState Current home UI state containing units and user progress used to derive level counts and progress maps.
+ */
 @Composable
 fun SubjectsScreen(
     paddingValues: PaddingValues,
@@ -377,6 +448,18 @@ fun SubjectsScreen(
     }
 }
 
+/**
+ * Renders an expandable card that displays a grid of selectable level tiles for a category.
+ *
+ * When expanded, shows up to `numLevels` level tiles arranged in an adaptive grid; each tile
+ * displays progress provided by `progressMap` and invokes `onLevelClick` with the selected level number.
+ *
+ * @param title The display title for the selection card.
+ * @param icon The icon shown at the start of the card.
+ * @param numLevels Total number of levels to render (levels are numbered starting at 1).
+ * @param progressMap Map from level number to progress percentage (0–100); missing entries are treated as 0.
+ * @param onLevelClick Callback invoked with the tapped level number.
+ */
 @Composable
 private fun LevelSelection(
     title: String,

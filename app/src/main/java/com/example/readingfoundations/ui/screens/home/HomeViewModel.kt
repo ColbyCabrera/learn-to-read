@@ -24,6 +24,12 @@ class HomeViewModel(private val unitRepository: UnitRepository) : ViewModel() {
             initialValue = HomeUiState()
         )
 
+    /**
+     * Updates the user's progress for the given subject to the specified level by delegating to the UnitRepository.
+     *
+     * @param subject The subject identifier whose progress will be updated.
+     * @param level The progress level to set for the subject.
+     */
     fun updateProgress(subject: String, level: Int) {
         viewModelScope.launch {
             unitRepository.updateProgress(subject, level)
