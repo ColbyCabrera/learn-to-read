@@ -85,8 +85,9 @@ fun SubjectsScreen(
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var selectedItem by remember { mutableIntStateOf(0) }
+    var selectedItem by remember { mutableIntStateOf(1) }
     val items = listOf("Home", "Subjects")
+    val routes = listOf("home", "subjects")
     val selectedIcons = listOf(R.drawable.home_filled_24px, R.drawable.school_filled_24px)
     val unselectedIcons = listOf(R.drawable.home_24px, R.drawable.school_24px)
 
@@ -104,7 +105,10 @@ fun SubjectsScreen(
                         },
                         label = { Text(item) },
                         selected = selectedItem == index,
-                        onClick = { selectedItem = index },
+                        onClick = {
+                            selectedItem = index
+                            navController.navigate(routes[index])
+                        },
                     )
                 }
             }
