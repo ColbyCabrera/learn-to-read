@@ -73,6 +73,7 @@ class PunctuationViewModel(
             }
         } else {
             // Quiz finished
+            _uiState.update { it.copy(progress = 1f) }
             viewModelScope.launch {
                 _navigationEvent.send(NavigationEvent.QuizComplete(_uiState.value.score, _uiState.value.questions.size))
             }

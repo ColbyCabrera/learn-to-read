@@ -1,10 +1,10 @@
 package com.example.readingfoundations.ui.screens.punctuation
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,13 +19,16 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.WavyProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,13 +37,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.readingfoundations.data.models.PunctuationQuestion
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PunctuationPracticeScreen(
     navController: NavController,
@@ -49,7 +54,7 @@ fun PunctuationPracticeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = viewModel) {
-        viewModel.navigationEvent.collect {event ->
+        viewModel.navigationEvent.collect { event ->
             when (event) {
                 is NavigationEvent.QuizComplete -> {
                     navController.navigate("levelComplete/4/${event.score}/${uiState.questions.size}") {
@@ -62,16 +67,12 @@ fun PunctuationPracticeScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Punctuation Practice") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
+            TopAppBar(title = { Text("Punctuation Practice") }, navigationIcon = {
+                IconButton(onClick = { navController.navigateUp() }) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                 }
-            )
-        }
-    ) { paddingValues ->
+            })
+        }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -81,18 +82,29 @@ fun PunctuationPracticeScreen(
         ) {
             if (uiState.questions.isEmpty()) {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
                 }
             } else {
-                val progress by animateFloatAsState(targetValue = uiState.progress)
-                LinearProgressIndicator(
-                    progress = progress,
+                val progress by animateFloatAsState(
+                    targetValue = uiState.progress,
+                    ProgressIndicatorDefaults.ProgressAnimationSpec
+                )
+                LinearWavyProgressIndicator(
+                    progress = { progress },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(8.dp)
+                        .height(16.dp),
+                    stroke = Stroke(
+                        width = WavyProgressIndicatorDefaults.linearIndicatorStroke.width * 2,
+                        cap = StrokeCap.Round,
+                    ),
+                    trackStroke = Stroke(
+                        width = WavyProgressIndicatorDefaults.linearTrackStroke.width * 2,
+                        cap = StrokeCap.Round
+                    ),
+                    amplitude = { 0.5F },
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -104,8 +116,7 @@ fun PunctuationPracticeScreen(
                     question = uiState.questions[uiState.currentQuestionIndex],
                     uiState = uiState,
                     onSubmit = { viewModel.submitAnswer(it) },
-                    onNext = { viewModel.nextQuestion() }
-                )
+                    onNext = { viewModel.nextQuestion() })
             }
         }
     }
@@ -126,13 +137,11 @@ fun QuestionContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = question.text,
-            style = MaterialTheme.typography.headlineSmall
+            text = question.text, style = MaterialTheme.typography.headlineSmall
         )
 
         LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(question.options ?: emptyList()) { option ->
                 val isSelected = selectedOption == option
@@ -147,12 +156,12 @@ fun QuestionContent(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable(enabled = !uiState.isAnswerSubmitted) { selectedOption = option },
-                    colors = cardColors
+                        .clickable(enabled = !uiState.isAnswerSubmitted) {
+                            selectedOption = option
+                        }, colors = cardColors
                 ) {
                     Text(
-                        text = option,
-                        modifier = Modifier.padding(16.dp)
+                        text = option, modifier = Modifier.padding(16.dp)
                     )
                 }
             }
@@ -165,15 +174,17 @@ fun QuestionContent(
                 style = MaterialTheme.typography.bodyLarge
             )
             Button(
-                onClick = onNext,
-                enabled = uiState.currentQuestionIndex < uiState.questions.size - 1
+                onClick = onNext, enabled = uiState.isAnswerCorrect
             ) {
-                Text("Next Question")
+                if (uiState.currentQuestionIndex < uiState.questions.size - 1) {
+                    Text("Next Question")
+                } else {
+                    Text("Finish")
+                }
             }
         } else {
             Button(
-                onClick = { selectedOption?.let { onSubmit(it) } },
-                enabled = selectedOption != null
+                onClick = { selectedOption?.let { onSubmit(it) } }, enabled = selectedOption != null
             ) {
                 Text("Submit")
             }
