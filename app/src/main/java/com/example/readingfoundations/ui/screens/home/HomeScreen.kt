@@ -6,8 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -130,8 +130,8 @@ fun HomeScreen(
                     if (route.isNotEmpty()) {
                         navController.navigate(route)
                     }
-                }
-            )
+                })
+
             1 -> SubjectsScreen(
                 paddingValues = paddingValues,
                 homeUiState = homeUiState,
@@ -143,9 +143,7 @@ fun HomeScreen(
 
 @Composable
 fun UnitPathScreen(
-    paddingValues: PaddingValues,
-    units: List<DataUnit>,
-    onUnitClick: (String, Int) -> Unit
+    paddingValues: PaddingValues, units: List<DataUnit>, onUnitClick: (String, Int) -> Unit
 ) {
     val shapes = with(MaterialTheme.shapes) {
         listOf(extraSmall, small, medium, large, extraLarge)
@@ -154,7 +152,8 @@ fun UnitPathScreen(
         units.map { shapes.random(Random(it.id)) }
     }
 
-    val currentUnitIndex = units.indexOfFirst { it.progress < 1.0f }.let { if (it == -1) units.size else it }
+    val currentUnitIndex =
+        units.indexOfFirst { it.progress < 1.0f }.let { if (it == -1) units.size else it }
 
     LazyColumn(
         modifier = Modifier
@@ -179,10 +178,8 @@ fun UnitPathScreen(
 
 fun getNextLevel(unit: DataUnit): Level? {
     val subjectOrder = com.example.readingfoundations.data.Subjects.ALL
-    val sortedLevels = unit.levels.sortedWith(
-        compareBy<Level> { it.levelNumber }
-            .thenBy { subjectOrder.indexOf(it.subject) }
-    )
+    val sortedLevels =
+        unit.levels.sortedWith(compareBy<Level> { it.levelNumber }.thenBy { subjectOrder.indexOf(it.subject) })
     return sortedLevels.firstOrNull { !it.isCompleted }
 }
 
@@ -216,8 +213,7 @@ fun UnitPathItem(
                     if (isCurrent && nextLevel != null) {
                         onUnitClick(nextLevel.subject, nextLevel.levelNumber)
                     }
-                }
-            )
+                })
         }
         Spacer(modifier = Modifier.width(16.dp))
         UnitPathNode(isCompleted = isCompleted, isFirst = isFirst, isLast = isLast)
@@ -232,8 +228,10 @@ fun UnitPathItem(
 
 @Composable
 fun UnitPathNode(isCompleted: Boolean, isFirst: Boolean, isLast: Boolean) {
-    val lineColor = if (isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
-    val nodeColor = if (isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+    val lineColor =
+        if (isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+    val nodeColor =
+        if (isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
     Box(
         modifier = Modifier
             .width(16.dp)
@@ -249,9 +247,7 @@ fun UnitPathNode(isCompleted: Boolean, isFirst: Boolean, isLast: Boolean) {
                 strokeWidth = 4.dp.toPx()
             )
             drawCircle(
-                color = nodeColor,
-                radius = 8.dp.toPx(),
-                center = center
+                color = nodeColor, radius = 8.dp.toPx(), center = center
             )
             drawLine(
                 color = bottomColor,
@@ -266,11 +262,7 @@ fun UnitPathNode(isCompleted: Boolean, isFirst: Boolean, isLast: Boolean) {
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UnitShape(
-    unit: DataUnit,
-    shape: Shape,
-    isCurrent: Boolean,
-    isCompleted: Boolean,
-    onClick: () -> Unit
+    unit: DataUnit, shape: Shape, isCurrent: Boolean, isCompleted: Boolean, onClick: () -> Unit
 ) {
     val containerColor = when {
         isCurrent -> MaterialTheme.colorScheme.primaryContainer
@@ -287,12 +279,14 @@ fun UnitShape(
         modifier = Modifier
             .size(120.dp)
             .clip(shape)
-            .clickable(enabled = isCurrent, onClick = onClick),
-        contentAlignment = Alignment.Center
+            .clickable(enabled = isCurrent, onClick = onClick), contentAlignment = Alignment.Center
     ) {
         Card(
             shape = shape,
-            colors = CardDefaults.cardColors(containerColor = containerColor, contentColor = contentColor),
+            colors = CardDefaults.cardColors(
+                containerColor = containerColor,
+                contentColor = contentColor
+            ),
             modifier = Modifier.fillMaxSize()
         ) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
@@ -317,8 +311,7 @@ fun UnitShape(
 @Composable
 fun InfoBox(level: Level) {
     Card(
-        modifier = Modifier.padding(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        modifier = Modifier.padding(8.dp), elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             Text(text = level.subject, style = MaterialTheme.typography.bodyLarge)
@@ -331,15 +324,27 @@ fun InfoBox(level: Level) {
 // The old screen, adapted for the "Subjects" tab
 @Composable
 fun SubjectsScreen(
-    paddingValues: PaddingValues,
-    homeUiState: HomeUiState,
-    navController: NavController
+    paddingValues: PaddingValues, homeUiState: HomeUiState, navController: NavController
 ) {
-    val wordLevelCount = remember(homeUiState.units) { homeUiState.units.flatMap { it.levels }.filter { it.subject == com.example.readingfoundations.data.Subjects.WORD_BUILDING }.maxOfOrNull { it.levelNumber } ?: 0 }
-    val sentenceLevelCount = remember(homeUiState.units) { homeUiState.units.flatMap { it.levels }.filter { it.subject == com.example.readingfoundations.data.Subjects.SENTENCE_READING }.maxOfOrNull { it.levelNumber } ?: 0 }
+    val wordLevelCount = remember(homeUiState.units) {
+        homeUiState.units.flatMap { it.levels }
+            .filter { it.subject == com.example.readingfoundations.data.Subjects.WORD_BUILDING }
+            .maxOfOrNull { it.levelNumber } ?: 0
+    }
+    val sentenceLevelCount = remember(homeUiState.units) {
+        homeUiState.units.flatMap { it.levels }
+            .filter { it.subject == com.example.readingfoundations.data.Subjects.SENTENCE_READING }
+            .maxOfOrNull { it.levelNumber } ?: 0
+    }
 
-    val wordProgressMap = remember(homeUiState.userProgress) { homeUiState.userProgress.completedLevels[com.example.readingfoundations.data.Subjects.WORD_BUILDING]?.associateWith { 100 } ?: emptyMap() }
-    val sentenceProgressMap = remember(homeUiState.userProgress) { homeUiState.userProgress.completedLevels[com.example.readingfoundations.data.Subjects.SENTENCE_READING]?.associateWith { 100 } ?: emptyMap() }
+    val wordProgressMap = remember(homeUiState.userProgress) {
+        homeUiState.userProgress.completedLevels[com.example.readingfoundations.data.Subjects.WORD_BUILDING]?.associateWith { 100 }
+            ?: emptyMap()
+    }
+    val sentenceProgressMap = remember(homeUiState.userProgress) {
+        homeUiState.userProgress.completedLevels[com.example.readingfoundations.data.Subjects.SENTENCE_READING]?.associateWith { 100 }
+            ?: emptyMap()
+    }
 
 
     LazyColumn(

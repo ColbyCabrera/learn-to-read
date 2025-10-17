@@ -3,6 +3,7 @@ package com.example.readingfoundations.ui.screens.punctuation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.readingfoundations.data.Subjects
 import com.example.readingfoundations.data.UnitRepository
 import com.example.readingfoundations.data.models.PunctuationQuestion
 import kotlinx.coroutines.channels.Channel
@@ -75,6 +76,7 @@ class PunctuationViewModel(
             // Quiz finished
             _uiState.update { it.copy(progress = 1f) }
             viewModelScope.launch {
+                unitRepository.updateProgress(Subjects.PUNCTUATION, level)
                 _navigationEvent.send(NavigationEvent.QuizComplete(_uiState.value.score, _uiState.value.questions.size))
             }
         }
