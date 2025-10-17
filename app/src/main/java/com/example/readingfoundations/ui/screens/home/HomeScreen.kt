@@ -1,6 +1,5 @@
 package com.example.readingfoundations.ui.screens.home
 
-
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -18,11 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.EditNote
-import androidx.compose.material.icons.filled.RecordVoiceOver
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -46,7 +40,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -59,13 +52,8 @@ import com.example.readingfoundations.R
 import com.example.readingfoundations.data.Subjects
 import com.example.readingfoundations.data.models.Level
 import com.example.readingfoundations.ui.AppViewModelProvider
-import com.example.readingfoundations.ui.screens.subjects.SubjectsScreen
 import kotlin.random.Random
 import com.example.readingfoundations.data.models.Unit as DataUnit
-
-private data class MenuItem(
-    val id: String, val title: Int, val icon: ImageVector, val route: String
-)
 
 @Composable
 fun HomeScreen(
@@ -108,26 +96,22 @@ fun HomeScreen(
             }
         },
     ) { paddingValues ->
-        when (selectedItem) {
-            0 -> UnitPathScreen(
-                paddingValues = paddingValues,
-                homeUiState = homeUiState,
-                onUnitClick = { subject, level ->
-                    val route = when (subject) {
-                        Subjects.PHONETICS -> "phonetics/$level"
-                        Subjects.WORD_BUILDING -> "reading_word/$level"
-                        Subjects.SENTENCE_READING -> "sentence_reading/$level"
-                        Subjects.PUNCTUATION -> "punctuation/$level"
-                        Subjects.READING_COMPREHENSION -> "reading_comprehension/$level"
-                        else -> ""
-                    }
-                    if (route.isNotEmpty()) {
-                        navController.navigate(route)
-                    }
-                })
-
-            1 -> SubjectsScreen(navController = navController)
-        }
+        UnitPathScreen(
+            paddingValues = paddingValues,
+            homeUiState = homeUiState,
+            onUnitClick = { subject, level ->
+                val route = when (subject) {
+                    Subjects.PHONETICS -> "phonetics/$level"
+                    Subjects.WORD_BUILDING -> "reading_word/$level"
+                    Subjects.SENTENCE_READING -> "sentence_reading/$level"
+                    Subjects.PUNCTUATION -> "punctuation/$level"
+                    Subjects.READING_COMPREHENSION -> "reading_comprehension/$level"
+                    else -> ""
+                }
+                if (route.isNotEmpty()) {
+                    navController.navigate(route)
+                }
+            })
     }
 }
 
