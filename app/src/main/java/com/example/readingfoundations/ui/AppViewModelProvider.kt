@@ -23,6 +23,11 @@ object AppViewModelProvider {
             )
         }
         initializer {
+            SubjectsViewModel(
+                readingFoundationsApplication().container.unitRepository
+            )
+        }
+        initializer {
             val savedStateHandle = createSavedStateHandle()
             PhoneticsViewModel(
                 readingFoundationsApplication().container.unitRepository,

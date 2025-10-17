@@ -1,42 +1,31 @@
 package com.example.readingfoundations.ui.screens.home
 
-import androidx.compose.animation.AnimatedVisibility
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ChromeReaderMode
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.Construction
 import androidx.compose.material.icons.filled.EditNote
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialShapes
@@ -50,9 +39,7 @@ import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -72,23 +59,12 @@ import com.example.readingfoundations.R
 import com.example.readingfoundations.data.Subjects
 import com.example.readingfoundations.data.models.Level
 import com.example.readingfoundations.ui.AppViewModelProvider
+import com.example.readingfoundations.ui.screens.subjects.SubjectsScreen
 import kotlin.random.Random
 import com.example.readingfoundations.data.models.Unit as DataUnit
 
 private data class MenuItem(
     val id: String, val title: Int, val icon: ImageVector, val route: String
-)
-
-private val staticMenuItems = listOf(
-    MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics"),
-    MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation"),
-    MenuItem(
-        "reading_comprehension",
-        R.string.reading_comprehension,
-        Icons.AutoMirrored.Filled.MenuBook,
-        "reading_comprehension"
-    ),
-    MenuItem("settings", R.string.settings, Icons.Default.Settings, "settings")
 )
 
 @Composable
@@ -97,10 +73,10 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val homeUiState by viewModel.uiState.collectAsState()
-    var selectedItem by remember { mutableIntStateOf(0) }
     val items = listOf(stringResource(R.string.home), stringResource(R.string.subjects))
     val selectedIcons = listOf(R.drawable.home_filled_24px, R.drawable.school_filled_24px)
     val unselectedIcons = listOf(R.drawable.home_24px, R.drawable.school_24px)
+    val routes = listOf("home", "subjects")
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val selectedItem = routes.indexOf(currentRoute)
@@ -150,11 +126,7 @@ fun HomeScreen(
                     }
                 })
 
-            1 -> SubjectsScreen(
-                paddingValues = paddingValues,
-                homeUiState = homeUiState,
-                navController = navController
-            )
+            1 -> SubjectsScreen(navController = navController)
         }
     }
 }
@@ -352,7 +324,7 @@ fun InfoBox(level: Level) {
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             Text(text = level.subject, style = MaterialTheme.typography.bodyLarge)
-            Text(text = "Level ${level.levelNumber}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = stringResource(R.string.level_format, level.levelNumber), style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -364,145 +336,4 @@ private fun getNextIncompleteLevel(subject: String, homeUiState: HomeUiState): I
         level++
     }
     return level
-}
-
-
-// The old screen, adapted for the "Subjects" tab
-@Composable
-fun SubjectsScreen(
-    paddingValues: PaddingValues, homeUiState: HomeUiState, navController: NavController
-) {
-    val wordLevelCount = remember(homeUiState.units.size, homeUiState.units.hashCode()) {
-        homeUiState.units.flatMap { it.levels }.filter { it.subject == Subjects.WORD_BUILDING }
-            .maxOfOrNull { it.levelNumber } ?: 0
-    }
-    val sentenceLevelCount = remember(homeUiState.units.size, homeUiState.units.hashCode()) {
-        homeUiState.units.flatMap { it.levels }.filter { it.subject == Subjects.SENTENCE_READING }
-            .maxOfOrNull { it.levelNumber } ?: 0
-    }
-    val readingComprehensionLevelCount =
-        remember(homeUiState.units.size, homeUiState.units.hashCode()) {
-            homeUiState.units.flatMap { it.levels }
-                .filter { it.subject == Subjects.READING_COMPREHENSION }
-                .maxOfOrNull { it.levelNumber } ?: 0
-        }
-
-    val wordProgressMap = remember(homeUiState.userProgress) {
-        homeUiState.userProgress.completedLevels[Subjects.WORD_BUILDING]?.associateWith { 100 }
-            ?: emptyMap()
-    }
-    val sentenceProgressMap = remember(homeUiState.userProgress) {
-        homeUiState.userProgress.completedLevels[Subjects.SENTENCE_READING]?.associateWith { 100 }
-            ?: emptyMap()
-    }
-    val readingComprehensionProgressMap = remember(homeUiState.userProgress) {
-        homeUiState.userProgress.completedLevels[Subjects.READING_COMPREHENSION]?.associateWith { 100 }
-            ?: emptyMap()
-    }
-
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
-            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        item {
-            LevelSelection(
-                title = stringResource(R.string.word_building),
-                icon = Icons.Default.Construction,
-                numLevels = wordLevelCount,
-                progressMap = wordProgressMap,
-                onLevelClick = { level -> navController.navigate("reading_word/$level") })
-        }
-
-        item {
-            LevelSelection(
-                title = stringResource(R.string.sentence_reading),
-                icon = Icons.AutoMirrored.Filled.ChromeReaderMode,
-                numLevels = sentenceLevelCount,
-                progressMap = sentenceProgressMap,
-                onLevelClick = { level -> navController.navigate("sentence_reading/$level") })
-        }
-
-        item {
-            LevelSelection(
-                title = stringResource(R.string.reading_comprehension),
-                icon = Icons.AutoMirrored.Filled.MenuBook,
-                numLevels = readingComprehensionLevelCount,
-                progressMap = readingComprehensionProgressMap,
-                onLevelClick = { level -> navController.navigate("reading_comprehension/$level") })
-        }
-
-        items(items = staticMenuItems, key = { it.id }) { item ->
-            StaticMenuItemCard(
-                item = item, onClick = {
-                    val subject = when (item.id) {
-                        "phonetics" -> Subjects.PHONETICS
-                        "punctuation" -> Subjects.PUNCTUATION
-                        "reading_comprehension" -> Subjects.READING_COMPREHENSION
-                        else -> null
-                    }
-                    if (subject != null) {
-                        val level = getNextIncompleteLevel(subject, homeUiState)
-                        navController.navigate("${item.route}/$level")
-                    } else {
-                        navController.navigate(item.route)
-                    }
-                })
-        }
-    }
-}
-
-@Composable
-private fun LevelSelection(
-    title: String,
-    icon: ImageVector,
-    numLevels: Int,
-    progressMap: Map<Int, Int>,
-    onLevelClick: (Int) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(), onClick = { expanded = !expanded }) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(40.dp))
-                Text(text = title, style = MaterialTheme.typography.titleLarge)
-                Spacer(modifier = Modifier.weight(1f))
-                Icon(
-                    imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = if (expanded) "Collapse" else "Expand"
-                )
-            }
-            AnimatedVisibility(visible = expanded) {
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 64.dp),
-                    contentPadding = PaddingValues(top = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.heightIn(max = 300.dp)
-                ) {
-                    items(numLevels) { level ->
-                        val levelNum = level + 1
-                        val progress = progressMap[levelNum] ?: 0
-                        LevelCard(
-                            level = levelNum,
-                            progress = progress,
-                            onClick = { onLevelClick(levelNum) })
-                    }
-                }
-            }
-        }
-    }
-}
-
-        }
-    }
 }

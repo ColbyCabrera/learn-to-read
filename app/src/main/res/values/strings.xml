@@ -26,4 +26,7 @@
     <string name="reading_comprehension_level">Comprehension - Level %1$d</string>
     <string name="home">Home</string>
     <string name="subjects">Subjects</string>
+    <string name="level_format">Level %1$d</string>
+    <string name="collapse">Collapse</string>
+    <string name="expand">Expand</string>
 </resources>

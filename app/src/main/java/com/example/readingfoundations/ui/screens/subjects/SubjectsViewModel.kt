@@ -2,21 +2,26 @@ package com.example.readingfoundations.ui.screens.subjects
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.readingfoundations.data.AppRepository
+import com.example.readingfoundations.data.Subjects
+import com.example.readingfoundations.data.UnitRepository
 import com.example.readingfoundations.data.models.UserProgress
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
-class SubjectsViewModel(appRepository: AppRepository) : ViewModel() {
+class SubjectsViewModel(unitRepository: UnitRepository) : ViewModel() {
 
     val uiState: StateFlow<HomeUiState> =
         combine(
-            appRepository.getUserProgress(),
-            appRepository.getWordLevelCount(),
-            appRepository.getSentenceLevelCount()
-        ) { userProgress, wordLevelCount, sentenceLevelCount ->
+            unitRepository.getUserProgress(),
+            unitRepository.getUnits()
+        ) { userProgress, units ->
+            val allLevels = units.flatMap { it.levels }
+            val wordLevelCount = allLevels.filter { it.subject == Subjects.WORD_BUILDING }
+                .maxOfOrNull { it.levelNumber } ?: 0
+            val sentenceLevelCount = allLevels.filter { it.subject == Subjects.SENTENCE_READING }
+                .maxOfOrNull { it.levelNumber } ?: 0
             HomeUiState(
                 userProgress = userProgress ?: UserProgress(),
                 wordLevelCount = wordLevelCount,

@@ -13,6 +13,7 @@ import com.example.readingfoundations.ui.screens.reading_comprehension.ReadingCo
 import com.example.readingfoundations.ui.screens.reading_sentence.SentenceReadingScreen
 import com.example.readingfoundations.ui.screens.reading_word.LevelCompleteScreen
 import com.example.readingfoundations.ui.screens.reading_word.WordReadingScreen
+import com.example.readingfoundations.ui.screens.settings.SettingsScreen
 import com.example.readingfoundations.ui.screens.subjects.SubjectsScreen
 
 @Composable
@@ -21,6 +22,9 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = "home") {
         composable("home") {
             HomeScreen(navController = navController)
+        }
+        composable("subjects") {
+            SubjectsScreen(navController = navController)
         }
         composable(
             route = "phonetics/{level}",
@@ -71,6 +75,9 @@ fun AppNavigation() {
             arguments = listOf(navArgument("level") { type = NavType.IntType })
         ) {
             ReadingComprehensionScreen(navController = navController)
+        }
+        composable("settings") {
+            SettingsScreen(navController = navController)
         }
     }
 }

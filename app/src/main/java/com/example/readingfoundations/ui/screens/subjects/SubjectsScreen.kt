@@ -56,8 +56,6 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.readingfoundations.R
 import com.example.readingfoundations.ui.AppViewModelProvider
-import com.example.readingfoundations.ui.screens.home.EditorialMoment
-import com.example.readingfoundations.ui.screens.home.HomeViewModel
 
 private data class MenuItem(
     val id: String, val title: Int, val icon: ImageVector, val route: String
@@ -83,7 +81,7 @@ private val contentRoutes = listOf(
 @Composable
 fun SubjectsScreen(
     navController: NavController,
-    viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: SubjectsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val items = listOf("Home", "Subjects")
@@ -132,17 +130,11 @@ fun SubjectsScreen(
             contentPadding = paddingValues
         ) {
             item {
-                EditorialMoment(
-                    onStartLearningClick = { navController.navigate(contentRoutes.random()) },
-                )
-            }
-
-            item {
                 LevelSelection(
                     title = stringResource(R.string.word_building),
                     icon = Icons.Default.Construction,
                     numLevels = uiState.wordLevelCount,
-                    progressMap = uiState.userProgress.wordLevelsProgress,
+                    progressMap = uiState.userProgress.completedLevels["word"]?.associateWith { 100 } ?: emptyMap(),
                     onLevelClick = { level -> navController.navigate("reading_word/$level") })
             }
 
@@ -151,7 +143,7 @@ fun SubjectsScreen(
                     title = stringResource(R.string.sentence_reading),
                     icon = Icons.AutoMirrored.Filled.ChromeReaderMode,
                     numLevels = uiState.sentenceLevelCount,
-                    progressMap = uiState.userProgress.sentenceLevelsProgress,
+                    progressMap = uiState.userProgress.completedLevels["sentence"]?.associateWith { 100 } ?: emptyMap(),
                     onLevelClick = { level -> navController.navigate("sentence_reading/$level") })
             }
 
