@@ -38,8 +38,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialShapes
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -148,9 +148,7 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UnitPathScreen(
-    paddingValues: PaddingValues,
-    homeUiState: HomeUiState,
-    onUnitClick: (String, Int) -> Unit
+    paddingValues: PaddingValues, homeUiState: HomeUiState, onUnitClick: (String, Int) -> Unit
 ) {
     val units = homeUiState.units
     val shapes = with(MaterialShapes) {
@@ -309,12 +307,9 @@ fun UnitShape(
             .clickable(enabled = isCurrent, onClick = onClick), contentAlignment = Alignment.Center
     ) {
         Card(
-            shape = shape,
-            colors = CardDefaults.cardColors(
-                containerColor = containerColor,
-                contentColor = contentColor
-            ),
-            modifier = Modifier.fillMaxSize()
+            shape = shape, colors = CardDefaults.cardColors(
+                containerColor = containerColor, contentColor = contentColor
+            ), modifier = Modifier.fillMaxSize()
         ) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                 if (isCurrent) {
@@ -363,20 +358,19 @@ fun SubjectsScreen(
     paddingValues: PaddingValues, homeUiState: HomeUiState, navController: NavController
 ) {
     val wordLevelCount = remember(homeUiState.units.size, homeUiState.units.hashCode()) {
-        homeUiState.units.flatMap { it.levels }
-            .filter { it.subject == Subjects.WORD_BUILDING }
+        homeUiState.units.flatMap { it.levels }.filter { it.subject == Subjects.WORD_BUILDING }
             .maxOfOrNull { it.levelNumber } ?: 0
     }
     val sentenceLevelCount = remember(homeUiState.units.size, homeUiState.units.hashCode()) {
-        homeUiState.units.flatMap { it.levels }
-            .filter { it.subject == Subjects.SENTENCE_READING }
+        homeUiState.units.flatMap { it.levels }.filter { it.subject == Subjects.SENTENCE_READING }
             .maxOfOrNull { it.levelNumber } ?: 0
     }
-    val readingComprehensionLevelCount = remember(homeUiState.units.size, homeUiState.units.hashCode()) {
-        homeUiState.units.flatMap { it.levels }
-            .filter { it.subject == Subjects.READING_COMPREHENSION }
-            .maxOfOrNull { it.levelNumber } ?: 0
-    }
+    val readingComprehensionLevelCount =
+        remember(homeUiState.units.size, homeUiState.units.hashCode()) {
+            homeUiState.units.flatMap { it.levels }
+                .filter { it.subject == Subjects.READING_COMPREHENSION }
+                .maxOfOrNull { it.levelNumber } ?: 0
+        }
 
     val wordProgressMap = remember(homeUiState.userProgress) {
         homeUiState.userProgress.completedLevels[Subjects.WORD_BUILDING]?.associateWith { 100 }
