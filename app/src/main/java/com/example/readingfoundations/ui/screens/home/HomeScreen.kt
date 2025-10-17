@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,7 +38,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -65,9 +65,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.readingfoundations.R
 import com.example.readingfoundations.data.models.Level
-import com.example.readingfoundations.data.models.Unit
 import com.example.readingfoundations.ui.AppViewModelProvider
 import kotlin.random.Random
+import com.example.readingfoundations.data.models.Unit as DataUnit
 
 private data class MenuItem(
     val id: String, val title: Int, val icon: ImageVector, val route: String
@@ -144,7 +144,7 @@ fun HomeScreen(
 @Composable
 fun UnitPathScreen(
     paddingValues: PaddingValues,
-    units: List<Unit>,
+    units: List<DataUnit>,
     onUnitClick: (String, Int) -> Unit
 ) {
     val shapes = with(MaterialTheme.shapes) {
@@ -177,7 +177,7 @@ fun UnitPathScreen(
     }
 }
 
-fun getNextLevel(unit: Unit): Level? {
+fun getNextLevel(unit: DataUnit): Level? {
     val subjectOrder = com.example.readingfoundations.data.Subjects.ALL
     val sortedLevels = unit.levels.sortedWith(
         compareBy<Level> { it.levelNumber }
@@ -190,7 +190,7 @@ fun getNextLevel(unit: Unit): Level? {
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UnitPathItem(
-    unit: Unit,
+    unit: DataUnit,
     shape: Shape,
     isCurrent: Boolean,
     isCompleted: Boolean,
@@ -266,7 +266,7 @@ fun UnitPathNode(isCompleted: Boolean, isFirst: Boolean, isLast: Boolean) {
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UnitShape(
-    unit: Unit,
+    unit: DataUnit,
     shape: Shape,
     isCurrent: Boolean,
     isCompleted: Boolean,

@@ -20,7 +20,10 @@ fun AppNavigation() {
         composable("home") {
             HomeScreen(navController = navController)
         }
-        composable("phonetics") {
+        composable(
+            route = "phonetics/{level}",
+            arguments = listOf(navArgument("level") { type = NavType.IntType })
+        ) {
             PhoneticsScreen(navController = navController)
         }
         composable(
