@@ -22,4 +22,7 @@ interface ReadingComprehensionDao {
 
     @Query("SELECT * FROM reading_comprehension_questions WHERE textId = :textId")
     fun getQuestionsForText(textId: Int): Flow<List<ReadingComprehensionQuestion>>
+
+    @Query("SELECT MAX(level) FROM reading_comprehension_texts")
+    fun getHighestLevel(): Flow<Int>
 }

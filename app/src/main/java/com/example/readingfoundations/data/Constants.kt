@@ -5,6 +5,7 @@ object Subjects {
     const val WORD_BUILDING = "Word Building"
     const val SENTENCE_READING = "Sentence Reading"
     const val PUNCTUATION = "Punctuation"
+    const val READING_COMPREHENSION = "Reading Comprehension"
 
-    val ALL = listOf(PHONETICS, WORD_BUILDING, SENTENCE_READING, PUNCTUATION)
+    val ALL = listOf(PHONETICS, WORD_BUILDING, SENTENCE_READING, PUNCTUATION, READING_COMPREHENSION)
 }

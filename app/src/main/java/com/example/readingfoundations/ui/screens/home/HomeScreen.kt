@@ -127,6 +127,7 @@ fun HomeScreen(
                         com.example.readingfoundations.data.Subjects.WORD_BUILDING -> "reading_word/$level"
                         com.example.readingfoundations.data.Subjects.SENTENCE_READING -> "sentence_reading/$level"
                         com.example.readingfoundations.data.Subjects.PUNCTUATION -> "punctuation/$level"
+                        com.example.readingfoundations.data.Subjects.READING_COMPREHENSION -> "reading_comprehension/$level"
                         else -> ""
                     }
                     if (route.isNotEmpty()) {
@@ -155,15 +156,9 @@ fun UnitPathScreen(
             Cookie7Sided,
             Cookie9Sided,
             Cookie12Sided,
-            Fan,
             Flower,
-            Gem,
-            Heart,
-            Oval,
-            Pentagon,
             Puffy,
             PuffyDiamond,
-            SemiCircle,
             SoftBoom,
             SoftBurst,
             Sunny,
@@ -358,6 +353,11 @@ fun SubjectsScreen(
             .filter { it.subject == com.example.readingfoundations.data.Subjects.SENTENCE_READING }
             .maxOfOrNull { it.levelNumber } ?: 0
     }
+    val readingComprehensionLevelCount = remember(homeUiState.units) {
+        homeUiState.units.flatMap { it.levels }
+            .filter { it.subject == com.example.readingfoundations.data.Subjects.READING_COMPREHENSION }
+            .maxOfOrNull { it.levelNumber } ?: 0
+    }
 
     val wordProgressMap = remember(homeUiState.userProgress) {
         homeUiState.userProgress.completedLevels[com.example.readingfoundations.data.Subjects.WORD_BUILDING]?.associateWith { 100 }
@@ -365,6 +365,10 @@ fun SubjectsScreen(
     }
     val sentenceProgressMap = remember(homeUiState.userProgress) {
         homeUiState.userProgress.completedLevels[com.example.readingfoundations.data.Subjects.SENTENCE_READING]?.associateWith { 100 }
+            ?: emptyMap()
+    }
+    val readingComprehensionProgressMap = remember(homeUiState.userProgress) {
+        homeUiState.userProgress.completedLevels[com.example.readingfoundations.data.Subjects.READING_COMPREHENSION]?.associateWith { 100 }
             ?: emptyMap()
     }
 
@@ -393,6 +397,15 @@ fun SubjectsScreen(
                 numLevels = sentenceLevelCount,
                 progressMap = sentenceProgressMap,
                 onLevelClick = { level -> navController.navigate("sentence_reading/$level") })
+        }
+
+        item {
+            LevelSelection(
+                title = stringResource(R.string.reading_comprehension),
+                icon = Icons.AutoMirrored.Filled.MenuBook,
+                numLevels = readingComprehensionLevelCount,
+                progressMap = readingComprehensionProgressMap,
+                onLevelClick = { level -> navController.navigate("reading_comprehension/$level") })
         }
 
         items(items = staticMenuItems, key = { it.id }) { item ->
