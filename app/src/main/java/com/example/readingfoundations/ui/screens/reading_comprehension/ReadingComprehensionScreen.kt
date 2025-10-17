@@ -80,7 +80,7 @@ fun ReadingComprehensionScreen(
             Text(
                 stringResource(
                     R.string.reading_comprehension_level,
-                    uiState.level + 1
+                    uiState.level
                 )
             )
         }, navigationIcon = {

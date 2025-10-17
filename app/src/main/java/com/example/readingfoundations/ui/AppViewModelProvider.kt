@@ -55,8 +55,11 @@ object AppViewModelProvider {
             )
         }
         initializer {
+            val savedStateHandle = createSavedStateHandle()
             ReadingComprehensionViewModel(
-                readingFoundationsApplication().container.readingComprehensionRepository
+                readingFoundationsApplication().container.readingComprehensionRepository,
+                readingFoundationsApplication().container.unitRepository,
+                savedStateHandle
             )
         }
     }

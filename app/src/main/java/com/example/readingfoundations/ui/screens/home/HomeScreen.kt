@@ -121,7 +121,7 @@ fun HomeScreen(
         when (selectedItem) {
             0 -> UnitPathScreen(
                 paddingValues = paddingValues,
-                units = homeUiState.units,
+                homeUiState = homeUiState,
                 onUnitClick = { subject, level ->
                     val route = when (subject) {
                         Subjects.PHONETICS -> "phonetics/$level"
@@ -148,8 +148,11 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UnitPathScreen(
-    paddingValues: PaddingValues, units: List<DataUnit>, onUnitClick: (String, Int) -> Unit
+    paddingValues: PaddingValues,
+    homeUiState: HomeUiState,
+    onUnitClick: (String, Int) -> Unit
 ) {
+    val units = homeUiState.units
     val shapes = with(MaterialShapes) {
         listOf(
             Clover8Leaf,
@@ -181,6 +184,10 @@ fun UnitPathScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         itemsIndexed(units) { index, unit ->
+            val nextLevel = remember(unit) { getNextLevel(unit) }
+            val nextIncompleteLevel = nextLevel?.let {
+                getNextIncompleteLevel(it.subject, homeUiState)
+            }
             UnitPathItem(
                 unit = unit,
                 shape = unitShapes[index].toShape(),
@@ -188,7 +195,9 @@ fun UnitPathScreen(
                 isCompleted = index < currentUnitIndex,
                 isFirst = index == 0,
                 isLast = index == units.size - 1,
-                onUnitClick = onUnitClick
+                onUnitClick = onUnitClick,
+                nextLevel = nextLevel,
+                nextIncompleteLevel = nextIncompleteLevel
             )
         }
     }
@@ -211,10 +220,10 @@ fun UnitPathItem(
     isCompleted: Boolean,
     isFirst: Boolean,
     isLast: Boolean,
-    onUnitClick: (String, Int) -> Unit
+    onUnitClick: (String, Int) -> Unit,
+    nextLevel: Level?,
+    nextIncompleteLevel: Int?
 ) {
-    val nextLevel = remember(unit) { getNextLevel(unit) }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -237,8 +246,8 @@ fun UnitPathItem(
         UnitPathNode(isCompleted = isCompleted, isFirst = isFirst, isLast = isLast)
         Spacer(modifier = Modifier.width(16.dp))
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-            if (nextLevel != null && isCurrent) {
-                InfoBox(level = nextLevel)
+            if (nextLevel != null && isCurrent && nextIncompleteLevel != null) {
+                InfoBox(level = Level(nextLevel.subject, nextIncompleteLevel, false))
             }
         }
     }
