@@ -12,12 +12,18 @@ import com.example.readingfoundations.ui.screens.punctuation.PunctuationViewMode
 import com.example.readingfoundations.ui.screens.reading_comprehension.ReadingComprehensionViewModel
 import com.example.readingfoundations.ui.screens.reading_sentence.SentenceReadingViewModel
 import com.example.readingfoundations.ui.screens.reading_word.WordReadingViewModel
+import com.example.readingfoundations.ui.screens.sections.SectionsViewModel
 import com.example.readingfoundations.ui.screens.settings.SettingsViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             HomeViewModel(
+                readingFoundationsApplication().container.appRepository
+            )
+        }
+        initializer {
+            SectionsViewModel(
                 readingFoundationsApplication().container.appRepository
             )
         }

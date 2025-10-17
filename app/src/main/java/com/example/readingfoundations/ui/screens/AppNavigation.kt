@@ -12,6 +12,7 @@ import com.example.readingfoundations.ui.screens.reading_comprehension.ReadingCo
 import com.example.readingfoundations.ui.screens.reading_sentence.SentenceReadingScreen
 import com.example.readingfoundations.ui.screens.reading_word.LevelCompleteScreen
 import com.example.readingfoundations.ui.screens.reading_word.WordReadingScreen
+import com.example.readingfoundations.ui.screens.sections.SectionsScreen
 
 @Composable
 fun AppNavigation() {
@@ -19,6 +20,9 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = "home") {
         composable("home") {
             HomeScreen(navController = navController)
+        }
+        composable("sections") {
+            SectionsScreen(navController = navController)
         }
         composable("phonetics") {
             PhoneticsScreen(navController = navController)
