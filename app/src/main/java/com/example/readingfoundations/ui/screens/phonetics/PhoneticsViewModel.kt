@@ -51,10 +51,20 @@ class PhoneticsViewModel(
     }
 
     private fun generateNewQuestion() {
-        val phonemesForLevel = PhoneticsData.phonemes.filter { it.level == level }
+        var phonemesForLevel = PhoneticsData.phonemes.filter { it.level == level }
+        if (phonemesForLevel.isEmpty()) {
+            phonemesForLevel = PhoneticsData.phonemes
+        }
+
         val targetPhoneme = phonemesForLevel.random()
-        val otherPhonemes = (phonemesForLevel - targetPhoneme).shuffled().take(3)
-        val options = (otherPhonemes + targetPhoneme)
+
+        var otherPhonemes = (phonemesForLevel - targetPhoneme).shuffled().toMutableList()
+        if (otherPhonemes.size < 3) {
+            val additionalPhonemes = (PhoneticsData.phonemes - phonemesForLevel).shuffled()
+            otherPhonemes.addAll(additionalPhonemes)
+        }
+
+        val finalOptions = (otherPhonemes.take(3) + targetPhoneme).distinct()
 
         val questionType = QuestionType.entries.toTypedArray().random()
         val questionPrompt = when (questionType) {
@@ -72,7 +82,7 @@ class PhoneticsViewModel(
              _uiState.update { it ->
                  it.copy(
                     targetLetter = targetPhoneme.exampleWord,
-                    options = options.map { it.exampleWord }.shuffled(),
+                    options = finalOptions.map { it.exampleWord }.shuffled(),
                     isCorrect = null,
                     selectedLetter = null,
                     questionPrompt = questionPrompt
@@ -82,7 +92,7 @@ class PhoneticsViewModel(
             _uiState.update { it ->
                 it.copy(
                     targetLetter = targetPhoneme.grapheme,
-                    options = options.map { it.grapheme }.shuffled(),
+                    options = finalOptions.map { it.grapheme }.shuffled(),
                     isCorrect = null,
                     selectedLetter = null,
                     questionPrompt = questionPrompt
