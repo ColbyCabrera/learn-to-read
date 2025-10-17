@@ -35,7 +35,7 @@ fun AppNavigation() {
             UnitDetailsScreen(
                 onLevelClick = { contentType, level ->
                     val route = when (contentType) {
-                        ContentType.PHONETICS -> "phonetics" // Phonetics might not have levels in the same way
+                        ContentType.PHONETICS -> "phonetics/$level"
                         ContentType.WORD_BUILDING -> "reading_word/$level"
                         ContentType.SENTENCE_BUILDING -> "sentence_reading/$level"
                     }
@@ -43,7 +43,10 @@ fun AppNavigation() {
                 }
             )
         }
-        composable("phonetics") {
+        composable(
+            "phonetics/{level}",
+            arguments = listOf(navArgument("level") { type = NavType.IntType })
+        ) {
             PhoneticsScreen(navController = navController)
         }
         composable(

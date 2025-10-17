@@ -24,7 +24,14 @@ class UnitDetailsViewModel(
     private fun getUnitDetails() {
         val unit = Curriculum.units.find { it.id == unitId }
         if (unit != null) {
-            _uiState.value = UnitDetailsUiState.Success(unit)
+            val items = mutableListOf<UnitDetailsListItem>()
+            unit.levels.forEach { (contentType, levels) ->
+                items.add(UnitDetailsListItem.Header(contentType))
+                levels.forEach { level ->
+                    items.add(UnitDetailsListItem.LevelItem(level, contentType))
+                }
+            }
+            _uiState.value = UnitDetailsUiState.Success(items)
         } else {
             _uiState.value = UnitDetailsUiState.Error
         }
@@ -32,7 +39,7 @@ class UnitDetailsViewModel(
 }
 
 sealed interface UnitDetailsUiState {
-    data class Success(val unit: Unit) : UnitDetailsUiState
+    data class Success(val items: List<UnitDetailsListItem>) : UnitDetailsUiState
     object Error : UnitDetailsUiState
     object Loading : UnitDetailsUiState
 }

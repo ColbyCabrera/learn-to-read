@@ -28,7 +28,10 @@ object AppViewModelProvider {
             )
         }
         initializer {
-            PhoneticsViewModel()
+            val savedStateHandle = createSavedStateHandle()
+            PhoneticsViewModel(
+                savedStateHandle
+            )
         }
         initializer {
             PunctuationViewModel(

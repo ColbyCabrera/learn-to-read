@@ -1,5 +1,6 @@
 package com.example.readingfoundations.ui.screens.phonetics
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.readingfoundations.data.PhoneticsData
@@ -11,8 +12,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class PhoneticsViewModel : ViewModel() {
+class PhoneticsViewModel(
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
+    private val level: Int = checkNotNull(savedStateHandle["level"])
     private val _uiState = MutableStateFlow(PhoneticsUiState())
     val uiState: StateFlow<PhoneticsUiState> = _uiState.asStateFlow()
 
@@ -47,8 +51,9 @@ class PhoneticsViewModel : ViewModel() {
     }
 
     private fun generateNewQuestion() {
-        val targetPhoneme = PhoneticsData.phonemes.random()
-        val otherPhonemes = (PhoneticsData.phonemes - targetPhoneme).shuffled().take(3)
+        val phonemesForLevel = PhoneticsData.phonemes.filter { it.level == level }
+        val targetPhoneme = phonemesForLevel.random()
+        val otherPhonemes = (phonemesForLevel - targetPhoneme).shuffled().take(3)
         val options = (otherPhonemes + targetPhoneme)
 
         val questionType = QuestionType.entries.toTypedArray().random()
