@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.readingfoundations.ui.screens.home.HomeScreen
 import com.example.readingfoundations.ui.screens.phonetics.PhoneticsScreen
+import com.example.readingfoundations.ui.screens.punctuation.PunctuationScreen
 import com.example.readingfoundations.ui.screens.reading_comprehension.ReadingComprehensionScreen
 import com.example.readingfoundations.ui.screens.reading_sentence.SentenceReadingScreen
 import com.example.readingfoundations.ui.screens.reading_word.LevelCompleteScreen
@@ -25,6 +26,12 @@ fun AppNavigation() {
             arguments = listOf(navArgument("level") { type = NavType.IntType })
         ) {
             PhoneticsScreen(navController = navController)
+        }
+        composable(
+            route = "punctuation/{level}",
+            arguments = listOf(navArgument("level") { type = NavType.IntType })
+        ) {
+            PunctuationScreen(navController = navController)
         }
         composable(
             route = "reading_word/{level}",
