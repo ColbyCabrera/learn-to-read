@@ -51,20 +51,39 @@ class PhoneticsViewModel(
     }
 
     private fun generateNewQuestion() {
+        // 1. Get phonemes for the level, with a fallback to all phonemes if the level pool is empty.
         var phonemesForLevel = PhoneticsData.phonemes.filter { it.level == level }
         if (phonemesForLevel.isEmpty()) {
             phonemesForLevel = PhoneticsData.phonemes
         }
 
+        // 2. Select the target phoneme.
         val targetPhoneme = phonemesForLevel.random()
 
-        var otherPhonemes = (phonemesForLevel - targetPhoneme).shuffled().toMutableList()
+        // 3. Build a list of three other phonemes, ensuring uniqueness if possible.
+        val otherPhonemes = mutableListOf<com.example.readingfoundations.data.Phoneme>()
+
+        // First, get unique options from the level's pool.
+        val levelCandidates = (phonemesForLevel - targetPhoneme).distinct()
+        otherPhonemes.addAll(levelCandidates)
+
+        // If not enough, get more unique options from the global pool.
         if (otherPhonemes.size < 3) {
-            val additionalPhonemes = (PhoneticsData.phonemes - phonemesForLevel).shuffled()
-            otherPhonemes.addAll(additionalPhonemes)
+            val alreadyUsed = otherPhonemes + targetPhoneme
+            val globalCandidates = (PhoneticsData.phonemes - alreadyUsed.toSet()).distinct()
+            otherPhonemes.addAll(globalCandidates)
         }
 
-        val finalOptions = (otherPhonemes.take(3) + targetPhoneme).distinct()
+        // Take the first 3 unique phonemes.
+        val finalOtherPhonemes = otherPhonemes.distinct().take(3).toMutableList()
+
+        // If we still have fewer than 3, fill the rest with random (potentially non-unique) phonemes.
+        while (finalOtherPhonemes.size < 3) {
+            finalOtherPhonemes.add(PhoneticsData.phonemes.random())
+        }
+
+        // 4. Combine the target with the other options and shuffle.
+        val finalOptions = (finalOtherPhonemes + targetPhoneme).shuffled()
 
         val questionType = QuestionType.entries.toTypedArray().random()
         val questionPrompt = when (questionType) {
@@ -82,7 +101,7 @@ class PhoneticsViewModel(
              _uiState.update { it ->
                  it.copy(
                     targetLetter = targetPhoneme.exampleWord,
-                    options = finalOptions.map { it.exampleWord }.shuffled(),
+                    options = finalOptions.map { it.exampleWord },
                     isCorrect = null,
                     selectedLetter = null,
                     questionPrompt = questionPrompt
@@ -92,7 +111,7 @@ class PhoneticsViewModel(
             _uiState.update { it ->
                 it.copy(
                     targetLetter = targetPhoneme.grapheme,
-                    options = finalOptions.map { it.grapheme }.shuffled(),
+                    options = finalOptions.map { it.grapheme },
                     isCorrect = null,
                     selectedLetter = null,
                     questionPrompt = questionPrompt
