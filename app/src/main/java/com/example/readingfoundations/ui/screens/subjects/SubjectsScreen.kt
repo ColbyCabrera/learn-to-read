@@ -55,6 +55,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.readingfoundations.R
+import com.example.readingfoundations.data.Subjects
 import com.example.readingfoundations.ui.AppViewModelProvider
 
 private data class MenuItem(
@@ -129,7 +130,7 @@ fun SubjectsScreen(
                     title = stringResource(R.string.word_building),
                     icon = Icons.Default.Construction,
                     numLevels = uiState.wordLevelCount,
-                    progressMap = uiState.userProgress.completedLevels["word"]?.associateWith { 100 } ?: emptyMap(),
+                    progressMap = uiState.userProgress.completedLevels[Subjects.WORD_BUILDING]?.associateWith { 100 } ?: emptyMap(),
                     onLevelClick = { level -> navController.navigate("reading_word/$level") })
             }
 
@@ -138,7 +139,7 @@ fun SubjectsScreen(
                     title = stringResource(R.string.sentence_reading),
                     icon = Icons.AutoMirrored.Filled.ChromeReaderMode,
                     numLevels = uiState.sentenceLevelCount,
-                    progressMap = uiState.userProgress.completedLevels["sentence"]?.associateWith { 100 } ?: emptyMap(),
+                    progressMap = uiState.userProgress.completedLevels[Subjects.SENTENCE_READING]?.associateWith { 100 } ?: emptyMap(),
                     onLevelClick = { level -> navController.navigate("sentence_reading/$level") })
             }
 
