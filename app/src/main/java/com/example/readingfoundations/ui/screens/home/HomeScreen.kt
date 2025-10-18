@@ -265,13 +265,13 @@ fun UnitShape(
     unit: DataUnit, shape: Shape, isCurrent: Boolean, isCompleted: Boolean, onClick: () -> Unit
 ) {
     val containerColor = when {
-        isCurrent -> MaterialTheme.colorScheme.primaryContainer
-        isCompleted -> MaterialTheme.colorScheme.secondaryContainer
+        isCurrent -> MaterialTheme.colorScheme.tertiaryContainer
+        isCompleted -> MaterialTheme.colorScheme.primaryContainer
         else -> MaterialTheme.colorScheme.surfaceVariant
     }
     val contentColor = when {
-        isCurrent -> MaterialTheme.colorScheme.onPrimaryContainer
-        isCompleted -> MaterialTheme.colorScheme.onSecondaryContainer
+        isCurrent -> MaterialTheme.colorScheme.onTertiaryContainer
+        isCompleted -> MaterialTheme.colorScheme.onPrimaryContainer
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
@@ -291,7 +291,8 @@ fun UnitShape(
                     CircularProgressIndicator(
                         progress = { unit.progress },
                         modifier = Modifier.fillMaxSize(0.55f),
-                        color = contentColor,
+                        color = MaterialTheme.colorScheme.onTertiary,
+                        trackColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.7F),
                         strokeWidth = ProgressIndicatorDefaults.CircularStrokeWidth * 2,
                     )
                 }
