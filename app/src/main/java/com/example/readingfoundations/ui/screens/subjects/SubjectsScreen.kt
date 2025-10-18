@@ -55,38 +55,32 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.readingfoundations.R
+import com.example.readingfoundations.data.Subjects
 import com.example.readingfoundations.ui.AppViewModelProvider
-import com.example.readingfoundations.ui.screens.home.EditorialMoment
-import com.example.readingfoundations.ui.screens.home.HomeViewModel
 
 private data class MenuItem(
     val id: String, val title: Int, val icon: ImageVector, val route: String
 )
 
 private val staticMenuItems = listOf(
-    MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics"),
-    MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation"),
+    MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics/1"),
+    MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation/1"),
     MenuItem(
         "reading_comprehension",
         R.string.reading_comprehension,
         Icons.AutoMirrored.Filled.MenuBook,
-        "reading_comprehension"
+        "reading_comprehension/1"
     ),
     MenuItem("settings", R.string.settings, Icons.Default.Settings, "settings")
 )
 
-private val contentRoutes = listOf(
-    "phonetics", "reading_word/1", "sentence_reading/1", "reading_comprehension"
-)
-
-
 @Composable
 fun SubjectsScreen(
     navController: NavController,
-    viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: SubjectsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val items = listOf("Home", "Subjects")
+    val items = listOf(stringResource(R.string.home), stringResource(R.string.subjects))
     val routes = listOf("home", "subjects")
     val selectedIcons = listOf(R.drawable.home_filled_24px, R.drawable.school_filled_24px)
     val unselectedIcons = listOf(R.drawable.home_24px, R.drawable.school_24px)
@@ -132,17 +126,11 @@ fun SubjectsScreen(
             contentPadding = paddingValues
         ) {
             item {
-                EditorialMoment(
-                    onStartLearningClick = { navController.navigate(contentRoutes.random()) },
-                )
-            }
-
-            item {
                 LevelSelection(
                     title = stringResource(R.string.word_building),
                     icon = Icons.Default.Construction,
                     numLevels = uiState.wordLevelCount,
-                    progressMap = uiState.userProgress.wordLevelsProgress,
+                    progressMap = uiState.userProgress.completedLevels[Subjects.WORD_BUILDING]?.associateWith { 100 } ?: emptyMap(),
                     onLevelClick = { level -> navController.navigate("reading_word/$level") })
             }
 
@@ -151,7 +139,7 @@ fun SubjectsScreen(
                     title = stringResource(R.string.sentence_reading),
                     icon = Icons.AutoMirrored.Filled.ChromeReaderMode,
                     numLevels = uiState.sentenceLevelCount,
-                    progressMap = uiState.userProgress.sentenceLevelsProgress,
+                    progressMap = uiState.userProgress.completedLevels[Subjects.SENTENCE_READING]?.associateWith { 100 } ?: emptyMap(),
                     onLevelClick = { level -> navController.navigate("sentence_reading/$level") })
             }
 
@@ -185,7 +173,9 @@ private fun LevelSelection(
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
                     imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = if (expanded) "Collapse" else "Expand"
+                    contentDescription = stringResource(
+                        if (expanded) R.string.collapse else R.string.expand
+                    )
                 )
             }
             AnimatedVisibility(visible = expanded) {
@@ -196,7 +186,7 @@ private fun LevelSelection(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.heightIn(max = 300.dp) // Avoid excessive height
                 ) {
-                    items(numLevels) { level ->
+                    items(numLevels, key = { it }) { level ->
                         val levelNum = level + 1
                         val progress = progressMap[levelNum] ?: 0
                         LevelCard(

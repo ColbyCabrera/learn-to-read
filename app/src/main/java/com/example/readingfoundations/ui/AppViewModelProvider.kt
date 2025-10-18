@@ -19,33 +19,39 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             HomeViewModel(
-                readingFoundationsApplication().container.appRepository
+                readingFoundationsApplication().container.unitRepository
             )
         }
         initializer {
             SubjectsViewModel(
-                readingFoundationsApplication().container.appRepository
+                readingFoundationsApplication().container.unitRepository
             )
         }
         initializer {
-            PhoneticsViewModel()
+            val savedStateHandle = createSavedStateHandle()
+            PhoneticsViewModel(
+                readingFoundationsApplication().container.unitRepository,
+                savedStateHandle
+            )
         }
         initializer {
+            val savedStateHandle = createSavedStateHandle()
             PunctuationViewModel(
-                readingFoundationsApplication().container.appRepository
+                readingFoundationsApplication().container.unitRepository,
+                savedStateHandle
             )
         }
         initializer {
             val savedStateHandle = createSavedStateHandle()
             WordReadingViewModel(
-                readingFoundationsApplication().container.appRepository,
+                readingFoundationsApplication().container.unitRepository,
                 savedStateHandle
             )
         }
         initializer {
             val savedStateHandle = createSavedStateHandle()
             SentenceReadingViewModel(
-                readingFoundationsApplication().container.appRepository,
+                readingFoundationsApplication().container.unitRepository,
                 savedStateHandle
             )
         }
@@ -55,8 +61,11 @@ object AppViewModelProvider {
             )
         }
         initializer {
+            val savedStateHandle = createSavedStateHandle()
             ReadingComprehensionViewModel(
-                readingFoundationsApplication().container.readingComprehensionRepository
+                readingFoundationsApplication().container.readingComprehensionRepository,
+                readingFoundationsApplication().container.unitRepository,
+                savedStateHandle
             )
         }
     }

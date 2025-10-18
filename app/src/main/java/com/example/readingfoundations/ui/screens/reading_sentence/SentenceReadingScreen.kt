@@ -75,7 +75,7 @@ fun SentenceReadingScreen(
                 viewModel.navigationEvent.collect { event ->
                     when (event) {
                         is NavigationEvent.LevelComplete -> {
-                            navController.navigate("level_complete/${event.level}/${event.score}/${event.totalQuestions}") {
+                            navController.navigate("levelComplete/${event.level}/${event.score}/${event.totalQuestions}") {
                                 popUpTo("home")
                             }
                         }

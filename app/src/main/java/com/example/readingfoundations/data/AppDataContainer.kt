@@ -32,4 +32,15 @@ class AppDataContainer(private val context: Context) : AppContainer {
     override val readingComprehensionRepository: ReadingComprehensionRepository by lazy {
         ReadingComprehensionRepositoryImpl(AppDatabase.getDatabase(context).readingComprehensionDao())
     }
+
+    override val unitRepository: UnitRepository by lazy {
+        UnitRepositoryImpl(
+            AppDatabase.getDatabase(context).userProgressDao(),
+            AppDatabase.getDatabase(context).phonemeDao(),
+            AppDatabase.getDatabase(context).wordDao(),
+            AppDatabase.getDatabase(context).sentenceDao(),
+            AppDatabase.getDatabase(context).punctuationQuestionDao(),
+            AppDatabase.getDatabase(context).readingComprehensionDao()
+        )
+    }
 }

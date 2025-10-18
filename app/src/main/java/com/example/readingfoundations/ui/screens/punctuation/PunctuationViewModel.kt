@@ -1,18 +1,26 @@
 package com.example.readingfoundations.ui.screens.punctuation
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.readingfoundations.data.AppRepository
+import com.example.readingfoundations.data.Subjects
+import com.example.readingfoundations.data.UnitRepository
 import com.example.readingfoundations.data.models.PunctuationQuestion
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import android.util.Log
 
-class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel() {
+class PunctuationViewModel(
+    private val unitRepository: UnitRepository,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
+    private val level: Int = savedStateHandle.get<Int>("level") ?: 1
 
     private val _uiState = MutableStateFlow(PunctuationUiState())
-    val uiState: StateFlow<PunctuationUiState> = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
 
     private val _navigationEvent = Channel<NavigationEvent>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
@@ -22,50 +30,54 @@ class PunctuationViewModel(private val appRepository: AppRepository) : ViewModel
     }
 
     private fun loadQuestions() {
-        viewModelScope.launch {
-            try {
-                // Use .first() to ensure questions are loaded only once and the quiz state is stable.
-                val questions = appRepository.getAllPunctuationQuestions().first().shuffled()
-                if (questions.isNotEmpty()) {
-                    _uiState.value = PunctuationUiState(
-                        questions = questions,
-                        currentQuestionIndex = 0,
-                        progress = 1f / questions.size
-                    )
-                }
-            } catch (e: Exception) {
-                // TODO: Update UI state to show an error to the user
-                Log.e("PunctuationViewModel", "Failed to load questions", e)
-            }
-        }
+        // Replace with actual data loading logic
+        val dummyQuestions = listOf(
+            PunctuationQuestion(
+                id = 1,
+                text = "Which sentence needs a period?",
+                correctAnswer = "The dog is running",
+                options = listOf("The dog is running", "Wow", "Is it raining"),
+                level = 1
+            ),
+            PunctuationQuestion(
+                id = 2,
+                text = "Which punctuation mark shows excitement?",
+                correctAnswer = "!",
+                options = listOf(".", "!", "?"),
+                level = 1
+            )
+        )
+        _uiState.value = PunctuationUiState(questions = dummyQuestions)
     }
 
     fun submitAnswer(answer: String) {
-        val currentState = _uiState.value
-        val currentQuestion = currentState.questions[currentState.currentQuestionIndex]
-        val isCorrect = currentQuestion.correctAnswer.equals(answer.trim(), ignoreCase = true)
-
-        _uiState.value = currentState.copy(
-            isAnswerSubmitted = true,
-            isAnswerCorrect = isCorrect,
-            score = if (isCorrect) currentState.score + 1 else currentState.score
-        )
+        val currentQuestion = _uiState.value.questions[_uiState.value.currentQuestionIndex]
+        val isCorrect = answer.equals(currentQuestion.correctAnswer, ignoreCase = true)
+        _uiState.update {
+            it.copy(
+                isAnswerSubmitted = true,
+                isAnswerCorrect = isCorrect,
+                score = if (isCorrect) it.score + 1 else it.score
+            )
+        }
     }
 
     fun nextQuestion() {
-        val currentState = _uiState.value
-        if (currentState.currentQuestionIndex < currentState.questions.size - 1) {
-            val nextIndex = currentState.currentQuestionIndex + 1
-            _uiState.value = currentState.copy(
-                currentQuestionIndex = nextIndex,
-                isAnswerSubmitted = false,
-                isAnswerCorrect = false,
-                progress = (nextIndex).toFloat() / currentState.questions.size
-            )
+        if (_uiState.value.currentQuestionIndex < _uiState.value.questions.size - 1) {
+            _uiState.update {
+                it.copy(
+                    currentQuestionIndex = it.currentQuestionIndex + 1,
+                    isAnswerSubmitted = false,
+                    isAnswerCorrect = false,
+                    progress = (it.currentQuestionIndex + 1).toFloat() / it.questions.size
+                )
+            }
         } else {
             // Quiz finished
+            _uiState.update { it.copy(progress = 1f) }
             viewModelScope.launch {
-                _navigationEvent.send(NavigationEvent.QuizComplete(currentState.score, currentState.questions.size))
+                unitRepository.updateProgress(Subjects.PUNCTUATION, level)
+                _navigationEvent.send(NavigationEvent.QuizComplete(_uiState.value.score, _uiState.value.questions.size))
             }
         }
     }

@@ -3,8 +3,7 @@ package com.example.readingfoundations.ui.screens.reading_word
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.readingfoundations.data.AppRepository
-import com.example.readingfoundations.data.models.UserProgress
+import com.example.readingfoundations.data.UnitRepository
 import com.example.readingfoundations.data.models.Word
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +14,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class WordReadingViewModel(
-    private val appRepository: AppRepository,
+    private val unitRepository: UnitRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -33,7 +32,7 @@ class WordReadingViewModel(
 
     private fun loadWords(level: Int) {
         viewModelScope.launch {
-            appRepository.getWordsByDifficulty(level).collect { words ->
+            unitRepository.getWordsByDifficulty(level).collect { words ->
                 _uiState.value = WordReadingUiState(
                     words = words,
                     currentLevel = level
@@ -80,22 +79,13 @@ class WordReadingViewModel(
         } else {
             // Quiz finished
             viewModelScope.launch {
-                val userProgress = appRepository.getUserProgress().first() ?: UserProgress()
                 val score = quizState.score
-                val totalQuestions = quizState.questions.size
-                val progressPercentage = (score.toFloat() / totalQuestions * 100).toInt()
-
-                val updatedProgress = userProgress.wordLevelsProgress.toMutableMap()
-                updatedProgress[level] = progressPercentage
-
-                appRepository.updateUserProgress(
-                    userProgress.copy(wordLevelsProgress = updatedProgress)
-                )
+                unitRepository.updateProgress(com.example.readingfoundations.data.Subjects.WORD_BUILDING, level)
                 _navigationEvent.send(
                     NavigationEvent.LevelComplete(
                         level = level,
                         score = score,
-                        totalQuestions = totalQuestions
+                        totalQuestions = quizState.questions.size
                     )
                 )
             }

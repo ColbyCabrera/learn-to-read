@@ -29,6 +29,18 @@ class Converters {
         return map?.let { gson.toJson(it, mapIntIntType) }
     }
 
+    private val mapStringListIntType = object : TypeToken<Map<String, List<Int>>>() {}.type
+
+    @TypeConverter
+    fun fromStringToMapStringListInt(value: String?): Map<String, List<Int>>? {
+        return value?.let { gson.fromJson(it, mapStringListIntType) }
+    }
+
+    @TypeConverter
+    fun fromMapStringListIntToString(map: Map<String, List<Int>>?): String? {
+        return map?.let { gson.toJson(it, mapStringListIntType) }
+    }
+
     @TypeConverter
     fun fromQuestionType(questionType: com.example.readingfoundations.data.models.QuestionType): String {
         return questionType.name

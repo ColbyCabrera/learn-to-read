@@ -2,6 +2,7 @@ package com.example.readingfoundations.data.models
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 enum class QuestionType {
@@ -22,7 +23,8 @@ enum class QuestionType {
             childColumns = ["textId"],
             onDelete = ForeignKey.CASCADE
         )
-    ]
+    ],
+    indices = [Index(value = ["textId"])]
 )
 data class ReadingComprehensionQuestion(
     @PrimaryKey(autoGenerate = true)

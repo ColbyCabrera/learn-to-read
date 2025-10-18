@@ -20,4 +20,7 @@ interface PhonemeDao {
 
     @Query("SELECT * FROM phonemes WHERE category = :category ORDER BY level, id")
     fun getPhonemesByCategory(category: String): Flow<List<Phoneme>>
+
+    @Query("SELECT COALESCE(MAX(level), 0) FROM phonemes")
+    fun getHighestLevel(): Flow<Int>
 }

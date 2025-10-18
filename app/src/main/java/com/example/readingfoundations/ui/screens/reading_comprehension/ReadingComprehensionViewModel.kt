@@ -1,8 +1,11 @@
 package com.example.readingfoundations.ui.screens.reading_comprehension
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.readingfoundations.data.ReadingComprehensionRepository
+import com.example.readingfoundations.data.Subjects
+import com.example.readingfoundations.data.UnitRepository
 import com.example.readingfoundations.data.models.ReadingComprehensionQuestion
 import com.example.readingfoundations.data.models.ReadingComprehensionText
 import kotlinx.coroutines.channels.Channel
@@ -24,7 +27,9 @@ sealed class NavigationEvent {
 }
 
 class ReadingComprehensionViewModel(
-    private val repository: ReadingComprehensionRepository
+    private val repository: ReadingComprehensionRepository,
+    private val unitRepository: UnitRepository,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ReadingComprehensionUiState())
@@ -39,9 +44,10 @@ class ReadingComprehensionViewModel(
     private var consecutiveCorrectAnswers = 0
     private var consecutiveIncorrectAnswers = 0
     private var nextLevel: Int? = null
+    private val level: Int = savedStateHandle["level"] ?: 1
 
     init {
-        loadLevel(0)
+        loadLevel(level)
     }
 
     fun checkAnswer(userAnswer: String) {
@@ -81,7 +87,7 @@ class ReadingComprehensionViewModel(
                 )
             }
 
-            if (consecutiveIncorrectAnswers >= INCORRECT_ANSWERS_TO_LEVEL_DOWN && currentLevel > 0) {
+            if (consecutiveIncorrectAnswers >= INCORRECT_ANSWERS_TO_LEVEL_DOWN && currentLevel > 1) {
                 nextLevel = currentLevel - 1
             }
         }
@@ -101,6 +107,9 @@ class ReadingComprehensionViewModel(
             }
         } else {
             // Level complete, check if we need to change levels
+            viewModelScope.launch {
+                unitRepository.updateProgress(Subjects.READING_COMPREHENSION, currentState.level)
+            }
             val levelToLoad = nextLevel
             if (levelToLoad != null) {
                 val message = if (levelToLoad > currentState.level) {
@@ -128,7 +137,7 @@ class ReadingComprehensionViewModel(
 
     fun previousLevel() {
         val currentLevel = _uiState.value.level
-        if (currentLevel > 0) {
+        if (currentLevel > 1) {
             loadLevel(currentLevel - 1, "No problem at all! Let's go back and practice one that's a bit easier to build our strength.")
         }
     }
@@ -179,7 +188,7 @@ data class ReadingComprehensionQuestionWrapper(
 )
 
 data class ReadingComprehensionUiState(
-    val level: Int = 0,
+    val level: Int = 1,
     val currentText: ReadingComprehensionText? = null,
     val questions: List<ReadingComprehensionQuestionWrapper> = emptyList(),
     val currentQuestionIndex: Int = 0,

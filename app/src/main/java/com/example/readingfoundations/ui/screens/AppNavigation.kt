@@ -8,10 +8,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.readingfoundations.ui.screens.home.HomeScreen
 import com.example.readingfoundations.ui.screens.phonetics.PhoneticsScreen
+import com.example.readingfoundations.ui.screens.punctuation.PunctuationScreen
 import com.example.readingfoundations.ui.screens.reading_comprehension.ReadingComprehensionScreen
 import com.example.readingfoundations.ui.screens.reading_sentence.SentenceReadingScreen
 import com.example.readingfoundations.ui.screens.reading_word.LevelCompleteScreen
 import com.example.readingfoundations.ui.screens.reading_word.WordReadingScreen
+import com.example.readingfoundations.ui.screens.settings.SettingsScreen
 import com.example.readingfoundations.ui.screens.subjects.SubjectsScreen
 
 @Composable
@@ -24,8 +26,17 @@ fun AppNavigation() {
         composable("subjects") {
             SubjectsScreen(navController = navController)
         }
-        composable("phonetics") {
+        composable(
+            route = "phonetics/{level}",
+            arguments = listOf(navArgument("level") { type = NavType.IntType })
+        ) {
             PhoneticsScreen(navController = navController)
+        }
+        composable(
+            route = "punctuation/{level}",
+            arguments = listOf(navArgument("level") { type = NavType.IntType })
+        ) {
+            PunctuationScreen(navController = navController)
         }
         composable(
             route = "reading_word/{level}",
@@ -59,8 +70,14 @@ fun AppNavigation() {
                 navController = navController
             )
         }
-        composable("reading_comprehension") {
+        composable(
+            route = "reading_comprehension/{level}",
+            arguments = listOf(navArgument("level") { type = NavType.IntType })
+        ) {
             ReadingComprehensionScreen(navController = navController)
+        }
+        composable("settings") {
+            SettingsScreen(navController = navController)
         }
     }
 }

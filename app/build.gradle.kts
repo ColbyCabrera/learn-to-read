@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.compose)
     alias(libs.plugins.google.devtools.ksp)
+    alias(libs.plugins.google.dagger.hilt.android)
 }
 
 android {
@@ -68,7 +69,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
 
     // Room Database
-    implementation(libs.bundles.room)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
     // Ktor for placeholder RemoteDataSource
@@ -78,6 +80,10 @@ dependencies {
     // Retrofit for placeholder RemoteDataSource
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+    
+    // Dagger Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 
     // Testing
     testImplementation(libs.junit)
