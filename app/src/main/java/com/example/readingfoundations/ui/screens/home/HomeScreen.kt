@@ -137,8 +137,8 @@ fun UnitPathScreen(
             VerySunny
         )
     }
-    val unitShapes = remember(units.size) {
-        units.map { shapes.random(Random(it.id)) }
+    val unitShapes = remember(units.map { it.id }) {
+        units.associate { it.id to shapes.random(Random(it.id)) }
     }
 
     val currentUnitIndex =
@@ -152,13 +152,13 @@ fun UnitPathScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         itemsIndexed(units) { index, unit ->
-            val nextLevel = remember(unit) { getNextLevel(unit) }
+            val nextLevel = remember(unit.id) { getNextLevel(unit) }
             val nextIncompleteLevel = nextLevel?.let {
                 getNextIncompleteLevel(it.subject, homeUiState)
             }
             UnitPathItem(
                 unit = unit,
-                shape = unitShapes[index].toShape(),
+                shape = unitShapes[unit.id]?.toShape() ?: MaterialTheme.shapes.medium,
                 isCurrent = index == currentUnitIndex,
                 isCompleted = index < currentUnitIndex,
                 isFirst = index == 0,
