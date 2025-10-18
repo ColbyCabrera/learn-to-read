@@ -80,7 +80,7 @@ fun SubjectsScreen(
     viewModel: SubjectsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val items = listOf("Home", "Subjects")
+    val items = listOf(stringResource(R.string.home), stringResource(R.string.subjects))
     val routes = listOf("home", "subjects")
     val selectedIcons = listOf(R.drawable.home_filled_24px, R.drawable.school_filled_24px)
     val unselectedIcons = listOf(R.drawable.home_24px, R.drawable.school_24px)
@@ -173,7 +173,9 @@ private fun LevelSelection(
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
                     imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = if (expanded) "Collapse" else "Expand"
+                    contentDescription = stringResource(
+                        if (expanded) R.string.collapse else R.string.expand
+                    )
                 )
             }
             AnimatedVisibility(visible = expanded) {

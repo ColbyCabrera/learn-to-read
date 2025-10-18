@@ -18,10 +18,16 @@ class SubjectsViewModel(unitRepository: UnitRepository) : ViewModel() {
             unitRepository.getUnits()
         ) { userProgress, units ->
             val allLevels = units.flatMap { it.levels }
-            val wordLevelCount = allLevels.filter { it.subject == Subjects.WORD_BUILDING }
-                .maxOfOrNull { it.levelNumber } ?: 0
-            val sentenceLevelCount = allLevels.filter { it.subject == Subjects.SENTENCE_READING }
-                .maxOfOrNull { it.levelNumber } ?: 0
+            val wordLevelCount = allLevels.asSequence()
+                .filter { it.subject == Subjects.WORD_BUILDING }
+                .map { it.levelNumber }
+                .distinct()
+                .count()
+            val sentenceLevelCount = allLevels.asSequence()
+                .filter { it.subject == Subjects.SENTENCE_READING }
+                .map { it.levelNumber }
+                .distinct()
+                .count()
             HomeUiState(
                 userProgress = userProgress ?: UserProgress(),
                 wordLevelCount = wordLevelCount,
