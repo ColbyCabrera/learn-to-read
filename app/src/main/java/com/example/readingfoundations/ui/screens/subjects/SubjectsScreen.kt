@@ -62,21 +62,16 @@ private data class MenuItem(
 )
 
 private val staticMenuItems = listOf(
-    MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics"),
-    MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation"),
+    MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics/1"),
+    MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation/1"),
     MenuItem(
         "reading_comprehension",
         R.string.reading_comprehension,
         Icons.AutoMirrored.Filled.MenuBook,
-        "reading_comprehension"
+        "reading_comprehension/1"
     ),
     MenuItem("settings", R.string.settings, Icons.Default.Settings, "settings")
 )
-
-private val contentRoutes = listOf(
-    "phonetics", "reading_word/1", "sentence_reading/1", "reading_comprehension"
-)
-
 
 @Composable
 fun SubjectsScreen(
