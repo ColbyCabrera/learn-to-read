@@ -220,7 +220,7 @@ fun UnitPathItem(
         Spacer(modifier = Modifier.width(16.dp))
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
             if (nextLevel != null && isCurrent && nextIncompleteLevel != null) {
-                InfoBox(level = Level(nextLevel.subject, nextIncompleteLevel, false))
+                InfoBox(subject = nextLevel.subject, levelNumber = nextIncompleteLevel)
             }
         }
     }
@@ -307,14 +307,14 @@ fun UnitShape(
 }
 
 @Composable
-fun InfoBox(level: Level) {
+fun InfoBox(subject: String, levelNumber: Int) {
     Card(
         modifier = Modifier.padding(8.dp), elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             Text(
                 text = stringResource(
-                    when (level.subject) {
+                    when (subject) {
                         Subjects.PHONETICS -> R.string.phonetics
                         Subjects.WORD_BUILDING -> R.string.word_building
                         Subjects.SENTENCE_READING -> R.string.sentence_reading
@@ -325,7 +325,7 @@ fun InfoBox(level: Level) {
                 ),
                 style = MaterialTheme.typography.bodyLarge
             )
-            Text(text = stringResource(R.string.level_format, level.levelNumber), style = MaterialTheme.typography.bodyMedium)
+            Text(text = stringResource(R.string.level_format, levelNumber), style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
