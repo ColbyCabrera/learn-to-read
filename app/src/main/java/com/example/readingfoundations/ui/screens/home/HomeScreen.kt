@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -151,10 +152,14 @@ fun UnitPathScreen(
             .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        itemsIndexed(units) { index, unit ->
-            val nextLevel = remember(unit.id) { getNextLevel(unit) }
-            val nextIncompleteLevel = nextLevel?.let {
-                getNextIncompleteLevel(it.subject, homeUiState)
+        itemsIndexed(units, key = { _, unit -> unit.id }) { index, unit ->
+            val nextLevel by remember(unit) { derivedStateOf { getNextLevel(unit) } }
+            val nextIncompleteLevel by remember(nextLevel, homeUiState) {
+                derivedStateOf {
+                    nextLevel?.let {
+                        getNextIncompleteLevel(it.subject, homeUiState)
+                    }
+                }
             }
             UnitPathItem(
                 unit = unit,
@@ -307,16 +312,28 @@ fun InfoBox(level: Level) {
         modifier = Modifier.padding(8.dp), elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
-            Text(text = level.subject, style = MaterialTheme.typography.bodyLarge)
+            Text(
+                text = stringResource(
+                    when (level.subject) {
+                        Subjects.PHONETICS -> R.string.phonetics
+                        Subjects.WORD_BUILDING -> R.string.word_building
+                        Subjects.SENTENCE_READING -> R.string.sentence_reading
+                        Subjects.PUNCTUATION -> R.string.punctuation
+                        Subjects.READING_COMPREHENSION -> R.string.reading_comprehension
+                        else -> R.string.subjects
+                    }
+                ),
+                style = MaterialTheme.typography.bodyLarge
+            )
             Text(text = stringResource(R.string.level_format, level.levelNumber), style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
 
 private fun getNextIncompleteLevel(subject: String, homeUiState: HomeUiState): Int {
-    val completedLevels = homeUiState.userProgress.completedLevels[subject] ?: emptyList()
+    val completedLevels = homeUiState.userProgress.completedLevels[subject]?.toHashSet() ?: emptySet()
     var level = 1
-    while (completedLevels.contains(level)) {
+    while (level in completedLevels) {
         level++
     }
     return level

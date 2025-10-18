@@ -21,13 +21,11 @@ class SubjectsViewModel(unitRepository: UnitRepository) : ViewModel() {
             val wordLevelCount = allLevels.asSequence()
                 .filter { it.subject == Subjects.WORD_BUILDING }
                 .map { it.levelNumber }
-                .distinct()
-                .count()
+                .maxOfOrNull { it } ?: 0
             val sentenceLevelCount = allLevels.asSequence()
                 .filter { it.subject == Subjects.SENTENCE_READING }
                 .map { it.levelNumber }
-                .distinct()
-                .count()
+                .maxOfOrNull { it } ?: 0
             HomeUiState(
                 userProgress = userProgress ?: UserProgress(),
                 wordLevelCount = wordLevelCount,

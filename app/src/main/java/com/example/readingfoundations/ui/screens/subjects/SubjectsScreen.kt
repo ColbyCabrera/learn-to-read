@@ -186,7 +186,7 @@ private fun LevelSelection(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.heightIn(max = 300.dp) // Avoid excessive height
                 ) {
-                    items(numLevels) { level ->
+                    items(numLevels, key = { it }) { level ->
                         val levelNum = level + 1
                         val progress = progressMap[levelNum] ?: 0
                         LevelCard(
