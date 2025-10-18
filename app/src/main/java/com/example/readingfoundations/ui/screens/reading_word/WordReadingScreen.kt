@@ -115,8 +115,7 @@ fun WordReadingScreen(
                 }
             } else if (uiState.isPracticeMode && uiState.quizState != null) {
                 val quizState = uiState.quizState!!
-                val progress =
-                    (quizState.currentQuestionIndex).toFloat() / quizState.questions.size
+                val progress = (quizState.currentQuestionIndex).toFloat() / quizState.questions.size
                 val animatedProgress by animateFloatAsState(
                     targetValue = progress,
                     animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
