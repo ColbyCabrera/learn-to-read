@@ -1,6 +1,7 @@
 package com.example.readingfoundations.ui.screens.reading_word
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearWavyProgressIndicator
@@ -42,9 +44,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -54,12 +58,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.readingfoundations.R
 import com.example.readingfoundations.data.models.Word
 import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun WordReadingScreen(
     navController: NavController,
@@ -119,6 +124,7 @@ fun WordReadingScreen(
                 val animatedProgress by animateFloatAsState(
                     targetValue = progress,
                     animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
+                    label = "quizProgress"
                 )
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     LinearWavyProgressIndicator(
@@ -226,21 +232,33 @@ fun PracticeMode(
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Assembled answer display
-        Card(
-            modifier = Modifier
+        Row(
+            Modifier
                 .fillMaxWidth()
-                .defaultMinSize(minHeight = 60.dp),
-            elevation = CardDefaults.cardElevation(4.dp)
+                .defaultMinSize(minHeight = 60.dp)
+                .clip(MaterialTheme.shapes.large)
+                .background(MaterialTheme.colorScheme.secondaryContainer)
+                ,
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = assembledAnswer.joinToString(" "),
                 style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()
             )
+            FilledTonalIconButton(onClick = {
+                if (assembledAnswer.isNotEmpty()) {
+                    val lastChar = assembledAnswer.removeLast()
+                    remainingLetters.add(lastChar)
+                }
+            }) {
+                Icon(
+                    painter = painterResource(R.drawable.backspace_24px),
+                    contentDescription = "Backspace"
+                )
+            }
         }
         Spacer(modifier = Modifier.height(24.dp))
 
