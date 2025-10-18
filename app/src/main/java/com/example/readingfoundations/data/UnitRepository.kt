@@ -64,14 +64,14 @@ class UnitRepositoryImpl @Inject constructor(
             val maxPunctuationLevel = array[4] as Int
             val maxReadingComprehensionLevel = array[5] as Int
 
-            val minLevels = minOf(
+            val maxLevels = maxOf(
                 maxPhonemeLevel,
                 maxWordLevel,
                 maxSentenceLevel,
                 maxPunctuationLevel,
                 maxReadingComprehensionLevel
             )
-            val totalUnits = (minLevels + 1) / 2
+            val totalUnits = (maxLevels + 1) / 2
 
             (1..totalUnits).map { unitId ->
                 val levels = mutableListOf<Level>()
