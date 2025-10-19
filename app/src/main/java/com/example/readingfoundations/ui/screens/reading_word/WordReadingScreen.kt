@@ -20,6 +20,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.ButtonShapes
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularWavyProgressIndicator
@@ -51,6 +55,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -222,14 +227,10 @@ fun PracticeMode(
         remember(currentQuestion) { mutableStateListOf(*jumbledLetters.toTypedArray()) }
 
     Column(
-        modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.Start
     ) {
         Text("Unscramble the word:", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { onSpeakClicked(currentQuestion.text) }) {
-            Text("Hear the word")
-        }
         Spacer(modifier = Modifier.height(16.dp))
 
         Surface(
@@ -297,25 +298,63 @@ fun PracticeMode(
             }
         }
 
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.Center
         ) {
-            Button(
-                onClick = { onAnswerSelected(assembledAnswer.joinToString("")) },
-                enabled = quizState.isAnswerCorrect == null && remainingLetters.isEmpty()
+
+            ButtonGroup(
+                overflowIndicator = { menuState ->
+                    { }
+                }
             ) {
-                Text("Submit")
+                val options = listOf( "Reset", "Listen")
+                val modifiers = listOf(1.5f, 1f)
+                val icons =
+                    listOf( R.drawable.replay_24px, R.drawable.ear_sound_24px)
+                val onClicks = listOf(
+                    { onAnswerSelected(assembledAnswer.joinToString("")) },
+                    {
+                        assembledAnswer.clear()
+                        remainingLetters.clear()
+                        remainingLetters.addAll(jumbledLetters)
+                    },
+                    { onSpeakClicked(currentQuestion.text) }
+                )
+
+                options.forEachIndexed { index, label ->
+                    clickableItem(
+                        label = label,
+                        weight = modifiers[index],
+                        icon = {
+                            Icon(
+                                painter = painterResource(icons[index]),
+                                contentDescription = null
+                            )
+                        },
+                        onClick = { onClicks[index] }
+                    )
+                }
             }
-            Spacer(Modifier.width(8.dp))
-            Button(onClick = {
-                assembledAnswer.clear()
-                remainingLetters.clear()
-                remainingLetters.addAll(jumbledLetters)
-            }) {
-                Text("Reset")
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(ButtonDefaults.LargeContainerHeight),
+                onClick = { onAnswerSelected(assembledAnswer.joinToString("")) },
+                enabled = quizState.isAnswerCorrect == null && remainingLetters.isEmpty(),
+                shapes = ButtonShapes(
+                    shape = ButtonDefaults.shape,
+                    pressedShape = ButtonDefaults.largePressedShape
+                )
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.check_24px),
+                    contentDescription = null,
+                    modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+                )
+                Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
+                Text(text = "Submit", fontSize = 24.sp)
             }
         }
 
