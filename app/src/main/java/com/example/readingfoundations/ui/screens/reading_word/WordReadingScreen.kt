@@ -310,7 +310,7 @@ fun PracticeMode(
                 }
             ) {
                 val options = listOf( "Reset", "Listen")
-                val modifiers = listOf(1.5f, 1f)
+                val modifiers = listOf(1f, 1.4f)
                 val icons =
                     listOf( R.drawable.replay_24px, R.drawable.ear_sound_24px)
                 val onClicks = listOf(
@@ -324,19 +324,34 @@ fun PracticeMode(
                 )
 
                 options.forEachIndexed { index, label ->
-                    clickableItem(
-                        label = label,
-                        weight = modifiers[index],
-                        icon = {
-                            Icon(
-                                painter = painterResource(icons[index]),
-                                contentDescription = null
-                            )
+                    customItem(
+                        buttonGroupContent = {
+                            Button(
+                                modifier = Modifier
+                                    .weight(modifiers[index])
+                                    .height(ButtonDefaults.LargeContainerHeight),
+                                onClick = { onClicks[index] },
+                                shapes = ButtonShapes(
+                                    shape = ButtonDefaults.shape,
+                                    pressedShape = ButtonDefaults.largePressedShape
+                                )
+                            ) {
+                                Icon(
+                                    painter = painterResource(icons[index]),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+                                )
+                                Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
+                                Text(text = label, fontSize = 24.sp)
+                            }
                         },
-                        onClick = { onClicks[index] }
+                        menuContent = { }
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
