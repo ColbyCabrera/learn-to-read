@@ -256,14 +256,12 @@ fun PracticeMode(
                     colors = IconButtonDefaults.filledTonalIconButtonColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainer,
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                    onClick = {
+                    ), onClick = {
                         if (assembledAnswer.isNotEmpty()) {
                             val lastChar = assembledAnswer.removeLast()
                             remainingLetters.add(lastChar)
                         }
-                    }
-                ) {
+                    }) {
                     Icon(
                         painter = painterResource(R.drawable.backspace_24px),
                         contentDescription = "Backspace"
@@ -274,25 +272,36 @@ fun PracticeMode(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Jumbled letter bank
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Surface(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shape = MaterialTheme.shapes.large
         ) {
-            remainingLetters.forEachIndexed { index, char ->
-                Button(onClick = {
-                    assembledAnswer.add(char)
-                    remainingLetters.removeAt(index)
-                }) {
-                    Text(char.toString(), style = MaterialTheme.typography.headlineMedium)
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                remainingLetters.forEachIndexed { index, char ->
+                    Button(onClick = {
+                        assembledAnswer.add(char)
+                        remainingLetters.removeAt(index)
+                    }) {
+                        Text(char.toString(), style = MaterialTheme.typography.headlineMedium)
+                    }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
-
         Row(
-            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.Center
         ) {
             Button(
                 onClick = { onAnswerSelected(assembledAnswer.joinToString("")) },
@@ -311,15 +320,20 @@ fun PracticeMode(
         }
 
         quizState.isAnswerCorrect?.let { isCorrect ->
-            Text(
-                text = if (isCorrect) "Correct!" else "Incorrect. Try again!",
-                color = if (isCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 16.dp)
-            )
-            if (isCorrect) {
-                Button(onClick = onNextClicked, modifier = Modifier.padding(top = 8.dp)) {
-                    Text("Next Word")
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = if (isCorrect) "Correct!" else "Incorrect. Try again!",
+                    color = if (isCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+                if (isCorrect) {
+                    Button(onClick = onNextClicked, modifier = Modifier.padding(top = 8.dp)) {
+                        Text("Next Word")
+                    }
                 }
             }
         }
