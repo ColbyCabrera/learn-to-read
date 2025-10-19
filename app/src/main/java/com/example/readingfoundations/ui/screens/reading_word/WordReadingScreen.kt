@@ -257,7 +257,9 @@ fun PracticeMode(
                     colors = IconButtonDefaults.filledTonalIconButtonColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainer,
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ), onClick = {
+                    ),
+                    enabled = quizState.isAnswerCorrect != null,
+                    onClick = {
                         if (assembledAnswer.isNotEmpty()) {
                             val lastChar = assembledAnswer.removeLast()
                             remainingLetters.add(lastChar)
@@ -361,6 +363,10 @@ fun PracticeMode(
                 shapes = ButtonShapes(
                     shape = ButtonDefaults.shape,
                     pressedShape = ButtonDefaults.largePressedShape
+                ),
+                colors = ButtonDefaults.buttonColors(
+                    MaterialTheme.colorScheme.primary,
+                    MaterialTheme.colorScheme.onPrimary
                 )
             ) {
                 Icon(
