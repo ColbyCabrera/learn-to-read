@@ -22,7 +22,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
-import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ButtonShapes
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -258,7 +257,7 @@ fun PracticeMode(
                         containerColor = MaterialTheme.colorScheme.surfaceContainer,
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
-                    enabled = quizState.isAnswerCorrect != null,
+                    enabled = quizState.isAnswerCorrect === null || !quizState.isAnswerCorrect,
                     onClick = {
                         if (assembledAnswer.isNotEmpty()) {
                             val lastChar = assembledAnswer.removeLast()
@@ -309,21 +308,15 @@ fun PracticeMode(
             ButtonGroup(
                 overflowIndicator = { menuState ->
                     { }
-                }
-            ) {
-                val options = listOf( "Reset", "Listen")
+                }) {
+                val options = listOf("Reset", "Listen")
                 val modifiers = listOf(1f, 1.4f)
-                val icons =
-                    listOf( R.drawable.replay_24px, R.drawable.ear_sound_24px)
-                val onClicks = listOf(
-                    { onAnswerSelected(assembledAnswer.joinToString("")) },
-                    {
-                        assembledAnswer.clear()
-                        remainingLetters.clear()
-                        remainingLetters.addAll(jumbledLetters)
-                    },
-                    { onSpeakClicked(currentQuestion.text) }
-                )
+                val icons = listOf(R.drawable.replay_24px, R.drawable.ear_sound_24px)
+                val onClicks: List<() -> Unit> = listOf({
+                    assembledAnswer.clear()
+                    remainingLetters.clear()
+                    remainingLetters.addAll(jumbledLetters).let {}
+                }, { onSpeakClicked(currentQuestion.text) })
 
                 options.forEachIndexed { index, label ->
                     customItem(
@@ -332,7 +325,7 @@ fun PracticeMode(
                                 modifier = Modifier
                                     .weight(modifiers[index])
                                     .height(ButtonDefaults.LargeContainerHeight),
-                                onClick = { onClicks[index] },
+                                onClick = onClicks[index],
                                 shapes = ButtonShapes(
                                     shape = ButtonDefaults.shape,
                                     pressedShape = ButtonDefaults.largePressedShape
@@ -360,10 +353,7 @@ fun PracticeMode(
                     .height(ButtonDefaults.LargeContainerHeight),
                 onClick = { onAnswerSelected(assembledAnswer.joinToString("")) },
                 enabled = quizState.isAnswerCorrect == null && remainingLetters.isEmpty(),
-                shapes = ButtonShapes(
-                    shape = ButtonDefaults.shape,
-                    pressedShape = ButtonDefaults.largePressedShape
-                ),
+                shape = ButtonDefaults.shape,
                 colors = ButtonDefaults.buttonColors(
                     MaterialTheme.colorScheme.primary,
                     MaterialTheme.colorScheme.onPrimary
