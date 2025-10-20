@@ -353,7 +353,10 @@ fun PracticeMode(
                     .height(ButtonDefaults.LargeContainerHeight),
                 onClick = { onAnswerSelected(assembledAnswer.joinToString("")) },
                 enabled = quizState.isAnswerCorrect == null && remainingLetters.isEmpty(),
-                shape = ButtonDefaults.shape,
+                shapes = ButtonShapes(
+                    shape = ButtonDefaults.shape,
+                    pressedShape = ButtonDefaults.largePressedShape
+                ),
                 colors = ButtonDefaults.buttonColors(
                     MaterialTheme.colorScheme.primary,
                     MaterialTheme.colorScheme.onPrimary
