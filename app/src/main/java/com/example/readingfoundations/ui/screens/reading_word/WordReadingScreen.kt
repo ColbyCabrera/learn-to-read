@@ -2,6 +2,7 @@ package com.example.readingfoundations.ui.screens.reading_word
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,6 +54,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -271,7 +273,7 @@ fun PracticeMode(
                 }
             }
         }
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Jumbled letter bank
         Surface(
@@ -318,18 +320,21 @@ fun PracticeMode(
                     remainingLetters.addAll(jumbledLetters).let {}
                 }, { onSpeakClicked(currentQuestion.text) })
 
-                options.forEachIndexed { index, label ->
+                options.forEachIndexed { index, option ->
                     customItem(
                         buttonGroupContent = {
+                            val interactionSource = remember { MutableInteractionSource() }
                             Button(
                                 modifier = Modifier
                                     .weight(modifiers[index])
-                                    .height(ButtonDefaults.LargeContainerHeight),
+                                    .height(ButtonDefaults.LargeContainerHeight)
+                                    .animateWidth(interactionSource = interactionSource),
                                 onClick = onClicks[index],
+                                interactionSource = interactionSource,
                                 shapes = ButtonShapes(
                                     shape = ButtonDefaults.shape,
                                     pressedShape = ButtonDefaults.largePressedShape
-                                )
+                                ),
                             ) {
                                 Icon(
                                     painter = painterResource(icons[index]),
@@ -337,7 +342,12 @@ fun PracticeMode(
                                     modifier = Modifier.size(ButtonDefaults.LargeIconSize)
                                 )
                                 Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
-                                Text(text = label, fontSize = 24.sp)
+                                Text(
+                                    text = option,
+                                    fontSize = 24.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Clip
+                                )
                             }
                         },
                         menuContent = { }
