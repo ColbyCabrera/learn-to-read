@@ -1,36 +1,47 @@
 package com.example.readingfoundations.ui.screens.reading_word
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.ButtonShapes
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.WavyProgressIndicatorDefaults
@@ -45,8 +56,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,12 +68,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.readingfoundations.R
 import com.example.readingfoundations.data.models.Word
 import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun WordReadingScreen(
     navController: NavController,
@@ -115,11 +130,11 @@ fun WordReadingScreen(
                 }
             } else if (uiState.isPracticeMode && uiState.quizState != null) {
                 val quizState = uiState.quizState!!
-                val progress =
-                    (quizState.currentQuestionIndex).toFloat() / quizState.questions.size
+                val progress = (quizState.currentQuestionIndex).toFloat() / quizState.questions.size
                 val animatedProgress by animateFloatAsState(
                     targetValue = progress,
                     animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
+                    label = "quizProgress"
                 )
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     LinearWavyProgressIndicator(
@@ -200,7 +215,7 @@ fun LearnMode(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PracticeMode(
     quizState: QuizState,
@@ -212,86 +227,230 @@ fun PracticeMode(
     val jumbledLetters =
         remember(currentQuestion) { currentQuestion.text.toCharArray().toList().shuffled() }
 
-    val assembledAnswer = remember(currentQuestion) { mutableStateListOf<Char>() }
-    val remainingLetters =
-        remember(currentQuestion) { mutableStateListOf(*jumbledLetters.toTypedArray()) }
+    val selectedIndices = remember(currentQuestion) { mutableStateListOf<Int>() }
 
     Column(
-        modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.Start
     ) {
         Text("Unscramble the word:", style = MaterialTheme.typography.headlineMedium)
+
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { onSpeakClicked(currentQuestion.text) }) {
-            Text("Hear the word")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Assembled answer display
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .defaultMinSize(minHeight = 60.dp),
-            elevation = CardDefaults.cardElevation(4.dp)
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
+            color = MaterialTheme.colorScheme.secondaryContainer
         ) {
-            Text(
-                text = assembledAnswer.joinToString(" "),
-                style = MaterialTheme.typography.headlineMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(16.dp)
+            Row(
+                Modifier
                     .fillMaxWidth()
-            )
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Spacer(Modifier.size(IconButtonDefaults.smallContainerSize()))
+                Text(
+                    text = selectedIndices.map { jumbledLetters[it] }.joinToString(" "),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(1f)
+                )
+                FilledTonalIconButton(
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    ),
+                    enabled = quizState.isAnswerCorrect != true,
+                    onClick = {
+                        if (selectedIndices.isNotEmpty()) {
+                            selectedIndices.removeAt(selectedIndices.lastIndex)
+                        }
+                    }) {
+                    Icon(
+                        painter = painterResource(R.drawable.backspace_24px),
+                        contentDescription = "Backspace"
+                    )
+                }
+            }
         }
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Jumbled letter bank
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Surface(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shape = MaterialTheme.shapes.large
         ) {
-            remainingLetters.forEachIndexed { index, char ->
-                Button(onClick = {
-                    assembledAnswer.add(char)
-                    remainingLetters.removeAt(index)
-                }) {
-                    Text(char.toString(), style = MaterialTheme.typography.headlineMedium)
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                jumbledLetters.forEachIndexed { index, char ->
+                    val isSelected = selectedIndices.contains(index)
+                    val interactionSource = remember { MutableInteractionSource() }
+                    val isPressed by interactionSource.collectIsPressedAsState()
+                    val cornerRadius by animateDpAsState(
+                        targetValue = if (isPressed) 0.dp else 32.dp,
+                        label = "shapeMorph"
+                    )
+                    Button(
+                        modifier = Modifier.size(64.dp),
+                        contentPadding = PaddingValues(
+                            horizontal = 0.dp,
+                            vertical = ButtonDefaults.ContentPadding.calculateTopPadding()
+                        ),
+                        onClick = {
+                            if (!isSelected) {
+                                selectedIndices.add(index)
+                            }
+                        },
+                        enabled = !isSelected,
+                        shape = RoundedCornerShape(cornerRadius),
+                        interactionSource = interactionSource,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    ) {
+                        Text(char.toString(), style = MaterialTheme.typography.headlineMedium)
+                    }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
         ) {
-            Button(
-                onClick = { onAnswerSelected(assembledAnswer.joinToString("")) },
-                enabled = quizState.isAnswerCorrect == null && remainingLetters.isEmpty()
-            ) {
-                Text("Submit")
-            }
-            Spacer(Modifier.width(8.dp))
-            Button(onClick = {
-                assembledAnswer.clear()
-                remainingLetters.clear()
-                remainingLetters.addAll(jumbledLetters)
-            }) {
-                Text("Reset")
-            }
-        }
 
-        quizState.isAnswerCorrect?.let { isCorrect ->
-            Text(
-                text = if (isCorrect) "Correct!" else "Incorrect. Try again!",
-                color = if (isCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 16.dp)
-            )
-            if (isCorrect) {
-                Button(onClick = onNextClicked, modifier = Modifier.padding(top = 8.dp)) {
-                    Text("Next Word")
+            ButtonGroup(
+                overflowIndicator = { menuState ->
+                    { }
+                }) {
+                val options = listOf("Reset", "Listen")
+                val modifiers = listOf(1f, 1.4f)
+                val icons = listOf(R.drawable.replay_24px, R.drawable.ear_sound_24px)
+                val onClicks: List<() -> Unit> = listOf({
+                    selectedIndices.clear()
+                }, { onSpeakClicked(currentQuestion.text) })
+
+                options.forEachIndexed { index, option ->
+                    customItem(
+                        buttonGroupContent = {
+                            val interactionSource = remember { MutableInteractionSource() }
+                            Button(
+                                modifier = Modifier
+                                    .weight(modifiers[index])
+                                    .height(ButtonDefaults.LargeContainerHeight)
+                                    .animateWidth(interactionSource = interactionSource),
+                                onClick = onClicks[index],
+                                interactionSource = interactionSource,
+                                shapes = ButtonShapes(
+                                    shape = ButtonDefaults.shape,
+                                    pressedShape = ButtonDefaults.largePressedShape
+                                ),
+                                enabled = (option != "Reset" || selectedIndices.isNotEmpty()) && quizState.isAnswerCorrect != true,
+                                colors = ButtonDefaults.filledTonalButtonColors()
+                            ) {
+                                Icon(
+                                    painter = painterResource(icons[index]),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+                                )
+                                Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
+                                Text(
+                                    text = option,
+                                    fontSize = 24.sp,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        },
+                        menuContent = { }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (quizState.isAnswerCorrect == true) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(ButtonDefaults.LargeContainerHeight),
+                        onClick = onNextClicked,
+                        shapes = ButtonShapes(
+                            shape = ButtonDefaults.shape,
+                            pressedShape = ButtonDefaults.largePressedShape
+                        ),
+                        colors = ButtonDefaults.buttonColors(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.arrow_forward_24px),
+                            contentDescription = null,
+                            modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+                        )
+                        Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
+                        Text(text = "Next Word", fontSize = 24.sp)
+                    }
+                    Text(
+                        text = "Correct!",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                }
+            } else {
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(ButtonDefaults.LargeContainerHeight),
+                    onClick = {
+                        onAnswerSelected(selectedIndices.map { jumbledLetters[it] }
+                            .joinToString(""))
+                    },
+                    enabled = selectedIndices.size == jumbledLetters.size,
+                    shapes = ButtonShapes(
+                        shape = ButtonDefaults.shape,
+                        pressedShape = ButtonDefaults.largePressedShape
+                    ),
+                    colors = ButtonDefaults.buttonColors(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.check_24px),
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+                    )
+                    Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
+                    Text(text = "Submit", fontSize = 24.sp)
+                }
+                if (quizState.isAnswerCorrect == false) {
+                    Text(
+                        text = "Incorrect. Try again!",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .align(Alignment.CenterHorizontally)
+                    )
                 }
             }
         }
