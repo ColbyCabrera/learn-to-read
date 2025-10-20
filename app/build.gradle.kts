@@ -11,7 +11,8 @@ android {
     compileSdk = 36
     defaultConfig {
         applicationId = "com.example.readingfoundations"
-        minSdk = 35
+        // Min SDK set to 23 to support ExperimentalMaterial3ExpressiveApi
+        minSdk = 23
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
