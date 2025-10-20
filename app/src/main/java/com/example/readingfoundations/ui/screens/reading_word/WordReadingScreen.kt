@@ -264,7 +264,7 @@ fun PracticeMode(
                     enabled = quizState.isAnswerCorrect != true,
                     onClick = {
                         if (selectedIndices.isNotEmpty()) {
-                            selectedIndices.removeLast()
+                            selectedIndices.removeAt(selectedIndices.lastIndex)
                         }
                     }) {
                     Icon(
