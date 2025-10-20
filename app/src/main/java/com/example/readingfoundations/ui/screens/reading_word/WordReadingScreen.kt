@@ -335,6 +335,8 @@ fun PracticeMode(
                                     shape = ButtonDefaults.shape,
                                     pressedShape = ButtonDefaults.largePressedShape
                                 ),
+                                enabled = option != "Reset" || assembledAnswer.isNotEmpty(),
+                                colors = ButtonDefaults.filledTonalButtonColors()
                             ) {
                                 Icon(
                                     painter = painterResource(icons[index]),
@@ -346,6 +348,7 @@ fun PracticeMode(
                                     text = option,
                                     fontSize = 24.sp,
                                     maxLines = 1,
+                                    softWrap = false,
                                     overflow = TextOverflow.Clip
                                 )
                             }
