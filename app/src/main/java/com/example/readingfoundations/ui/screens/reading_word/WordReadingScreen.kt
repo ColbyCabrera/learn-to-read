@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +35,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearWavyProgressIndicator
+import androidx.compose.material3.MaterialShapes
+import androidx.compose.material3.MaterialShapes.Companion.Clover8Leaf
+import androidx.compose.material3.MaterialShapes.Companion.Cookie12Sided
+import androidx.compose.material3.MaterialShapes.Companion.Cookie6Sided
+import androidx.compose.material3.MaterialShapes.Companion.Cookie7Sided
+import androidx.compose.material3.MaterialShapes.Companion.Cookie9Sided
+import androidx.compose.material3.MaterialShapes.Companion.Flower
+import androidx.compose.material3.MaterialShapes.Companion.Puffy
+import androidx.compose.material3.MaterialShapes.Companion.PuffyDiamond
+import androidx.compose.material3.MaterialShapes.Companion.SoftBoom
+import androidx.compose.material3.MaterialShapes.Companion.SoftBurst
+import androidx.compose.material3.MaterialShapes.Companion.Sunny
+import androidx.compose.material3.MaterialShapes.Companion.VerySunny
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
@@ -41,6 +55,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.WavyProgressIndicatorDefaults
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -69,6 +84,7 @@ import com.example.readingfoundations.data.models.Word
 import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -290,11 +306,39 @@ fun PracticeMode(
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                val shapes = with(MaterialShapes) {
+                    listOf(
+                        Clover8Leaf,
+                        Cookie6Sided,
+                        Cookie7Sided,
+                        Cookie9Sided,
+                        Cookie12Sided,
+                        Flower,
+                        SoftBoom,
+                        SoftBurst,
+                        Sunny,
+                        VerySunny
+                    )
+                }
+
                 remainingLetters.forEachIndexed { index, char ->
-                    Button(onClick = {
-                        assembledAnswer.add(char)
-                        remainingLetters.removeAt(index)
-                    }) {
+                    Button(
+                        modifier = Modifier.size(64.dp),
+                        contentPadding = PaddingValues(
+                            horizontal = 0.dp,
+                            vertical = ButtonDefaults.ContentPadding.calculateTopPadding()
+                        ),
+                        onClick = {
+                            assembledAnswer.add(char)
+                            remainingLetters.removeAt(index)
+
+                        },
+                        shape = shapes[Random.nextInt(shapes.size)].toShape(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    ) {
                         Text(char.toString(), style = MaterialTheme.typography.headlineMedium)
                     }
                 }
