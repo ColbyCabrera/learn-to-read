@@ -356,7 +356,7 @@ fun PracticeMode(
                                     shape = ButtonDefaults.shape,
                                     pressedShape = ButtonDefaults.largePressedShape
                                 ),
-                                enabled = option != "Reset" || selectedIndices.isNotEmpty(),
+                                enabled = (option != "Reset" || selectedIndices.isNotEmpty()) && quizState.isAnswerCorrect != true,
                                 colors = ButtonDefaults.filledTonalButtonColors()
                             ) {
                                 Icon(
@@ -381,48 +381,76 @@ fun PracticeMode(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(ButtonDefaults.LargeContainerHeight),
-                onClick = {
-                    onAnswerSelected(selectedIndices.map { jumbledLetters[it] }.joinToString(""))
-                },
-                enabled = quizState.isAnswerCorrect != true && selectedIndices.size == jumbledLetters.size,
-                shapes = ButtonShapes(
-                    shape = ButtonDefaults.shape,
-                    pressedShape = ButtonDefaults.largePressedShape
-                ),
-                colors = ButtonDefaults.buttonColors(
-                    MaterialTheme.colorScheme.primary,
-                    MaterialTheme.colorScheme.onPrimary
-                )
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.check_24px),
-                    contentDescription = null,
-                    modifier = Modifier.size(ButtonDefaults.LargeIconSize)
-                )
-                Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
-                Text(text = "Submit", fontSize = 24.sp)
-            }
-        }
-
-        quizState.isAnswerCorrect?.let { isCorrect ->
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = if (isCorrect) "Correct!" else "Incorrect. Try again!",
-                    color = if (isCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-                if (isCorrect) {
-                    Button(onClick = onNextClicked, modifier = Modifier.padding(top = 8.dp)) {
-                        Text("Next Word")
+            if (quizState.isAnswerCorrect == true) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(ButtonDefaults.LargeContainerHeight),
+                        onClick = onNextClicked,
+                        shapes = ButtonShapes(
+                            shape = ButtonDefaults.shape,
+                            pressedShape = ButtonDefaults.largePressedShape
+                        ),
+                        colors = ButtonDefaults.buttonColors(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.arrow_forward_24px),
+                            contentDescription = null,
+                            modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+                        )
+                        Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
+                        Text(text = "Next Word", fontSize = 24.sp)
                     }
+                    Text(
+                        text = "Correct!",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                }
+            } else {
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(ButtonDefaults.LargeContainerHeight),
+                    onClick = {
+                        onAnswerSelected(selectedIndices.map { jumbledLetters[it] }
+                            .joinToString(""))
+                    },
+                    enabled = selectedIndices.size == jumbledLetters.size,
+                    shapes = ButtonShapes(
+                        shape = ButtonDefaults.shape,
+                        pressedShape = ButtonDefaults.largePressedShape
+                    ),
+                    colors = ButtonDefaults.buttonColors(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.check_24px),
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+                    )
+                    Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
+                    Text(text = "Submit", fontSize = 24.sp)
+                }
+                if (quizState.isAnswerCorrect == false) {
+                    Text(
+                        text = "Incorrect. Try again!",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .align(Alignment.CenterHorizontally)
+                    )
                 }
             }
         }
