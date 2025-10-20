@@ -35,19 +35,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearWavyProgressIndicator
-import androidx.compose.material3.MaterialShapes
-import androidx.compose.material3.MaterialShapes.Companion.Clover8Leaf
-import androidx.compose.material3.MaterialShapes.Companion.Cookie12Sided
-import androidx.compose.material3.MaterialShapes.Companion.Cookie6Sided
-import androidx.compose.material3.MaterialShapes.Companion.Cookie7Sided
-import androidx.compose.material3.MaterialShapes.Companion.Cookie9Sided
-import androidx.compose.material3.MaterialShapes.Companion.Flower
-import androidx.compose.material3.MaterialShapes.Companion.Puffy
-import androidx.compose.material3.MaterialShapes.Companion.PuffyDiamond
-import androidx.compose.material3.MaterialShapes.Companion.SoftBoom
-import androidx.compose.material3.MaterialShapes.Companion.SoftBurst
-import androidx.compose.material3.MaterialShapes.Companion.Sunny
-import androidx.compose.material3.MaterialShapes.Companion.VerySunny
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
@@ -55,7 +42,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.WavyProgressIndicatorDefaults
-import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -84,7 +70,6 @@ import com.example.readingfoundations.data.models.Word
 import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -239,9 +224,7 @@ fun PracticeMode(
     val jumbledLetters =
         remember(currentQuestion) { currentQuestion.text.toCharArray().toList().shuffled() }
 
-    val assembledAnswer = remember(currentQuestion) { mutableStateListOf<Char>() }
-    val remainingLetters =
-        remember(currentQuestion) { mutableStateListOf(*jumbledLetters.toTypedArray()) }
+    val selectedIndices = remember(currentQuestion) { mutableStateListOf<Int>() }
 
     Column(
         modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.Start
@@ -264,7 +247,7 @@ fun PracticeMode(
             ) {
                 Spacer(Modifier.size(IconButtonDefaults.smallContainerSize()))
                 Text(
-                    text = assembledAnswer.joinToString(" "),
+                    text = selectedIndices.map { jumbledLetters[it] }.joinToString(" "),
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                     textAlign = TextAlign.Center,
@@ -277,9 +260,8 @@ fun PracticeMode(
                     ),
                     enabled = quizState.isAnswerCorrect === null || !quizState.isAnswerCorrect,
                     onClick = {
-                        if (assembledAnswer.isNotEmpty()) {
-                            val lastChar = assembledAnswer.removeLast()
-                            remainingLetters.add(lastChar)
+                        if (selectedIndices.isNotEmpty()) {
+                            selectedIndices.removeLast()
                         }
                     }) {
                     Icon(
@@ -306,35 +288,20 @@ fun PracticeMode(
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                val shapes = with(MaterialShapes) {
-                    listOf(
-                        Clover8Leaf,
-                        Cookie6Sided,
-                        Cookie7Sided,
-                        Cookie9Sided,
-                        Cookie12Sided,
-                        Flower,
-                        SoftBoom,
-                        SoftBurst,
-                        Sunny,
-                        VerySunny
-                    )
-                }
+                jumbledLetters.forEachIndexed { index, char ->
+                    val isSelected = selectedIndices.contains(index)
 
-                remainingLetters.forEachIndexed { index, char ->
                     Button(
-                        modifier = Modifier.size(64.dp),
-                        contentPadding = PaddingValues(
+                        modifier = Modifier.size(64.dp), contentPadding = PaddingValues(
                             horizontal = 0.dp,
                             vertical = ButtonDefaults.ContentPadding.calculateTopPadding()
-                        ),
-                        onClick = {
-                            assembledAnswer.add(char)
-                            remainingLetters.removeAt(index)
-
-                        },
-                        shape = shapes[Random.nextInt(shapes.size)].toShape(),
-                        colors = ButtonDefaults.buttonColors(
+                        ), onClick = {
+                            if (!isSelected) {
+                                selectedIndices.add(index)
+                            }
+                        }, enabled = !isSelected, shapes = ButtonShapes(
+                            ButtonDefaults.shape, ButtonDefaults.mediumPressedShape
+                        ), colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                             contentColor = MaterialTheme.colorScheme.onTertiaryContainer
                         )
@@ -359,46 +326,41 @@ fun PracticeMode(
                 val modifiers = listOf(1f, 1.4f)
                 val icons = listOf(R.drawable.replay_24px, R.drawable.ear_sound_24px)
                 val onClicks: List<() -> Unit> = listOf({
-                    assembledAnswer.clear()
-                    remainingLetters.clear()
-                    remainingLetters.addAll(jumbledLetters).let {}
+                    selectedIndices.clear()
                 }, { onSpeakClicked(currentQuestion.text) })
 
                 options.forEachIndexed { index, option ->
-                    customItem(
-                        buttonGroupContent = {
-                            val interactionSource = remember { MutableInteractionSource() }
-                            Button(
-                                modifier = Modifier
-                                    .weight(modifiers[index])
-                                    .height(ButtonDefaults.LargeContainerHeight)
-                                    .animateWidth(interactionSource = interactionSource),
-                                onClick = onClicks[index],
-                                interactionSource = interactionSource,
-                                shapes = ButtonShapes(
-                                    shape = ButtonDefaults.shape,
-                                    pressedShape = ButtonDefaults.largePressedShape
-                                ),
-                                enabled = option != "Reset" || assembledAnswer.isNotEmpty(),
-                                colors = ButtonDefaults.filledTonalButtonColors()
-                            ) {
-                                Icon(
-                                    painter = painterResource(icons[index]),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(ButtonDefaults.LargeIconSize)
-                                )
-                                Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
-                                Text(
-                                    text = option,
-                                    fontSize = 24.sp,
-                                    maxLines = 1,
-                                    softWrap = false,
-                                    overflow = TextOverflow.Clip
-                                )
-                            }
-                        },
-                        menuContent = { }
-                    )
+                    customItem(buttonGroupContent = {
+                        val interactionSource = remember { MutableInteractionSource() }
+                        Button(
+                            modifier = Modifier
+                                .weight(modifiers[index])
+                                .height(ButtonDefaults.LargeContainerHeight)
+                                .animateWidth(interactionSource = interactionSource),
+                            onClick = onClicks[index],
+                            interactionSource = interactionSource,
+                            shapes = ButtonShapes(
+                                shape = ButtonDefaults.shape,
+                                pressedShape = ButtonDefaults.largePressedShape
+                            ),
+                            enabled = option != "Reset" || selectedIndices.isNotEmpty(),
+                            colors = ButtonDefaults.filledTonalButtonColors()
+                        ) {
+                            Icon(
+                                painter = painterResource(icons[index]),
+                                contentDescription = null,
+                                modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+                            )
+                            Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
+                            Text(
+                                text = option,
+                                fontSize = 24.sp,
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = TextOverflow.Clip
+                            )
+                        }
+                    }, menuContent = { })
                 }
             }
 
@@ -408,15 +370,15 @@ fun PracticeMode(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(ButtonDefaults.LargeContainerHeight),
-                onClick = { onAnswerSelected(assembledAnswer.joinToString("")) },
-                enabled = quizState.isAnswerCorrect == null && remainingLetters.isEmpty(),
+                onClick = {
+                    onAnswerSelected(selectedIndices.map { jumbledLetters[it] }.joinToString(""))
+                },
+                enabled = quizState.isAnswerCorrect == null && selectedIndices.size == jumbledLetters.size,
                 shapes = ButtonShapes(
-                    shape = ButtonDefaults.shape,
-                    pressedShape = ButtonDefaults.largePressedShape
+                    shape = ButtonDefaults.shape, pressedShape = ButtonDefaults.largePressedShape
                 ),
                 colors = ButtonDefaults.buttonColors(
-                    MaterialTheme.colorScheme.primary,
-                    MaterialTheme.colorScheme.onPrimary
+                    MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary
                 )
             ) {
                 Icon(
