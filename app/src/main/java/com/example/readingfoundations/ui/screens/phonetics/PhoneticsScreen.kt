@@ -199,9 +199,26 @@ fun PracticeMode(
             }
         }
         if (quizState.isAnswerCorrect == true) {
-            Button(onClick = onNextClicked) {
-                Text("Next")
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(onClick = onNextClicked) {
+                    Text("Next Question")
+                }
+                Text(
+                    text = "Correct!",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
+        } else if (quizState.isAnswerCorrect == false) {
+            Text(
+                text = "Incorrect. Try again!",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 }
