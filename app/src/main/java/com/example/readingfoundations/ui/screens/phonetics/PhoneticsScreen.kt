@@ -15,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -137,6 +139,7 @@ fun LearnMode(
 }
 
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PracticeMode(
     quizState: QuizState,
@@ -165,8 +168,7 @@ fun PracticeMode(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(16.dp),
-            userScrollEnabled = false,
-            modifier = Modifier.height(300.dp)
+            modifier = Modifier.weight(1f)
         ) {
             items(quizState.options, key = { it.id }) { option ->
                 val isTarget = option.id == quizState.targetPhoneme?.id
@@ -174,7 +176,7 @@ fun PracticeMode(
 
                 val backgroundColor by animateColorAsState(
                     targetValue = when {
-                        quizState.isAnswerCorrect == true && isTarget -> MaterialTheme.colorScheme.primaryContainer
+                        quizState.isAnswerCorrect != null && isTarget -> MaterialTheme.colorScheme.primaryContainer
                         quizState.isAnswerCorrect == false && isSelected -> MaterialTheme.colorScheme.errorContainer
                         else -> MaterialTheme.colorScheme.surfaceVariant
                     },
@@ -198,9 +200,46 @@ fun PracticeMode(
                 )
             }
         }
-        if (quizState.isAnswerCorrect == true) {
-            Button(onClick = onNextClicked) {
-                Text("Next")
+        if (quizState.isAnswerCorrect != null) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(ButtonDefaults.LargeContainerHeight),
+                    onClick = onNextClicked,
+                    shapes = ButtonShapes(
+                        shape = ButtonDefaults.shape,
+                        pressedShape = ButtonDefaults.largePressedShape
+                    ),
+                    colors = ButtonDefaults.buttonColors(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.arrow_forward_24px),
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+                    )
+                    Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
+                    Text(text = "Next", fontSize = 24.sp)
+                }
+
+                val (feedbackText, feedbackColor) = if (quizState.isAnswerCorrect == true) {
+                    "Correct!" to MaterialTheme.colorScheme.primary
+                } else {
+                    "Not quite! The correct answer is highlighted." to MaterialTheme.colorScheme.error
+                }
+
+                Text(
+                    text = feedbackText,
+                    color = feedbackColor,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
             }
         }
     }

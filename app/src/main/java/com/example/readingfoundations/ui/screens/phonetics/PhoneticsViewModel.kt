@@ -1,5 +1,6 @@
 package com.example.readingfoundations.ui.screens.phonetics
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -82,7 +83,11 @@ class PhoneticsViewModel(
             // Quiz finished
             viewModelScope.launch {
                 val score = quizState.score
-                unitRepository.updateProgress(com.example.readingfoundations.data.Subjects.PHONETICS, level)
+                try {
+                    unitRepository.updateProgress(com.example.readingfoundations.data.Subjects.PHONETICS, level)
+                } catch (e: Exception) {
+                    Log.e("PhoneticsViewModel", "Failed to update progress", e)
+                }
                 _navigationEvent.send(
                     NavigationEvent.LevelComplete(
                         level = level,
@@ -131,6 +136,15 @@ class PhoneticsViewModel(
                 usedLabels.add(label)
             }
         }
+        
+        if (otherOptions.size < 3) {
+            val remainingOptions = potentialOptions.filter { it !in otherOptions }
+            for (phoneme in remainingOptions.shuffled()) {
+                if (otherOptions.size >= 3) break
+                otherOptions.add(phoneme)
+            }
+        }
+        
         val options = (otherOptions + targetPhoneme).shuffled()
 
 

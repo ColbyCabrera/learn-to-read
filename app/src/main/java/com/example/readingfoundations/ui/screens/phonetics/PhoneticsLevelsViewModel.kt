@@ -1,5 +1,6 @@
 package com.example.readingfoundations.ui.screens.phonetics
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.readingfoundations.data.Subjects
@@ -8,7 +9,10 @@ import com.example.readingfoundations.data.models.UserProgress
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
@@ -31,9 +35,17 @@ class PhoneticsLevelsViewModel(private val unitRepository: UnitRepository) : Vie
 
     private fun observeUserProgress() {
         unitRepository.getUserProgress()
-            .onEach { userProgress: UserProgress? ->
-                val progressMap = userProgress?.completedLevels?.get(Subjects.PHONETICS)?.associateWith { 100 } ?: emptyMap()
+            .map { userProgress: UserProgress? ->
+                userProgress?.completedLevels?.get(Subjects.PHONETICS)?.associateWith { 100 } ?: emptyMap()
+            }
+            .distinctUntilChanged()
+            .onEach { progressMap ->
                 _uiState.value = _uiState.value.copy(progressMap = progressMap)
+            }
+            .catch { e ->
+                Log.e("PhoneticsLevelsViewModel", "Error observing user progress", e)
+                // Optionally update UI to show an error or a default state
+                 _uiState.value = _uiState.value.copy(progressMap = emptyMap())
             }
             .launchIn(viewModelScope)
     }
