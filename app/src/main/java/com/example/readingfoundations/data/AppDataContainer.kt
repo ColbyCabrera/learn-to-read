@@ -43,4 +43,8 @@ class AppDataContainer(private val context: Context) : AppContainer {
             AppDatabase.getDatabase(context).readingComprehensionDao()
         )
     }
+
+    override val phonemeRepository: PhonemeRepository by lazy {
+        PhonemeRepositoryImpl(AppDatabase.getDatabase(context).phonemeDao())
+    }
 }

@@ -73,18 +73,49 @@ class PhoneticsViewModel(
             return
         }
 
-        val targetPhoneme = levelPhonemes.random()
-        // Ensure there are enough options, supplement from all phonemes if necessary
+        var questionType = QuestionType.entries.toTypedArray().random()
+        var targetPhoneme: Phoneme
+
+        // Ensure the selected phoneme is valid for the question type
+        while (true) {
+            targetPhoneme = levelPhonemes.random()
+            if (questionType in listOf(QuestionType.WORD_TO_GRAPHEME, QuestionType.GRAPHEME_TO_WORD)) {
+                if (targetPhoneme.exampleWord.startsWith(targetPhoneme.grapheme)) {
+                    break
+                }
+            } else {
+                break
+            }
+        }
+
+        val getDisplayLabel: (Phoneme, QuestionType) -> String = { phoneme, type ->
+            when (type) {
+                QuestionType.GRAPHEME_TO_WORD -> phoneme.exampleWord
+                QuestionType.GRAPHEME_TO_SOUND -> phoneme.sound
+                else -> phoneme.grapheme
+            }
+        }
+
         val potentialOptions = (levelPhonemes + allPhonemes).distinctBy { it.id } - targetPhoneme
-        val otherOptions = potentialOptions.shuffled().take(3)
+        val otherOptions = mutableListOf<Phoneme>()
+        val usedLabels = mutableSetOf(getDisplayLabel(targetPhoneme, questionType))
+
+        for (phoneme in potentialOptions.shuffled()) {
+            if (otherOptions.size >= 3) break
+            val label = getDisplayLabel(phoneme, questionType)
+            if (label !in usedLabels) {
+                otherOptions.add(phoneme)
+                usedLabels.add(label)
+            }
+        }
         val options = (otherOptions + targetPhoneme).shuffled()
 
-        val questionType = QuestionType.entries.toTypedArray().random()
+
         val questionPrompt = when (questionType) {
-            QuestionType.SOUND_TO_GRAPHEME -> "Which letter makes the '${targetPhoneme.sound}' sound?"
-            QuestionType.GRAPHEME_TO_SOUND -> "What sound does the letter '${targetPhoneme.grapheme}' make?"
-            QuestionType.WORD_TO_GRAPHEME -> "What is the first letter in '${targetPhoneme.exampleWord}'?"
-            QuestionType.GRAPHEME_TO_WORD -> "Which word starts with the letter '${targetPhoneme.grapheme}'?"
+            QuestionType.SOUND_TO_GRAPHEME -> "Which grapheme makes the '${targetPhoneme.sound}' sound?"
+            QuestionType.GRAPHEME_TO_SOUND -> "What sound does the grapheme '${targetPhoneme.grapheme}' make?"
+            QuestionType.WORD_TO_GRAPHEME -> "What is the first grapheme in '${targetPhoneme.exampleWord}'?"
+            QuestionType.GRAPHEME_TO_WORD -> "Which word starts with the grapheme '${targetPhoneme.grapheme}'?"
         }
 
         _uiState.update {
@@ -101,10 +132,10 @@ class PhoneticsViewModel(
 }
 
 enum class QuestionType {
-    SOUND_TO_GRAPHEME, // "Which letter makes the 's' sound?" -> options are graphemes
-    GRAPHEME_TO_SOUND, // "What sound does 's' make?" -> options are sounds (not implemented yet, text for now)
-    WORD_TO_GRAPHEME,  // "What letter is in 'sun'?" -> options are graphemes
-    GRAPHEME_TO_WORD   // "Which word starts with 's'?" -> options are example words
+    SOUND_TO_GRAPHEME,
+    GRAPHEME_TO_SOUND,
+    WORD_TO_GRAPHEME,
+    GRAPHEME_TO_WORD
 }
 
 data class PhoneticsUiState(

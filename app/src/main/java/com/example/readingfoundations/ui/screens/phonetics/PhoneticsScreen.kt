@@ -2,12 +2,13 @@ package com.example.readingfoundations.ui.screens.phonetics
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayArrow
@@ -131,7 +132,8 @@ fun PracticeContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(
             space = 24.dp,
@@ -149,10 +151,8 @@ fun PracticeContent(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(16.dp),
-            // This is needed to make the grid wrap its content.
-            // In a Column, it will take up only the space it needs.
-            shrinkWrap = true,
-            // Disable scrolling for the grid itself, as the parent Column handles scrolling
+            userScrollEnabled = false,
+            modifier = Modifier.height(300.dp) // A fixed height to prevent scrolling issues
         ) {
             items(uiState.options, key = { it.id }) { option ->
                 val isTarget = option.id == uiState.targetPhoneme?.id
@@ -169,7 +169,7 @@ fun PracticeContent(
 
                 val textToShow = when (uiState.questionType) {
                     QuestionType.GRAPHEME_TO_WORD -> option.exampleWord
-                    QuestionType.GRAPHEME_TO_SOUND -> option.sound
+                    QuestionType.GRAPME_TO_SOUND -> option.sound
                     else -> option.grapheme
                 }
 
