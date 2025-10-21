@@ -169,7 +169,7 @@ fun PracticeContent(
 
                 val textToShow = when (uiState.questionType) {
                     QuestionType.GRAPHEME_TO_WORD -> option.exampleWord
-                    QuestionType.GRAPME_TO_SOUND -> option.sound
+                    QuestionType.GRAPHEME_TO_SOUND -> option.sound
                     else -> option.grapheme
                 }
 
