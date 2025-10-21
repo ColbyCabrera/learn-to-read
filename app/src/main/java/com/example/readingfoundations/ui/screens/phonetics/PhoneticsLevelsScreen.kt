@@ -69,7 +69,7 @@ private fun LevelSelection(
     progressMap: Map<Int, Int>,
     onLevelClick: (Int) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(true) } // Default to expanded
+    var expanded by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -119,12 +119,10 @@ private fun LevelCard(level: Int, progress: Int, onClick: () -> Unit) {
         onClick = onClick
     ) {
         Box(contentAlignment = Alignment.Center) {
-            if (progress > 0) {
-                CircularWavyProgressIndicator(
-                    progress = { progress.toFloat() / 100f },
-                    modifier = Modifier.fillMaxSize(0.8f),
-                )
-            }
+            CircularWavyProgressIndicator(
+                progress = { progress.toFloat() / 100f },
+                modifier = Modifier.fillMaxSize(0.8f),
+            )
             Text(
                 text = level.toString(),
                 style = MaterialTheme.typography.titleLarge,
