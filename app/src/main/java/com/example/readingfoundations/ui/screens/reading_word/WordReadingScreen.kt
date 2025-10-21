@@ -1,10 +1,8 @@
 package com.example.readingfoundations.ui.screens.reading_word
 
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,7 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -260,9 +257,7 @@ fun PracticeMode(
                     colors = IconButtonDefaults.filledTonalIconButtonColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainer,
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                    enabled = quizState.isAnswerCorrect != true,
-                    onClick = {
+                    ), enabled = quizState.isAnswerCorrect != true, onClick = {
                         if (selectedIndices.isNotEmpty()) {
                             selectedIndices.removeAt(selectedIndices.lastIndex)
                         }
@@ -293,27 +288,18 @@ fun PracticeMode(
             ) {
                 jumbledLetters.forEachIndexed { index, char ->
                     val isSelected = selectedIndices.contains(index)
-                    val interactionSource = remember { MutableInteractionSource() }
-                    val isPressed by interactionSource.collectIsPressedAsState()
-                    val cornerRadius by animateDpAsState(
-                        targetValue = if (isPressed) 0.dp else 32.dp,
-                        label = "shapeMorph"
-                    )
+
                     Button(
-                        modifier = Modifier.size(64.dp),
-                        contentPadding = PaddingValues(
+                        modifier = Modifier.size(64.dp), contentPadding = PaddingValues(
                             horizontal = 0.dp,
                             vertical = ButtonDefaults.ContentPadding.calculateTopPadding()
-                        ),
-                        onClick = {
+                        ), onClick = {
                             if (!isSelected) {
                                 selectedIndices.add(index)
                             }
-                        },
-                        enabled = !isSelected,
-                        shape = RoundedCornerShape(cornerRadius),
-                        interactionSource = interactionSource,
-                        colors = ButtonDefaults.buttonColors(
+                        }, enabled = !isSelected, shapes = ButtonShapes(
+                            shape = ButtonDefaults.shape, pressedShape = ButtonDefaults.pressedShape
+                        ), colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                             contentColor = MaterialTheme.colorScheme.onTertiaryContainer
                         )
@@ -342,40 +328,37 @@ fun PracticeMode(
                 }, { onSpeakClicked(currentQuestion.text) })
 
                 options.forEachIndexed { index, option ->
-                    customItem(
-                        buttonGroupContent = {
-                            val interactionSource = remember { MutableInteractionSource() }
-                            Button(
-                                modifier = Modifier
-                                    .weight(modifiers[index])
-                                    .height(ButtonDefaults.LargeContainerHeight)
-                                    .animateWidth(interactionSource = interactionSource),
-                                onClick = onClicks[index],
-                                interactionSource = interactionSource,
-                                shapes = ButtonShapes(
-                                    shape = ButtonDefaults.shape,
-                                    pressedShape = ButtonDefaults.largePressedShape
-                                ),
-                                enabled = (option != "Reset" || selectedIndices.isNotEmpty()) && quizState.isAnswerCorrect != true,
-                                colors = ButtonDefaults.filledTonalButtonColors()
-                            ) {
-                                Icon(
-                                    painter = painterResource(icons[index]),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(ButtonDefaults.LargeIconSize)
-                                )
-                                Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
-                                Text(
-                                    text = option,
-                                    fontSize = 24.sp,
-                                    maxLines = 1,
-                                    softWrap = false,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                        },
-                        menuContent = { }
-                    )
+                    customItem(buttonGroupContent = {
+                        val interactionSource = remember { MutableInteractionSource() }
+                        Button(
+                            modifier = Modifier
+                                .weight(modifiers[index])
+                                .height(ButtonDefaults.LargeContainerHeight)
+                                .animateWidth(interactionSource = interactionSource),
+                            onClick = onClicks[index],
+                            interactionSource = interactionSource,
+                            shapes = ButtonShapes(
+                                shape = ButtonDefaults.shape,
+                                pressedShape = ButtonDefaults.largePressedShape
+                            ),
+                            enabled = (option != "Reset" || selectedIndices.isNotEmpty()) && quizState.isAnswerCorrect != true,
+                            colors = ButtonDefaults.filledTonalButtonColors()
+                        ) {
+                            Icon(
+                                painter = painterResource(icons[index]),
+                                contentDescription = null,
+                                modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+                            )
+                            Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
+                            Text(
+                                text = option,
+                                fontSize = 24.sp,
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }, menuContent = { })
                 }
             }
 
@@ -396,8 +379,7 @@ fun PracticeMode(
                             pressedShape = ButtonDefaults.largePressedShape
                         ),
                         colors = ButtonDefaults.buttonColors(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.onPrimary
+                            MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary
                         )
                     ) {
                         Icon(
@@ -430,8 +412,7 @@ fun PracticeMode(
                         pressedShape = ButtonDefaults.largePressedShape
                     ),
                     colors = ButtonDefaults.buttonColors(
-                        MaterialTheme.colorScheme.primary,
-                        MaterialTheme.colorScheme.onPrimary
+                        MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
                     Icon(
