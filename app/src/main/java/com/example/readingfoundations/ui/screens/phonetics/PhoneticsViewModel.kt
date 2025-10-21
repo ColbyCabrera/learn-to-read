@@ -34,9 +34,19 @@ class PhoneticsViewModel(
 
     init {
         viewModelScope.launch {
-            allPhonemes = phonemeRepository.getAllPhonemes().first()
-            levelPhonemes = allPhonemes.filter { it.level == level }
-            _uiState.update { it.copy(isLoading = false, phonemes = levelPhonemes, currentLevel = level) }
+            try {
+                allPhonemes = phonemeRepository.getAllPhonemes().first()
+                levelPhonemes = allPhonemes.filter { it.level == level }
+                _uiState.update { it.copy(isLoading = false, phonemes = levelPhonemes, currentLevel = level) }
+            } catch (e: Exception) {
+                Log.e("PhoneticsViewModel", "Failed to load phonemes", e)
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        phonemes = emptyList()
+                    )
+                }
+            }
         }
     }
 
@@ -112,9 +122,18 @@ class PhoneticsViewModel(
             }
             return
         }
-
-        val questionType = QuestionType.entries.toTypedArray().random()
+        
         val targetPhoneme: Phoneme = quizState.questions[quizState.currentQuestionIndex]
+
+        // Determine valid question types for this phoneme
+        val isOnsetPhoneme = targetPhoneme.exampleWord.startsWith(targetPhoneme.grapheme, ignoreCase = true)
+        val validQuestionTypes = if (isOnsetPhoneme) {
+            QuestionType.entries.toTypedArray()
+        } else {
+            arrayOf(QuestionType.SOUND_TO_GRAPHEME, QuestionType.GRAPHEME_TO_SOUND)
+        }
+        val questionType = validQuestionTypes.random()
+
 
         val getDisplayLabel: (Phoneme, QuestionType) -> String = { phoneme, type ->
             when (type) {

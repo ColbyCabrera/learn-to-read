@@ -155,8 +155,10 @@ fun PracticeMode(
     modifier: Modifier = Modifier
 ) {
 
-    LaunchedEffect(quizState.questionPrompt) {
-        quizState.questionPrompt?.let { onSpeakClicked(it) }
+    LaunchedEffect(quizState.currentQuestionIndex) {
+        if (quizState.currentQuestionIndex == 0) {
+            quizState.questionPrompt?.let { onSpeakClicked(it) }
+        }
     }
 
     Column(
