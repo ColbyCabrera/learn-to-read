@@ -98,6 +98,13 @@ object PrepopulateData {
         Phoneme(grapheme = "g", sound = "g", ttsText = "g as in gas", exampleWord = "gas", category = "CVC Phoneme", level = 1),
         Phoneme(grapheme = "u", sound = "u", ttsText = "u as in up", exampleWord = "up", category = "CVC Phoneme", level = 1),
         Phoneme(grapheme = "v", sound = "v", ttsText = "v as in van", exampleWord = "van", category = "CVC Phoneme", level = 1),
+        Phoneme(grapheme = "j", sound = "j", ttsText = "j as in jam", exampleWord = "jam", category = "CVC Phoneme", level = 1),
+        Phoneme(grapheme = "qu", sound = "kw", ttsText = "qu as in queen", exampleWord = "queen", category = "CVC Phoneme", level = 1),
+        Phoneme(grapheme = "w", sound = "w", ttsText = "w as in web", exampleWord = "web", category = "CVC Phoneme", level = 1),
+        Phoneme(grapheme = "x", sound = "ks", ttsText = "x as in box", exampleWord = "box", category = "CVC Phoneme", level = 1),
+        Phoneme(grapheme = "y", sound = "y", ttsText = "y as in yes", exampleWord = "yes", category = "CVC Phoneme", level = 1),
+        Phoneme(grapheme = "z", sound = "z", ttsText = "z as in zip", exampleWord = "zip", category = "CVC Phoneme", level = 1),
+
 
         // Phase 3: Digraphs (Level 2)
         Phoneme(grapheme = "sh", sound = "sh", ttsText = "sh as in ship", exampleWord = "ship", category = "Digraph", level = 2),
@@ -105,6 +112,8 @@ object PrepopulateData {
         Phoneme(grapheme = "th", sound = "th", ttsText = "th as in thin", exampleWord = "thin", category = "Digraph", level = 2),
         Phoneme(grapheme = "ck", sound = "k", ttsText = "ck as in duck", exampleWord = "duck", category = "Digraph", level = 2),
         Phoneme(grapheme = "wh", sound = "w", ttsText = "wh as in whip", exampleWord = "whip", category = "Digraph", level = 2),
+        Phoneme(grapheme = "ng", sound = "ng", ttsText = "ng as in sing", exampleWord = "sing", category = "Digraph", level = 2),
+        Phoneme(grapheme = "ph", sound = "f", ttsText = "ph as in phone", exampleWord = "phone", category = "Digraph", level = 2),
 
         // Phase 3: Consonant Blends (Level 2)
         Phoneme(grapheme = "st", sound = "st", ttsText = "st as in stop", exampleWord = "stop", category = "Blend", level = 2),
@@ -117,6 +126,10 @@ object PrepopulateData {
         Phoneme(grapheme = "cr", sound = "cr", ttsText = "cr as in crab", exampleWord = "crab", category = "Blend", level = 2),
         Phoneme(grapheme = "fr", sound = "fr", ttsText = "fr as in frog", exampleWord = "frog", category = "Blend", level = 2),
         Phoneme(grapheme = "sk", sound = "sk", ttsText = "sk as in skip", exampleWord = "skip", category = "Blend", level = 2),
+        Phoneme(grapheme = "sm", sound = "sm", ttsText = "sm as in smile", exampleWord = "smile", category = "Blend", level = 2),
+        Phoneme(grapheme = "sn", sound = "sn", ttsText = "sn as in snap", exampleWord = "snap", category = "Blend", level = 2),
+        Phoneme(grapheme = "sp", sound = "sp", ttsText = "sp as in spot", exampleWord = "spot", category = "Blend", level = 2),
+        Phoneme(grapheme = "sw", sound = "sw", ttsText = "sw as in swim", exampleWord = "swim", category = "Blend", level = 2),
 
         // Phase 4: Vowel Rules (Level 3)
         // Magic E / Split Digraph
@@ -131,6 +144,8 @@ object PrepopulateData {
         Phoneme(grapheme = "ea", sound = "ee", ttsText = "ea as in sea", exampleWord = "sea", category = "Vowel Team", level = 3),
         Phoneme(grapheme = "oa", sound = "oh", ttsText = "oa as in boat", exampleWord = "boat", category = "Vowel Team", level = 3),
         Phoneme(grapheme = "ow", sound = "oh", ttsText = "ow as in low", exampleWord = "low", category = "Vowel Team", level = 3),
+        Phoneme(grapheme = "igh", sound = "eye", ttsText = "igh as in high", exampleWord = "high", category = "Vowel Team", level = 3),
+        Phoneme(grapheme = "ie", sound = "ee", ttsText = "ie as in chief", exampleWord = "chief", category = "Vowel Team", level = 3),
         // R-Controlled Vowels
         Phoneme(grapheme = "ar", sound = "ar", ttsText = "ar as in car", exampleWord = "car", category = "R-Controlled", level = 4),
         Phoneme(grapheme = "or", sound = "or", ttsText = "or as in for", exampleWord = "for", category = "R-Controlled", level = 4),

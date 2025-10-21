@@ -29,4 +29,16 @@
     <string name="level_format">Level %1$d</string>
     <string name="collapse">Collapse</string>
     <string name="expand">Expand</string>
+    <string name="phonetics_levels">Phonetics Levels</string>
+    <string name="phonetics_learn_heading">Learn these phonemes:</string>
+    <string name="start_practice">Start Practice</string>
+    <string name="next_phoneme">Next Phoneme</string>
+    <string name="listen">Listen</string>
+    <string name="correct_feedback">Correct!</string>
+    <string name="incorrect_feedback_highlighted">Not quite! The correct answer is highlighted.</string>
+    <string name="not_enough_phonemes">Not enough phonemes for this level.</string>
+    <string name="question_sound_to_grapheme">Which grapheme makes the \'%1$s\' sound?</string>
+    <string name="question_grapheme_to_sound">What sound does the grapheme \'%1$s\' make?</string>
+    <string name="question_word_to_grapheme">What is the first grapheme in \'%1$s\'?</string>
+    <string name="question_grapheme_to_word">Which word starts with the grapheme \'%1$s\'?</string>
 </resources>

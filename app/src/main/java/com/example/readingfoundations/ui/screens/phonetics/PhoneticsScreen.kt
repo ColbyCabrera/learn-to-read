@@ -1,6 +1,7 @@
 package com.example.readingfoundations.ui.screens.phonetics
 
-import androidx.compose.foundation.background
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -8,20 +9,25 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.readingfoundations.R
-import com.example.readingfoundations.data.PhoneticsData
+import com.example.readingfoundations.data.models.Phoneme
 import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
 
@@ -31,129 +37,64 @@ fun PhoneticsScreen(
     navController: NavController,
     viewModel: PhoneticsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val ttsManager = remember { TextToSpeechManager(context) }
-    val uiState by viewModel.uiState.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.navigationEvent.collect { event ->
+                when (event) {
+                    is NavigationEvent.LevelComplete -> {
+                        navController.navigate("levelComplete/${event.level}/${event.score}/${event.totalQuestions}") {
+                            popUpTo("home")
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     DisposableEffect(Unit) {
         onDispose {
             ttsManager.shutdown()
-            viewModel.stopPractice()
-        }
-    }
-
-    LaunchedEffect(uiState.questionPrompt) {
-        uiState.questionPrompt?.let {
-            ttsManager.speak(it)
         }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.phonetics_practice)) },
+                title = { Text(stringResource(R.string.phonetics_practice) + " - Level ${uiState.currentLevel}") },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back_button_desc))
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        if (uiState.inPracticeMode) {
-                            viewModel.stopPractice()
-                        } else {
-                            viewModel.startPractice()
-                        }
-                    }) {
-                        Icon(
-                            imageVector = if (uiState.inPracticeMode) Icons.Default.Stop else Icons.Default.PlayArrow,
-                            contentDescription = if (uiState.inPracticeMode) stringResource(R.string.stop_practice_desc) else stringResource(R.string.start_practice_desc)
-                        )
                     }
                 }
             )
         }
     ) { paddingValues ->
-        if (uiState.inPracticeMode) {
-            PracticeContent(
-                uiState = uiState,
-                onOptionSelected = { viewModel.checkAnswer(it) },
-                modifier = Modifier.padding(paddingValues)
-            )
-        } else {
-            AllLettersContent(
-                ttsManager = ttsManager,
-                onLetterSelected = { viewModel.onLetterSelected(it) },
-                modifier = Modifier.padding(paddingValues)
-            )
-        }
-    }
-}
-
-@Composable
-fun AllLettersContent(
-    ttsManager: TextToSpeechManager,
-    onLetterSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 100.dp),
-        contentPadding = PaddingValues(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier.fillMaxSize()
-    ) {
-        items(PhoneticsData.phonemes) { phoneme ->
-            LetterCard(
-                letter = phoneme.grapheme,
-                onClick = {
-                    onLetterSelected(phoneme.grapheme)
-                    ttsManager.speak(phoneme.exampleWord)
-                }
-            )
-        }
-    }
-}
-
-@Composable
-fun PracticeContent(
-    uiState: PhoneticsUiState,
-    onOptionSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        uiState.questionPrompt?.let {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.headlineMedium
-            )
-        }
-        Spacer(modifier = Modifier.height(32.dp))
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
         ) {
-            items(uiState.options) { option ->
-                val color = when {
-                    uiState.isCorrect == true && option == uiState.targetLetter -> Color.Green
-                    uiState.isCorrect == false && option == uiState.selectedLetter -> MaterialTheme.colorScheme.errorContainer
-                    else -> Color.Unspecified
-                }
-                PracticeLetterCard(
-                    letter = option,
-                    color = color,
-                    onClick = {
-                        if (uiState.isCorrect == null) { // prevent clicking after an answer
-                            onOptionSelected(option)
-                        }
-                    }
+            when {
+                uiState.isLoading -> CircularProgressIndicator()
+                uiState.isPracticeMode && uiState.quizState != null -> PracticeMode(
+                    quizState = uiState.quizState!!,
+                    onAnswerSelected = {
+                        ttsManager.speak(it.ttsText)
+                        viewModel.checkAnswer(it)
+                    },
+                    onNextClicked = { viewModel.nextQuestion() },
+                    onSpeakClicked = { ttsManager.speak(it) }
+                )
+                else -> LearnMode(
+                    phonemes = uiState.phonemes,
+                    onPhonemeClicked = { ttsManager.speak(it) },
+                    onStartPracticeClicked = { viewModel.startPractice() }
                 )
             }
         }
@@ -161,50 +102,202 @@ fun PracticeContent(
 }
 
 @Composable
-fun LetterCard(
-    letter: String,
+fun LearnMode(
+    phonemes: List<Phoneme>,
+    onPhonemeClicked: (String) -> Unit,
+    onStartPracticeClicked: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(stringResource(R.string.phonetics_learn_heading), style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 100.dp),
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            items(phonemes, key = { it.id }) { phoneme ->
+                PhonemeCard(
+                    text = phoneme.grapheme,
+                    onClick = { onPhonemeClicked(phoneme.ttsText) }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = onStartPracticeClicked,
+            enabled = phonemes.isNotEmpty(),
+            modifier = Modifier.fillMaxWidth(0.5f)
+        ) {
+            Text(stringResource(R.string.start_practice))
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun PracticeMode(
+    quizState: QuizState,
+    onAnswerSelected: (Phoneme) -> Unit,
+    onNextClicked: () -> Unit,
+    onSpeakClicked: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    val questionPromptText = when (quizState.questionPrompt) {
+        is UiText.StringResource -> stringResource(quizState.questionPrompt.resId, *quizState.questionPrompt.args)
+        else -> ""
+    }
+
+    LaunchedEffect(quizState.currentQuestionIndex) {
+        onSpeakClicked(questionPromptText)
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(
+            space = 24.dp,
+            alignment = Alignment.CenterVertically
+        )
+    ) {
+        Text(
+            text = questionPromptText,
+            style = MaterialTheme.typography.headlineMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.clickable { onSpeakClicked(questionPromptText) }
+        )
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(16.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            items(quizState.options, key = { it.id }) { option ->
+                val isTarget = option.id == quizState.targetPhoneme?.id
+                val isSelected = option.id == quizState.selectedOption?.id
+
+                val backgroundColor by animateColorAsState(
+                    targetValue = when {
+                        quizState.isAnswerCorrect != null && isTarget -> MaterialTheme.colorScheme.primaryContainer
+                        quizState.isAnswerCorrect == false && isSelected -> MaterialTheme.colorScheme.errorContainer
+                        else -> MaterialTheme.colorScheme.surfaceVariant
+                    },
+                    animationSpec = tween(durationMillis = 500)
+                )
+
+                val textToShow = when (quizState.questionType) {
+                    QuestionType.GRAPHEME_TO_WORD -> option.exampleWord
+                    QuestionType.GRAPHEME_TO_SOUND -> option.sound
+                    else -> option.grapheme
+                }
+
+                PhonemeCard(
+                    text = textToShow,
+                    color = backgroundColor,
+                    onClick = {
+                        if (quizState.isAnswerCorrect == null) { // Prevent clicking after an answer
+                            onAnswerSelected(option)
+                        }
+                    }
+                )
+            }
+        }
+        if (quizState.isAnswerCorrect != null) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(ButtonDefaults.LargeContainerHeight),
+                    onClick = onNextClicked,
+                    shapes = ButtonShapes(
+                        shape = ButtonDefaults.shape,
+                        pressedShape = ButtonDefaults.largePressedShape
+                    ),
+                    colors = ButtonDefaults.buttonColors(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.arrow_forward_24px),
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+                    )
+                    Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
+                    Text(text = stringResource(R.string.next_phoneme), fontSize = 24.sp)
+                }
+
+                val (feedbackText, feedbackColor) = if (quizState.isAnswerCorrect == true) {
+                    stringResource(R.string.correct_feedback) to MaterialTheme.colorScheme.primary
+                } else {
+                    stringResource(R.string.incorrect_feedback_highlighted) to MaterialTheme.colorScheme.error
+                }
+
+                Text(
+                    text = feedbackText,
+                    color = feedbackColor,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+        } else {
+            // Add a listen button when no answer has been submitted
+            OutlinedButton(
+                onClick = { onSpeakClicked(questionPromptText) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(ButtonDefaults.LargeContainerHeight)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ear_sound_24px),
+                    contentDescription = null,
+                    modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+                )
+                Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
+                Text(text = stringResource(R.string.listen), fontSize = 24.sp)
+            }
+        }
+    }
+}
+
+@Composable
+fun PhonemeCard(
+    text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.surfaceVariant
 ) {
     Card(
         modifier = modifier
             .aspectRatio(1f)
             .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = color)
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = letter,
+                text = text,
                 style = MaterialTheme.typography.headlineLarge,
-            )
-        }
-    }
-}
-
-@Composable
-fun PracticeLetterCard(
-    letter: String,
-    color: Color,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .aspectRatio(1f)
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color, shape = CardDefaults.shape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = letter,
-                style = MaterialTheme.typography.headlineLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(4.dp)
             )
         }
     }

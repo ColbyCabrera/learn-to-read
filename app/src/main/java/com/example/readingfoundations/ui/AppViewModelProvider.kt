@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.readingfoundations.ReadingFoundationsApp
 import com.example.readingfoundations.ui.screens.home.HomeViewModel
+import com.example.readingfoundations.ui.screens.phonetics.PhoneticsLevelsViewModel
 import com.example.readingfoundations.ui.screens.phonetics.PhoneticsViewModel
 import com.example.readingfoundations.ui.screens.punctuation.PunctuationViewModel
 import com.example.readingfoundations.ui.screens.reading_comprehension.ReadingComprehensionViewModel
@@ -28,9 +29,15 @@ object AppViewModelProvider {
             )
         }
         initializer {
+            PhoneticsLevelsViewModel(
+                readingFoundationsApplication().container.unitRepository
+            )
+        }
+        initializer {
             val savedStateHandle = createSavedStateHandle()
             PhoneticsViewModel(
                 readingFoundationsApplication().container.unitRepository,
+                readingFoundationsApplication().container.phonemeRepository,
                 savedStateHandle
             )
         }

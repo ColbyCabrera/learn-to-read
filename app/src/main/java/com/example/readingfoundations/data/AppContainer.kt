@@ -10,4 +10,5 @@ interface AppContainer {
     val userPreferencesRepository: UserPreferencesRepository
     val readingComprehensionRepository: ReadingComprehensionRepository
     val unitRepository: UnitRepository
+    val phonemeRepository: PhonemeRepository
 }

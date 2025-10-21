@@ -63,7 +63,7 @@ private data class MenuItem(
 )
 
 private val staticMenuItems = listOf(
-    MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics/1"),
+    MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics"),
     MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation/1"),
     MenuItem(
         "reading_comprehension",
