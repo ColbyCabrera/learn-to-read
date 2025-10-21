@@ -1,9 +1,11 @@
 package com.example.readingfoundations.ui.screens.phonetics
 
 import android.util.Log
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.readingfoundations.R
 import com.example.readingfoundations.data.PhonemeRepository
 import com.example.readingfoundations.data.UnitRepository
 import com.example.readingfoundations.data.models.Phoneme
@@ -11,7 +13,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,7 +27,7 @@ class PhoneticsViewModel(
     private val _uiState = MutableStateFlow(PhoneticsUiState())
     val uiState: StateFlow<PhoneticsUiState> = _uiState.asStateFlow()
 
-    private val _navigationEvent = Channel<NavigationEvent>()
+    private val _navigationEvent = Channel<NavigationEvent>(capacity = Channel.BUFFERED)
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
     private var allPhonemes: List<Phoneme> = emptyList()
@@ -35,9 +36,11 @@ class PhoneticsViewModel(
     init {
         viewModelScope.launch {
             try {
-                allPhonemes = phonemeRepository.getAllPhonemes().first()
-                levelPhonemes = allPhonemes.filter { it.level == level }
-                _uiState.update { it.copy(isLoading = false, phonemes = levelPhonemes, currentLevel = level) }
+                phonemeRepository.getAllPhonemes().collect { list ->
+                    allPhonemes = list
+                    levelPhonemes = list.filter { it.level == level }
+                    _uiState.update { it.copy(isLoading = false, phonemes = levelPhonemes, currentLevel = level) }
+                }
             } catch (e: Exception) {
                 Log.e("PhoneticsViewModel", "Failed to load phonemes", e)
                 _uiState.update {
@@ -98,7 +101,7 @@ class PhoneticsViewModel(
                 } catch (e: Exception) {
                     Log.e("PhoneticsViewModel", "Failed to update progress", e)
                 }
-                _navigationEvent.send(
+                _navigationEvent.trySend(
                     NavigationEvent.LevelComplete(
                         level = level,
                         score = score,
@@ -115,14 +118,14 @@ class PhoneticsViewModel(
             _uiState.update {
                 it.copy(
                     quizState = quizState.copy(
-                        questionPrompt = "Not enough phonemes for this level.",
+                        questionPrompt = UiText.StringResource(R.string.not_enough_phonemes),
                         options = emptyList()
                     )
                 )
             }
             return
         }
-        
+
         val targetPhoneme: Phoneme = quizState.questions[quizState.currentQuestionIndex]
 
         // Determine valid question types for this phoneme
@@ -143,11 +146,13 @@ class PhoneticsViewModel(
             }
         }
 
-        val potentialOptions = (levelPhonemes + allPhonemes).distinctBy { it.id } - targetPhoneme
+        val sameLevel = levelPhonemes.filter { it.id != targetPhoneme.id }.shuffled()
+        val globalOthers = (allPhonemes - levelPhonemes.toSet()).filter { it.id != targetPhoneme.id }.shuffled()
+        val potentialOptions = sameLevel + globalOthers
         val otherOptions = mutableListOf<Phoneme>()
         val usedLabels = mutableSetOf(getDisplayLabel(targetPhoneme, questionType))
 
-        for (phoneme in potentialOptions.shuffled()) {
+        for (phoneme in potentialOptions) {
             if (otherOptions.size >= 3) break
             val label = getDisplayLabel(phoneme, questionType)
             if (label !in usedLabels) {
@@ -155,23 +160,23 @@ class PhoneticsViewModel(
                 usedLabels.add(label)
             }
         }
-        
+
         if (otherOptions.size < 3) {
             val remainingOptions = potentialOptions.filter { it !in otherOptions }
-            for (phoneme in remainingOptions.shuffled()) {
+            for (phoneme in remainingOptions) {
                 if (otherOptions.size >= 3) break
                 otherOptions.add(phoneme)
             }
         }
-        
+
         val options = (otherOptions + targetPhoneme).shuffled()
 
 
         val questionPrompt = when (questionType) {
-            QuestionType.SOUND_TO_GRAPHEME -> "Which grapheme makes the '${targetPhoneme.sound}' sound?"
-            QuestionType.GRAPHEME_TO_SOUND -> "What sound does the grapheme '${targetPhoneme.grapheme}' make?"
-            QuestionType.WORD_TO_GRAPHEME -> "What is the first grapheme in '${targetPhoneme.exampleWord}'?"
-            QuestionType.GRAPHEME_TO_WORD -> "Which word starts with the grapheme '${targetPhoneme.grapheme}'?"
+            QuestionType.SOUND_TO_GRAPHEME -> UiText.StringResource(R.string.question_sound_to_grapheme, targetPhoneme.sound)
+            QuestionType.GRAPHEME_TO_SOUND -> UiText.StringResource(R.string.question_grapheme_to_sound, targetPhoneme.grapheme)
+            QuestionType.WORD_TO_GRAPHEME -> UiText.StringResource(R.string.question_word_to_grapheme, targetPhoneme.exampleWord)
+            QuestionType.GRAPHEME_TO_WORD -> UiText.StringResource(R.string.question_grapheme_to_word, targetPhoneme.grapheme)
         }
 
         _uiState.update {
@@ -185,6 +190,28 @@ class PhoneticsViewModel(
                     questionType = questionType
                 )
             )
+        }
+    }
+}
+
+sealed class UiText {
+    class StringResource(@param:StringRes val resId: Int, vararg val args: Any) : UiText() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as StringResource
+
+            if (resId != other.resId) return false
+            if (!args.contentEquals(other.args)) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = resId
+            result = 31 * result + args.contentHashCode()
+            return result
         }
     }
 }
@@ -212,7 +239,7 @@ data class QuizState(
     val targetPhoneme: Phoneme? = null,
     val options: List<Phoneme> = emptyList(),
     val selectedOption: Phoneme? = null,
-    val questionPrompt: String? = null,
+    val questionPrompt: UiText? = null,
     val questionType: QuestionType? = null
 )
 

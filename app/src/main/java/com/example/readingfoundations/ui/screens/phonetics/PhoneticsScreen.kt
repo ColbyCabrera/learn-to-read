@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -31,7 +30,6 @@ import com.example.readingfoundations.R
 import com.example.readingfoundations.data.models.Phoneme
 import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,15 +42,13 @@ fun PhoneticsScreen(
     val ttsManager = remember { TextToSpeechManager(context) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(Unit) {
-        lifecycleOwner.lifecycleScope.launch {
-            lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.navigationEvent.collect { event ->
-                    when (event) {
-                        is NavigationEvent.LevelComplete -> {
-                            navController.navigate("levelComplete/${event.level}/${event.score}/${event.totalQuestions}") {
-                                popUpTo("home")
-                            }
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.navigationEvent.collect { event ->
+                when (event) {
+                    is NavigationEvent.LevelComplete -> {
+                        navController.navigate("levelComplete/${event.level}/${event.score}/${event.totalQuestions}") {
+                            popUpTo("home")
                         }
                     }
                 }
@@ -117,7 +113,7 @@ fun LearnMode(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Learn these phonemes:", style = MaterialTheme.typography.headlineMedium)
+        Text(stringResource(R.string.phonetics_learn_heading), style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 100.dp),
@@ -139,7 +135,7 @@ fun LearnMode(
             enabled = phonemes.isNotEmpty(),
             modifier = Modifier.fillMaxWidth(0.5f)
         ) {
-            Text("Start Practice")
+            Text(stringResource(R.string.start_practice))
         }
     }
 }
@@ -155,10 +151,13 @@ fun PracticeMode(
     modifier: Modifier = Modifier
 ) {
 
+    val questionPromptText = when (quizState.questionPrompt) {
+        is UiText.StringResource -> stringResource(quizState.questionPrompt.resId, *quizState.questionPrompt.args)
+        else -> ""
+    }
+
     LaunchedEffect(quizState.currentQuestionIndex) {
-        if (quizState.currentQuestionIndex == 0) {
-            quizState.questionPrompt?.let { onSpeakClicked(it) }
-        }
+        onSpeakClicked(questionPromptText)
     }
 
     Column(
@@ -172,10 +171,10 @@ fun PracticeMode(
         )
     ) {
         Text(
-            text = quizState.questionPrompt ?: "",
+            text = questionPromptText,
             style = MaterialTheme.typography.headlineMedium,
             textAlign = TextAlign.Center,
-            modifier = Modifier.clickable { quizState.questionPrompt?.let { onSpeakClicked(it) } }
+            modifier = Modifier.clickable { onSpeakClicked(questionPromptText) }
         )
 
         LazyVerticalGrid(
@@ -240,13 +239,13 @@ fun PracticeMode(
                         modifier = Modifier.size(ButtonDefaults.LargeIconSize)
                     )
                     Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
-                    Text(text = "Next", fontSize = 24.sp)
+                    Text(text = stringResource(R.string.next_phoneme), fontSize = 24.sp)
                 }
 
                 val (feedbackText, feedbackColor) = if (quizState.isAnswerCorrect == true) {
-                    "Correct!" to MaterialTheme.colorScheme.primary
+                    stringResource(R.string.correct_feedback) to MaterialTheme.colorScheme.primary
                 } else {
-                    "Not quite! The correct answer is highlighted." to MaterialTheme.colorScheme.error
+                    stringResource(R.string.incorrect_feedback_highlighted) to MaterialTheme.colorScheme.error
                 }
 
                 Text(
@@ -259,7 +258,7 @@ fun PracticeMode(
         } else {
             // Add a listen button when no answer has been submitted
             OutlinedButton(
-                onClick = { quizState.questionPrompt?.let { onSpeakClicked(it) } },
+                onClick = { onSpeakClicked(questionPromptText) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(ButtonDefaults.LargeContainerHeight)
@@ -270,7 +269,7 @@ fun PracticeMode(
                     modifier = Modifier.size(ButtonDefaults.LargeIconSize)
                 )
                 Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
-                Text(text = "Listen", fontSize = 24.sp)
+                Text(text = stringResource(R.string.listen), fontSize = 24.sp)
             }
         }
     }
