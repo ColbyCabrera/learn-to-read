@@ -88,8 +88,12 @@ fun PhoneticsScreen(
                 uiState.isLoading -> CircularProgressIndicator()
                 uiState.isPracticeMode && uiState.quizState != null -> PracticeMode(
                     quizState = uiState.quizState!!,
-                    onAnswerSelected = { viewModel.checkAnswer(it) },
-                    onNextClicked = { viewModel.nextQuestion() }
+                    onAnswerSelected = {
+                        ttsManager.speak(it.ttsText)
+                        viewModel.checkAnswer(it)
+                    },
+                    onNextClicked = { viewModel.nextQuestion() },
+                    onSpeakClicked = { ttsManager.speak(it) }
                 )
                 else -> LearnMode(
                     phonemes = uiState.phonemes,
@@ -108,7 +112,9 @@ fun LearnMode(
     onStartPracticeClicked: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Learn these phonemes:", style = MaterialTheme.typography.headlineMedium)
@@ -145,8 +151,14 @@ fun PracticeMode(
     quizState: QuizState,
     onAnswerSelected: (Phoneme) -> Unit,
     onNextClicked: () -> Unit,
+    onSpeakClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    LaunchedEffect(quizState.questionPrompt) {
+        quizState.questionPrompt?.let { onSpeakClicked(it) }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -160,7 +172,8 @@ fun PracticeMode(
         Text(
             text = quizState.questionPrompt ?: "",
             style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.clickable { quizState.questionPrompt?.let { onSpeakClicked(it) } }
         )
 
         LazyVerticalGrid(
@@ -240,6 +253,22 @@ fun PracticeMode(
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(top = 16.dp)
                 )
+            }
+        } else {
+            // Add a listen button when no answer has been submitted
+            OutlinedButton(
+                onClick = { quizState.questionPrompt?.let { onSpeakClicked(it) } },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(ButtonDefaults.LargeContainerHeight)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ear_sound_24px),
+                    contentDescription = null,
+                    modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+                )
+                Spacer(Modifier.width(ButtonDefaults.LargeIconSpacing))
+                Text(text = "Listen", fontSize = 24.sp)
             }
         }
     }
