@@ -6,12 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.readingfoundations.data.PhonemeRepository
 import com.example.readingfoundations.data.UnitRepository
 import com.example.readingfoundations.data.models.Phoneme
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -25,7 +25,9 @@ class PhoneticsViewModel(
     private val _uiState = MutableStateFlow(PhoneticsUiState())
     val uiState: StateFlow<PhoneticsUiState> = _uiState.asStateFlow()
 
-    private var practiceJob: Job? = null
+    private val _navigationEvent = Channel<NavigationEvent>()
+    val navigationEvent = _navigationEvent.receiveAsFlow()
+
     private var allPhonemes: List<Phoneme> = emptyList()
     private var levelPhonemes: List<Phoneme> = emptyList()
 
@@ -33,60 +35,81 @@ class PhoneticsViewModel(
         viewModelScope.launch {
             allPhonemes = phonemeRepository.getAllPhonemes().first()
             levelPhonemes = allPhonemes.filter { it.level == level }
-            _uiState.update { it.copy(isLoading = false, allPhonemes = allPhonemes) }
+            _uiState.update { it.copy(isLoading = false, phonemes = levelPhonemes, currentLevel = level) }
         }
     }
 
     fun startPractice() {
-        _uiState.update { it.copy(inPracticeMode = true) }
+        val quizState = QuizState(
+            questions = levelPhonemes.shuffled(),
+            currentQuestionIndex = 0,
+            score = 0
+        )
+        _uiState.update { it.copy(isPracticeMode = true, quizState = quizState) }
         generateNewQuestion()
     }
 
-    fun stopPractice() {
-        practiceJob?.cancel()
-        _uiState.value = PhoneticsUiState(isLoading = false, allPhonemes = allPhonemes)
+    fun checkAnswer(selectedOption: Phoneme) {
+        val quizState = _uiState.value.quizState ?: return
+        val isCorrect = selectedOption.id == quizState.targetPhoneme?.id
+        val newScore = if (isCorrect) quizState.score + 1 else quizState.score
+
+        _uiState.update {
+            it.copy(
+                quizState = quizState.copy(
+                    isAnswerCorrect = isCorrect,
+                    selectedOption = selectedOption,
+                    score = newScore
+                )
+            )
+        }
     }
 
-    fun checkAnswer(selectedOption: Phoneme) {
-        val isCorrect = selectedOption.id == _uiState.value.targetPhoneme?.id
-        _uiState.update { it.copy(isCorrect = isCorrect, selectedOption = selectedOption) }
-
-        practiceJob = viewModelScope.launch {
-            delay(1000) // wait for 1 second
-            if (isCorrect) {
+    fun nextQuestion() {
+        val quizState = _uiState.value.quizState ?: return
+        if (quizState.currentQuestionIndex < quizState.questions.size - 1) {
+            _uiState.update {
+                it.copy(
+                    quizState = quizState.copy(
+                        currentQuestionIndex = quizState.currentQuestionIndex + 1,
+                        isAnswerCorrect = null,
+                        selectedOption = null
+                    )
+                )
+            }
+            generateNewQuestion()
+        } else {
+            // Quiz finished
+            viewModelScope.launch {
+                val score = quizState.score
                 unitRepository.updateProgress(com.example.readingfoundations.data.Subjects.PHONETICS, level)
-                generateNewQuestion()
-            } else {
-                _uiState.update { it.copy(isCorrect = null, selectedOption = null) } // Reset for another try
+                _navigationEvent.send(
+                    NavigationEvent.LevelComplete(
+                        level = level,
+                        score = score,
+                        totalQuestions = quizState.questions.size
+                    )
+                )
             }
         }
     }
 
     private fun generateNewQuestion() {
+        val quizState = _uiState.value.quizState ?: return
         if (levelPhonemes.isEmpty()) {
             _uiState.update {
                 it.copy(
-                    questionPrompt = "Not enough phonemes for this level.",
-                    options = emptyList()
+                    quizState = quizState.copy(
+                        questionPrompt = "Not enough phonemes for this level.",
+                        options = emptyList()
+                    )
                 )
             }
             return
         }
 
-        var questionType = QuestionType.entries.toTypedArray().random()
-        var targetPhoneme: Phoneme
-
-        // Ensure the selected phoneme is valid for the question type
-        while (true) {
-            targetPhoneme = levelPhonemes.random()
-            if (questionType in listOf(QuestionType.WORD_TO_GRAPHEME, QuestionType.GRAPHEME_TO_WORD)) {
-                if (targetPhoneme.exampleWord.startsWith(targetPhoneme.grapheme)) {
-                    break
-                }
-            } else {
-                break
-            }
-        }
+        val questionType = QuestionType.entries.toTypedArray().random()
+        val targetPhoneme: Phoneme = quizState.questions[quizState.currentQuestionIndex]
 
         val getDisplayLabel: (Phoneme, QuestionType) -> String = { phoneme, type ->
             when (type) {
@@ -120,12 +143,14 @@ class PhoneticsViewModel(
 
         _uiState.update {
             it.copy(
-                targetPhoneme = targetPhoneme,
-                options = options,
-                isCorrect = null,
-                selectedOption = null,
-                questionPrompt = questionPrompt,
-                questionType = questionType
+                quizState = quizState.copy(
+                    targetPhoneme = targetPhoneme,
+                    options = options,
+                    isAnswerCorrect = null,
+                    selectedOption = null,
+                    questionPrompt = questionPrompt,
+                    questionType = questionType
+                )
             )
         }
     }
@@ -140,12 +165,24 @@ enum class QuestionType {
 
 data class PhoneticsUiState(
     val isLoading: Boolean = true,
-    val allPhonemes: List<Phoneme> = emptyList(),
-    val inPracticeMode: Boolean = false,
+    val phonemes: List<Phoneme> = emptyList(),
+    val currentLevel: Int = 1,
+    val isPracticeMode: Boolean = false,
+    val quizState: QuizState? = null
+)
+
+data class QuizState(
+    val questions: List<Phoneme>,
+    val currentQuestionIndex: Int,
+    val score: Int = 0,
+    val isAnswerCorrect: Boolean? = null,
     val targetPhoneme: Phoneme? = null,
     val options: List<Phoneme> = emptyList(),
-    val isCorrect: Boolean? = null,
     val selectedOption: Phoneme? = null,
     val questionPrompt: String? = null,
     val questionType: QuestionType? = null
 )
+
+sealed class NavigationEvent {
+    data class LevelComplete(val level: Int, val score: Int, val totalQuestions: Int) : NavigationEvent()
+}
