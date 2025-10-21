@@ -1,5 +1,7 @@
 package com.example.readingfoundations.ui.screens.phonetics
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,11 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.readingfoundations.R
-import com.example.readingfoundations.data.PhoneticsData
+import com.example.readingfoundations.data.models.Phoneme
 import com.example.readingfoundations.ui.AppViewModelProvider
 import com.example.readingfoundations.utils.TextToSpeechManager
 
@@ -74,41 +77,45 @@ fun PhoneticsScreen(
             )
         }
     ) { paddingValues ->
-        if (uiState.inPracticeMode) {
-            PracticeContent(
-                uiState = uiState,
-                onOptionSelected = { viewModel.checkAnswer(it) },
-                modifier = Modifier.padding(paddingValues)
-            )
-        } else {
-            AllLettersContent(
-                ttsManager = ttsManager,
-                onLetterSelected = { viewModel.onLetterSelected(it) },
-                modifier = Modifier.padding(paddingValues)
-            )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
+        ) {
+            when {
+                uiState.isLoading -> CircularProgressIndicator()
+                uiState.inPracticeMode -> PracticeContent(
+                    uiState = uiState,
+                    onOptionSelected = { viewModel.checkAnswer(it) }
+                )
+                else -> AllPhonemesContent(
+                    phonemes = uiState.allPhonemes,
+                    ttsManager = ttsManager
+                )
+            }
         }
     }
 }
 
 @Composable
-fun AllLettersContent(
+fun AllPhonemesContent(
+    phonemes: List<Phoneme>,
     ttsManager: TextToSpeechManager,
-    onLetterSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 100.dp),
-        contentPadding = PaddingValues(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier.fillMaxSize()
     ) {
-        items(PhoneticsData.phonemes) { phoneme ->
-            LetterCard(
-                letter = phoneme.grapheme,
+        items(phonemes, key = { it.id }) { phoneme ->
+            PhonemeCard(
+                text = phoneme.grapheme,
                 onClick = {
-                    onLetterSelected(phoneme.grapheme)
-                    ttsManager.speak(phoneme.exampleWord)
+                    ttsManager.speak(phoneme.ttsText)
                 }
             )
         }
@@ -118,7 +125,7 @@ fun AllLettersContent(
 @Composable
 fun PracticeContent(
     uiState: PhoneticsUiState,
-    onOptionSelected: (String) -> Unit,
+    onOptionSelected: (Phoneme) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -126,31 +133,51 @@ fun PracticeContent(
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.spacedBy(
+            space = 24.dp,
+            alignment = Alignment.CenterVertically
+        )
     ) {
-        uiState.questionPrompt?.let {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.headlineMedium
-            )
-        }
-        Spacer(modifier = Modifier.height(32.dp))
+        Text(
+            text = uiState.questionPrompt ?: "",
+            style = MaterialTheme.typography.headlineMedium,
+            textAlign = TextAlign.Center
+        )
+
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(16.dp),
+            // This is needed to make the grid wrap its content.
+            // In a Column, it will take up only the space it needs.
+            shrinkWrap = true,
+            // Disable scrolling for the grid itself, as the parent Column handles scrolling
         ) {
-            items(uiState.options) { option ->
-                val color = when {
-                    uiState.isCorrect == true && option == uiState.targetLetter -> Color.Green
-                    uiState.isCorrect == false && option == uiState.selectedLetter -> MaterialTheme.colorScheme.errorContainer
-                    else -> Color.Unspecified
+            items(uiState.options, key = { it.id }) { option ->
+                val isTarget = option.id == uiState.targetPhoneme?.id
+                val isSelected = option.id == uiState.selectedOption?.id
+
+                val backgroundColor by animateColorAsState(
+                    targetValue = when {
+                        uiState.isCorrect == true && isTarget -> MaterialTheme.colorScheme.primaryContainer
+                        uiState.isCorrect == false && isSelected -> MaterialTheme.colorScheme.errorContainer
+                        else -> MaterialTheme.colorScheme.surfaceVariant
+                    },
+                    animationSpec = tween(durationMillis = 500)
+                )
+
+                val textToShow = when (uiState.questionType) {
+                    QuestionType.GRAPHEME_TO_WORD -> option.exampleWord
+                    QuestionType.GRAPHEME_TO_SOUND -> option.sound
+                    else -> option.grapheme
                 }
-                PracticeLetterCard(
-                    letter = option,
-                    color = color,
+
+                PhonemeCard(
+                    text = textToShow,
+                    color = backgroundColor,
                     onClick = {
-                        if (uiState.isCorrect == null) { // prevent clicking after an answer
+                        if (uiState.isCorrect == null) { // Prevent clicking after an answer
                             onOptionSelected(option)
                         }
                     }
@@ -160,51 +187,30 @@ fun PracticeContent(
     }
 }
 
+
 @Composable
-fun LetterCard(
-    letter: String,
+fun PhonemeCard(
+    text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.surfaceVariant
 ) {
     Card(
         modifier = modifier
             .aspectRatio(1f)
             .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = color)
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = letter,
+                text = text,
                 style = MaterialTheme.typography.headlineLarge,
-            )
-        }
-    }
-}
-
-@Composable
-fun PracticeLetterCard(
-    letter: String,
-    color: Color,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .aspectRatio(1f)
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color, shape = CardDefaults.shape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = letter,
-                style = MaterialTheme.typography.headlineLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(4.dp)
             )
         }
     }

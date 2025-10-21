@@ -31,6 +31,7 @@ object AppViewModelProvider {
             val savedStateHandle = createSavedStateHandle()
             PhoneticsViewModel(
                 readingFoundationsApplication().container.unitRepository,
+                readingFoundationsApplication().container.phonemeRepository,
                 savedStateHandle
             )
         }
