@@ -16,6 +16,20 @@ import com.example.readingfoundations.ui.screens.reading_word.WordReadingScreen
 import com.example.readingfoundations.ui.screens.settings.SettingsScreen
 import com.example.readingfoundations.ui.screens.subjects.SubjectsScreen
 
+/**
+ * Hosts app navigation and registers the app's navigation routes.
+ *
+ * Sets up a NavHost with "home" as the start destination and provides routes for:
+ * - "home" -> HomeScreen
+ * - "subjects" -> SubjectsScreen
+ * - "phonetics/{level}" -> PhoneticsScreen (Int argument `level`)
+ * - "punctuation/{level}" -> PunctuationScreen (Int argument `level`)
+ * - "reading_word/{level}" -> WordReadingScreen (Int argument `level`)
+ * - "levelComplete/{level}/{score}/{totalQuestions}" -> LevelCompleteScreen (Int arguments `level`, `score`, `totalQuestions`; defaults: level=1, score=0, totalQuestions=0)
+ * - "sentence_reading/{level}" -> SentenceReadingScreen (Int argument `level`)
+ * - "reading_comprehension/{level}" -> ReadingComprehensionScreen (Int argument `level`)
+ * - "settings" -> SettingsScreen
+ */
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
