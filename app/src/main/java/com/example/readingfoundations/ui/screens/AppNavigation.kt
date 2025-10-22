@@ -7,7 +7,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.readingfoundations.ui.screens.home.HomeScreen
-import com.example.readingfoundations.ui.screens.phonetics.PhoneticsLevelsScreen
 import com.example.readingfoundations.ui.screens.phonetics.PhoneticsScreen
 import com.example.readingfoundations.ui.screens.punctuation.PunctuationScreen
 import com.example.readingfoundations.ui.screens.reading_comprehension.ReadingComprehensionScreen
@@ -17,6 +16,20 @@ import com.example.readingfoundations.ui.screens.reading_word.WordReadingScreen
 import com.example.readingfoundations.ui.screens.settings.SettingsScreen
 import com.example.readingfoundations.ui.screens.subjects.SubjectsScreen
 
+/**
+ * Hosts app navigation and registers the app's navigation routes.
+ *
+ * Sets up a NavHost with "home" as the start destination and provides routes for:
+ * - "home" -> HomeScreen
+ * - "subjects" -> SubjectsScreen
+ * - "phonetics/{level}" -> PhoneticsScreen (Int argument `level`)
+ * - "punctuation/{level}" -> PunctuationScreen (Int argument `level`)
+ * - "reading_word/{level}" -> WordReadingScreen (Int argument `level`)
+ * - "levelComplete/{level}/{score}/{totalQuestions}" -> LevelCompleteScreen (Int arguments `level`, `score`, `totalQuestions`; defaults: level=1, score=0, totalQuestions=0)
+ * - "sentence_reading/{level}" -> SentenceReadingScreen (Int argument `level`)
+ * - "reading_comprehension/{level}" -> ReadingComprehensionScreen (Int argument `level`)
+ * - "settings" -> SettingsScreen
+ */
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -26,9 +39,6 @@ fun AppNavigation() {
         }
         composable("subjects") {
             SubjectsScreen(navController = navController)
-        }
-        composable("phonetics") {
-            PhoneticsLevelsScreen(navController = navController)
         }
         composable(
             route = "phonetics/{level}",

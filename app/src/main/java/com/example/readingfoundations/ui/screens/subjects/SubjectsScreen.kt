@@ -63,7 +63,6 @@ private data class MenuItem(
 )
 
 private val staticMenuItems = listOf(
-    MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics"),
     MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation/1"),
     MenuItem(
         "reading_comprehension",
@@ -74,6 +73,14 @@ private val staticMenuItems = listOf(
     MenuItem("settings", R.string.settings, Icons.Default.Settings, "settings")
 )
 
+/**
+ * Renders the Subjects screen with a bottom navigation bar and level-based sections for subjects.
+ *
+ * Displays expandable LevelSelection cards for Phonetics, Word Building, and Sentence Reading using counts and user progress from the provided view model, followed by static menu items. Tapping a level navigates to the subject-specific route (for example, "phonetics/{level}", "reading_word/{level}", "sentence_reading/{level}"); the bottom navigation switches between "home" and "subjects" while preserving navigation state.
+ *
+ * @param navController NavController used for in-app navigation.
+ * @param viewModel SubjectsViewModel providing UI state (level counts and user progress).
+ */
 @Composable
 fun SubjectsScreen(
     navController: NavController,
@@ -125,6 +132,14 @@ fun SubjectsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = paddingValues
         ) {
+            item {
+                LevelSelection(
+                    title = stringResource(R.string.phonetics),
+                    icon = Icons.Default.RecordVoiceOver,
+                    numLevels = uiState.phoneticsLevelCount,
+                    progressMap = uiState.userProgress.completedLevels[Subjects.PHONETICS]?.associateWith { 100 } ?: emptyMap(),
+                    onLevelClick = { level -> navController.navigate("phonetics/$level") })
+            }
             item {
                 LevelSelection(
                     title = stringResource(R.string.word_building),

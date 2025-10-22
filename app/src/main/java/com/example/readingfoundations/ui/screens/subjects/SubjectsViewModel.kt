@@ -26,10 +26,15 @@ class SubjectsViewModel(unitRepository: UnitRepository) : ViewModel() {
                 .filter { it.subject == Subjects.SENTENCE_READING }
                 .map { it.levelNumber }
                 .maxOfOrNull { it } ?: 0
+            val phoneticsLevelCount = allLevels.asSequence()
+                .filter { it.subject == Subjects.PHONETICS }
+                .map { it.levelNumber }
+                .maxOfOrNull { it } ?: 0
             HomeUiState(
                 userProgress = userProgress ?: UserProgress(),
                 wordLevelCount = wordLevelCount,
-                sentenceLevelCount = sentenceLevelCount
+                sentenceLevelCount = sentenceLevelCount,
+                phoneticsLevelCount = phoneticsLevelCount
             )
         }.stateIn(
             scope = viewModelScope,
@@ -41,5 +46,6 @@ class SubjectsViewModel(unitRepository: UnitRepository) : ViewModel() {
 data class HomeUiState(
     val userProgress: UserProgress = UserProgress(),
     val wordLevelCount: Int = 0,
-    val sentenceLevelCount: Int = 0
+    val sentenceLevelCount: Int = 0,
+    val phoneticsLevelCount: Int = 0
 )
