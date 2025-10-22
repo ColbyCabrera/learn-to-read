@@ -61,6 +61,18 @@ fun PhoneticsLevelsScreen(
     }
 }
 
+/**
+ * Displays a collapsible card containing selectable level tiles for a practice section.
+ *
+ * The card toggles between collapsed and expanded when tapped. When expanded, it shows a responsive
+ * grid of level cards (1..numLevels) limited in height to avoid excessive expansion.
+ *
+ * @param title Title text shown beside the leading icon.
+ * @param icon Leading icon displayed in the card header.
+ * @param numLevels Total number of levels to render; level indices displayed to the user start at 1.
+ * @param progressMap Mapping from level number (1-based) to progress percentage (0–100) used to render each level's progress indicator.
+ * @param onLevelClick Callback invoked with the 1-based level number when a level tile is tapped.
+ */
 @Composable
 private fun LevelSelection(
     title: String,
@@ -111,6 +123,13 @@ private fun LevelSelection(
     }
 }
 
+/**
+ * Displays a square, tappable card showing the given level number with a circular progress indicator.
+ *
+ * @param level The level number to display.
+ * @param progress Progress for the level as a percentage from 0 to 100.
+ * @param onClick Callback invoked when the card is clicked.
+ */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun LevelCard(level: Int, progress: Int, onClick: () -> Unit) {
