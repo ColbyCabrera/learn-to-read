@@ -114,13 +114,14 @@ private fun LevelSelection(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun LevelCard(level: Int, progress: Int, onClick: () -> Unit) {
+    val progressLambda = remember(progress) { { progress.toFloat() / 100f } }
     Card(
         modifier = Modifier.aspectRatio(1f),
         onClick = onClick
     ) {
         Box(contentAlignment = Alignment.Center) {
             CircularWavyProgressIndicator(
-                progress = { progress.toFloat() / 100f },
+                progress = progressLambda,
                 modifier = Modifier.fillMaxSize(0.8f),
             )
             Text(
