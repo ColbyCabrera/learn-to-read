@@ -63,7 +63,6 @@ private data class MenuItem(
 )
 
 private val staticMenuItems = listOf(
-    MenuItem("phonetics", R.string.phonetics, Icons.Default.RecordVoiceOver, "phonetics"),
     MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation/1"),
     MenuItem(
         "reading_comprehension",
@@ -125,6 +124,14 @@ fun SubjectsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = paddingValues
         ) {
+            item {
+                LevelSelection(
+                    title = stringResource(R.string.phonetics),
+                    icon = Icons.Default.RecordVoiceOver,
+                    numLevels = uiState.phoneticsLevelCount,
+                    progressMap = uiState.userProgress.completedLevels[Subjects.PHONETICS]?.associateWith { 100 } ?: emptyMap(),
+                    onLevelClick = { level -> navController.navigate("phonetics/$level") })
+            }
             item {
                 LevelSelection(
                     title = stringResource(R.string.word_building),

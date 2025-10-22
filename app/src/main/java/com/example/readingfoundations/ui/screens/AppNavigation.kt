@@ -7,7 +7,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.readingfoundations.ui.screens.home.HomeScreen
-import com.example.readingfoundations.ui.screens.phonetics.PhoneticsLevelsScreen
 import com.example.readingfoundations.ui.screens.phonetics.PhoneticsScreen
 import com.example.readingfoundations.ui.screens.punctuation.PunctuationScreen
 import com.example.readingfoundations.ui.screens.reading_comprehension.ReadingComprehensionScreen
@@ -26,9 +25,6 @@ fun AppNavigation() {
         }
         composable("subjects") {
             SubjectsScreen(navController = navController)
-        }
-        composable("phonetics") {
-            PhoneticsLevelsScreen(navController = navController)
         }
         composable(
             route = "phonetics/{level}",
