@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -150,11 +151,20 @@ fun PracticeMode(
     onSpeakClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     val questionPromptText = when (quizState.questionPrompt) {
-        is UiText.StringResource -> stringResource(quizState.questionPrompt.resId, *quizState.questionPrompt.args)
+        is UiText.StringResource -> stringResource(
+            quizState.questionPrompt.resId,
+            *quizState.questionPrompt.args
+        )
+
         else -> ""
     }
+    val progress = (quizState.currentQuestionIndex).toFloat() / quizState.questions.size
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress,
+        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
+        label = "quizProgress"
+    )
 
     LaunchedEffect(quizState.currentQuestionIndex) {
         onSpeakClicked(questionPromptText)
@@ -164,12 +174,23 @@ fun PracticeMode(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(
-            space = 24.dp,
-            alignment = Alignment.CenterVertically
-        )
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        LinearWavyProgressIndicator(
+            progress = { animatedProgress },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(16.dp)
+        )
+        Text(
+            text = "${quizState.currentQuestionIndex + 1} of ${quizState.questions.size}",
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier
+                .padding(top = 4.dp)
+                .align(Alignment.End),
+            color = MaterialTheme.colorScheme.secondary,
+        )
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = questionPromptText,
             style = MaterialTheme.typography.headlineMedium,

@@ -32,7 +32,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -176,8 +175,6 @@ private fun LevelSelection(
     onLevelClick: (Int) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val progress = if (numLevels > 0) progressMap.size.toFloat() / numLevels else 0f
-
 
     Card(
         modifier = Modifier.fillMaxWidth(), onClick = { expanded = !expanded }) {
@@ -196,12 +193,6 @@ private fun LevelSelection(
                     )
                 )
             }
-            LinearProgressIndicator(
-                progress = { progress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
-            )
             AnimatedVisibility(visible = expanded) {
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = 64.dp),
