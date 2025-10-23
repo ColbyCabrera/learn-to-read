@@ -1,19 +1,54 @@
 package com.example.readingfoundations.ui.screens.phonetics
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonShapes
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearWavyProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.ProgressIndicatorDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.WavyProgressIndicatorDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -68,12 +103,13 @@ fun PhoneticsScreen(
                 title = { Text(stringResource(R.string.phonetics_practice) + " - Level ${uiState.currentLevel}") },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back_button_desc))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back_button_desc)
+                        )
                     }
-                }
-            )
-        }
-    ) { paddingValues ->
+                })
+        }) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -89,13 +125,12 @@ fun PhoneticsScreen(
                         viewModel.checkAnswer(it)
                     },
                     onNextClicked = { viewModel.nextQuestion() },
-                    onSpeakClicked = { ttsManager.speak(it) }
-                )
+                    onSpeakClicked = { ttsManager.speak(it) })
+
                 else -> LearnMode(
                     phonemes = uiState.phonemes,
                     onPhonemeClicked = { ttsManager.speak(it) },
-                    onStartPracticeClicked = { viewModel.startPractice() }
-                )
+                    onStartPracticeClicked = { viewModel.startPractice() })
             }
         }
     }
@@ -103,9 +138,7 @@ fun PhoneticsScreen(
 
 @Composable
 fun LearnMode(
-    phonemes: List<Phoneme>,
-    onPhonemeClicked: (String) -> Unit,
-    onStartPracticeClicked: () -> Unit
+    phonemes: List<Phoneme>, onPhonemeClicked: (String) -> Unit, onStartPracticeClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -113,7 +146,10 @@ fun LearnMode(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(stringResource(R.string.phonetics_learn_heading), style = MaterialTheme.typography.headlineMedium)
+        Text(
+            stringResource(R.string.phonetics_learn_heading),
+            style = MaterialTheme.typography.headlineMedium
+        )
         Spacer(modifier = Modifier.height(16.dp))
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 100.dp),
@@ -124,9 +160,7 @@ fun LearnMode(
         ) {
             items(phonemes, key = { it.id }) { phoneme ->
                 PhonemeCard(
-                    text = phoneme.grapheme,
-                    onClick = { onPhonemeClicked(phoneme.ttsText) }
-                )
+                    text = phoneme.grapheme, onClick = { onPhonemeClicked(phoneme.ttsText) })
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -150,11 +184,19 @@ fun PracticeMode(
     onSpeakClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     val questionPromptText = when (quizState.questionPrompt) {
-        is UiText.StringResource -> stringResource(quizState.questionPrompt.resId, *quizState.questionPrompt.args)
+        is UiText.StringResource -> stringResource(
+            quizState.questionPrompt.resId, *quizState.questionPrompt.args
+        )
+
         else -> ""
     }
+    val progress = (quizState.currentQuestionIndex).toFloat() / quizState.questions.size
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress,
+        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
+        label = "quizProgress"
+    )
 
     LaunchedEffect(quizState.currentQuestionIndex) {
         onSpeakClicked(questionPromptText)
@@ -164,18 +206,35 @@ fun PracticeMode(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(
-            space = 24.dp,
-            alignment = Alignment.CenterVertically
-        )
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        LinearWavyProgressIndicator(
+            progress = { animatedProgress },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(16.dp),
+            stroke = Stroke(
+                WavyProgressIndicatorDefaults.linearIndicatorStroke.width * 2, cap = StrokeCap.Round
+            ),
+            trackStroke = Stroke(
+                WavyProgressIndicatorDefaults.linearTrackStroke.width * 2, cap = StrokeCap.Round
+            ),
+            amplitude = { 0.5F },
+        )
+        Text(
+            text = "${quizState.currentQuestionIndex + 1} of ${quizState.questions.size}",
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier
+                .padding(top = 4.dp)
+                .align(Alignment.End),
+            color = MaterialTheme.colorScheme.secondary,
+        )
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = questionPromptText,
             style = MaterialTheme.typography.headlineMedium,
             textAlign = TextAlign.Center,
-            modifier = Modifier.clickable { onSpeakClicked(questionPromptText) }
-        )
+            modifier = Modifier.clickable { onSpeakClicked(questionPromptText) })
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -193,8 +252,7 @@ fun PracticeMode(
                         quizState.isAnswerCorrect != null && isTarget -> MaterialTheme.colorScheme.primaryContainer
                         quizState.isAnswerCorrect == false && isSelected -> MaterialTheme.colorScheme.errorContainer
                         else -> MaterialTheme.colorScheme.surfaceVariant
-                    },
-                    animationSpec = tween(durationMillis = 500)
+                    }, animationSpec = tween(durationMillis = 500)
                 )
 
                 val textToShow = when (quizState.questionType) {
@@ -204,14 +262,11 @@ fun PracticeMode(
                 }
 
                 PhonemeCard(
-                    text = textToShow,
-                    color = backgroundColor,
-                    onClick = {
+                    text = textToShow, color = backgroundColor, onClick = {
                         if (quizState.isAnswerCorrect == null) { // Prevent clicking after an answer
                             onAnswerSelected(option)
                         }
-                    }
-                )
+                    })
             }
         }
         if (quizState.isAnswerCorrect != null) {
@@ -229,8 +284,7 @@ fun PracticeMode(
                         pressedShape = ButtonDefaults.largePressedShape
                     ),
                     colors = ButtonDefaults.buttonColors(
-                        MaterialTheme.colorScheme.primary,
-                        MaterialTheme.colorScheme.onPrimary
+                        MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
                     Icon(
@@ -242,7 +296,7 @@ fun PracticeMode(
                     Text(text = stringResource(R.string.next_phoneme), fontSize = 24.sp)
                 }
 
-                val (feedbackText, feedbackColor) = if (quizState.isAnswerCorrect == true) {
+                val (feedbackText, feedbackColor) = if (quizState.isAnswerCorrect) {
                     stringResource(R.string.correct_feedback) to MaterialTheme.colorScheme.primary
                 } else {
                     stringResource(R.string.incorrect_feedback_highlighted) to MaterialTheme.colorScheme.error
@@ -290,8 +344,7 @@ fun PhonemeCard(
         colors = CardDefaults.cardColors(containerColor = color)
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
         ) {
             Text(
                 text = text,
