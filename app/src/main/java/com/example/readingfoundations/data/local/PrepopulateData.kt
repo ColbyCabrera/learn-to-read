@@ -149,7 +149,7 @@ object PrepopulateData {
         // R-Controlled Vowels
         Phoneme(grapheme = "ar", sound = "ar", ttsText = "ar as in car", exampleWord = "car", category = "R-Controlled", level = 4),
         Phoneme(grapheme = "or", sound = "or", ttsText = "or as in for", exampleWord = "for", category = "R-Controlled", level = 4),
-        Phoneme(grapheme =. I will now revert the `sound` fields to their original values, while keeping the other improvements.
+        Phoneme(grapheme = "er", sound = "er", ttsText = "er as in her", exampleWord = "her", category = "R-Controlled", level = 4),
         Phoneme(grapheme = "ir", sound = "er", ttsText = "ir as in bird", exampleWord = "bird", category = "R-Controlled", level = 4),
         Phoneme(grapheme = "ur", sound = "er", ttsText = "ur as in fur", exampleWord = "fur", category = "R-Controlled", level = 4),
         // Diphthongs
