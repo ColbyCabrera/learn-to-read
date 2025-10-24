@@ -133,10 +133,10 @@ object PrepopulateData {
 
         // Phase 4: Vowel Rules (Level 3)
         // Magic E / Split Digraph
-        Phoneme(grapheme = "a_e", sound = "ay", ttsText = "a-e as in cake", exampleWord = "cake", category = "Magic E", level = 3),
-        Phoneme(grapheme = "i_e", sound = "eye", ttsText = "i-e as in kite", exampleWord = "kite", category = "Magic E", level = 3),
-        Phoneme(grapheme = "o_e", sound = "oh", ttsText = "o-e as in hope", exampleWord = "hope", category = "Magic E", level = 3),
-        Phoneme(grapheme = "u_e", sound = "yoo", ttsText = "u-e as in cute", exampleWord = "cute", category = "Magic E", level = 3),
+        Phoneme(grapheme = "a...e", sound = "ay", ttsText = "a, consonant, e, as in cake", exampleWord = "cake", category = "Magic E", level = 3),
+        Phoneme(grapheme = "i...e", sound = "eye", ttsText = "i, consonant, e, as in kite", exampleWord = "kite", category = "Magic E", level = 3),
+        Phoneme(grapheme = "o...e", sound = "oh", ttsText = "o, consonant, e, as in hope", exampleWord = "hope", category = "Magic E", level = 3),
+        Phoneme(grapheme = "u...e", sound = "yoo", ttsText = "u, consonant, e, as in cute", exampleWord = "cute", category = "Magic E", level = 3),
         // Vowel Teams
         Phoneme(grapheme = "ai", sound = "ay", ttsText = "ai as in rain", exampleWord = "rain", category = "Vowel Team", level = 3),
         Phoneme(grapheme = "ay", sound = "ay", ttsText = "ay as in day", exampleWord = "day", category = "Vowel Team", level = 3),
