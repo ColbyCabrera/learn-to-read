@@ -5,19 +5,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ChromeReaderMode
@@ -63,13 +61,6 @@ private data class MenuItem(
 )
 
 private val staticMenuItems = listOf(
-    MenuItem("punctuation", R.string.punctuation, Icons.Default.EditNote, "punctuation/1"),
-    MenuItem(
-        "reading_comprehension",
-        R.string.reading_comprehension,
-        Icons.AutoMirrored.Filled.MenuBook,
-        "reading_comprehension/1"
-    ),
     MenuItem("settings", R.string.settings, Icons.Default.Settings, "settings")
 )
 
@@ -158,6 +149,24 @@ fun SubjectsScreen(
                     onLevelClick = { level -> navController.navigate("sentence_reading/$level") })
             }
 
+            item {
+                LevelSelection(
+                    title = stringResource(R.string.punctuation),
+                    icon = Icons.Default.EditNote,
+                    numLevels = uiState.punctuationLevelCount,
+                    progressMap = uiState.userProgress.completedLevels[Subjects.PUNCTUATION]?.associateWith { 100 } ?: emptyMap(),
+                    onLevelClick = { level -> navController.navigate("punctuation/$level") })
+            }
+
+            item {
+                LevelSelection(
+                    title = stringResource(R.string.reading_comprehension),
+                    icon = Icons.AutoMirrored.Filled.MenuBook,
+                    numLevels = uiState.readingComprehensionLevelCount,
+                    progressMap = uiState.userProgress.completedLevels[Subjects.READING_COMPREHENSION]?.associateWith { 100 } ?: emptyMap(),
+                    onLevelClick = { level -> navController.navigate("reading_comprehension/$level") })
+            }
+
             items(items = staticMenuItems, key = { it.id }) { item ->
                 StaticMenuItemCard(
                     item = item, onClick = { navController.navigate(item.route) })
@@ -166,6 +175,7 @@ fun SubjectsScreen(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun LevelSelection(
     title: String,
@@ -194,20 +204,22 @@ private fun LevelSelection(
                 )
             }
             AnimatedVisibility(visible = expanded) {
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 64.dp),
-                    contentPadding = PaddingValues(top = 16.dp),
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.heightIn(max = 300.dp) // Avoid excessive height
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(numLevels, key = { it }) { level ->
+                    for (level in 0 until numLevels) {
                         val levelNum = level + 1
                         val progress = progressMap[levelNum] ?: 0
-                        LevelCard(
-                            level = levelNum,
-                            progress = progress,
-                            onClick = { onLevelClick(levelNum) })
+                        Box(modifier = Modifier.size(64.dp)) {
+                            LevelCard(
+                                level = levelNum,
+                                progress = progress,
+                                onClick = { onLevelClick(levelNum) })
+                        }
                     }
                 }
             }
