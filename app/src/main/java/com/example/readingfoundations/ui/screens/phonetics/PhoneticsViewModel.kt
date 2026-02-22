@@ -131,9 +131,9 @@ class PhoneticsViewModel(
         // Determine valid question types for this phoneme
         val isOnsetPhoneme = targetPhoneme.exampleWord.startsWith(targetPhoneme.grapheme, ignoreCase = true)
         val validQuestionTypes = if (isOnsetPhoneme) {
-            QuestionType.entries.toTypedArray()
+            QuestionType.entries
         } else {
-            arrayOf(QuestionType.SOUND_TO_GRAPHEME, QuestionType.GRAPHEME_TO_SOUND)
+            FALLBACK_QUESTION_TYPES
         }
         val questionType = validQuestionTypes.random()
 
@@ -191,6 +191,10 @@ class PhoneticsViewModel(
                 )
             )
         }
+    }
+
+    companion object {
+        private val FALLBACK_QUESTION_TYPES = listOf(QuestionType.SOUND_TO_GRAPHEME, QuestionType.GRAPHEME_TO_SOUND)
     }
 }
 
