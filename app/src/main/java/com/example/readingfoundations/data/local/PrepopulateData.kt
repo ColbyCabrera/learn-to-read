@@ -479,26 +479,6 @@ object PrepopulateData {
         Sentence(text = "The cake is delicious.", difficulty = 7),
         Sentence(text = "An elephant is a very large animal.", difficulty = 7),
         Sentence(text = "We had a fantastic time on vacation.", difficulty = 7),
-        Sentence(text = "It is important to be kind to others.", difficulty = 7),
-        Sentence(text = "Knowledge helps you grow.", difficulty = 8),
-        Sentence(text = "He can speak more than one language.", difficulty = 8),
-        Sentence(text = "We climbed the tall mountain.", difficulty = 8),
-        Sentence(text = "Do you have a question for the teacher?", difficulty = 8),
-        Sentence(text = "We can build it if we work together.", difficulty = 8),
-        Sentence(text = "I need an umbrella when it rains.", difficulty = 9),
-        Sentence(text = "Our family vacation was fun.", difficulty = 9),
-        Sentence(text = "The music from the xylophone is nice.", difficulty = 9),
-        Sentence(text = "What did you do yesterday?", difficulty = 9),
-        Sentence(text = "The zookeeper feeds the lions.", difficulty = 9),
-        Sentence(text = "The quick brown fox jumps over the lazy dog.", difficulty = 10),
-        Sentence(text = "She sells seashells by the seashore.", difficulty = 10),
-        Sentence(text = "The early bird catches the worm.", difficulty = 10),
-        Sentence(text = "How much wood would a woodchuck chuck?", difficulty = 10),
-        Sentence(text = "Peter Piper picked a peck of pickled peppers.", difficulty = 10),
-        Sentence(text = "I have a dream that one day this nation will rise up.", difficulty = 10),
-        Sentence(text = "To be or not to be, that is the question.", difficulty = 10),
-        Sentence(text = "All that glitters is not gold.", difficulty = 10),
-        Sentence(text = "Ask not what your country can do for you.", difficulty = 10),
-        Sentence(text = "The only thing we have to fear is fear itself.", difficulty = 10)
-    ).take(100)
+        Sentence(text = "It is important to be kind to others.", difficulty = 7)
+    )
 }
