@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
-    <!-- TODO: Add any files that should be backed up -->
+    <include domain="database" path="reading_foundations_database" />
+    <include domain="database" path="reading_foundations_database-wal" />
+    <include domain="database" path="reading_foundations_database-shm" />
+    <include domain="sharedpref" path="user_settings.xml" />
 </full-backup-content>
