@@ -44,6 +44,26 @@ object PrepopulateData {
     )
 
     val punctuationQuestions = listOf(
+        // Level 1: Basic Sentence Endings
+        PunctuationQuestion(
+            text = "Add the correct punctuation to the following sentence:\nI am so excited to go to the party",
+            correctAnswer = "I am so excited to go to the party!",
+            level = 1
+        ),
+        PunctuationQuestion(
+            text = "Which mark goes at the end of this sentence?\nWhere is the dog",
+            options = listOf(".", "?", "!"),
+            correctAnswer = "?",
+            level = 1
+        ),
+        PunctuationQuestion(
+            text = "Choose the correct sentence.",
+            options = listOf("The cat sat.", "The cat sat", "The cat sat,"),
+            correctAnswer = "The cat sat.",
+            level = 1
+        ),
+
+        // Level 2: Commas in Lists
         PunctuationQuestion(
             text = "Which sentence uses commas correctly?",
             options = listOf(
@@ -51,8 +71,31 @@ object PrepopulateData {
                 "Sarah bought apples, oranges, and bananas.",
                 "Sarah bought apples oranges and, bananas."
             ),
-            correctAnswer = "Sarah bought apples, oranges, and bananas."
+            correctAnswer = "Sarah bought apples, oranges, and bananas.",
+            level = 2
         ),
+        PunctuationQuestion(
+            text = "Fix the sentence: I like red blue and green.",
+            options = listOf(
+                "I like red, blue, and green.",
+                "I like red blue, and green.",
+                "I like red, blue and green."
+            ),
+            correctAnswer = "I like red, blue, and green.",
+            level = 2
+        ),
+        PunctuationQuestion(
+            text = "Which list is correct?",
+            options = listOf(
+                "cats dogs, and birds",
+                "cats, dogs, and birds",
+                "cats, dogs and, birds"
+            ),
+            correctAnswer = "cats, dogs, and birds",
+            level = 2
+        ),
+
+        // Level 3: Quotation Marks
         PunctuationQuestion(
             text = "Choose the correctly punctuated sentence:",
             options = listOf(
@@ -60,8 +103,31 @@ object PrepopulateData {
                 "He said \"I am going to the park.\"",
                 "He said, I am going to the park."
             ),
-            correctAnswer = "He said, \"I am going to the park.\""
+            correctAnswer = "He said, \"I am going to the park.\"",
+            level = 3
         ),
+        PunctuationQuestion(
+            text = "Which is correct?",
+            options = listOf(
+                "\"Hello,\" said Tom.",
+                "\"Hello\" said Tom.",
+                "Hello, said Tom."
+            ),
+            correctAnswer = "\"Hello,\" said Tom.",
+            level = 3
+        ),
+        PunctuationQuestion(
+            text = "Where do the quotation marks go?\nShe asked, Are you ready?",
+            options = listOf(
+                "\"She asked,\" Are you ready?",
+                "She asked, \"Are you ready?\"",
+                "She asked, Are \"you ready?\""
+            ),
+            correctAnswer = "She asked, \"Are you ready?\"",
+            level = 3
+        ),
+
+        // Level 4: Apostrophes (Contractions and Possession)
         PunctuationQuestion(
             text = "Which sentence is correct?",
             options = listOf(
@@ -69,11 +135,30 @@ object PrepopulateData {
                 "It's a beautiful day outside.",
                 "Its' a beautiful day outside."
             ),
-            correctAnswer = "It's a beautiful day outside."
+            correctAnswer = "It's a beautiful day outside.",
+            level = 4
         ),
         PunctuationQuestion(
-            text = "Add the correct punctuation to the following sentence:\nI am so excited to go to the party",
-            correctAnswer = "I am so excited to go to the party!"
+            text = "Which word shows possession?",
+            options = listOf(
+                "The dog's bone",
+                "The dogs bone",
+                "The dogs' bone"
+            ),
+            correctAnswer = "The dog's bone",
+            level = 4
+        ),
+        PunctuationQuestion(
+            text = "Choose the correct contraction for 'do not'.",
+            options = listOf("don't", "dont", "do'nt"),
+            correctAnswer = "don't",
+            level = 4
+        ),
+        PunctuationQuestion(
+            text = "This is ____ book.",
+            options = listOf("Sarahs", "Sarah's", "Sarahs'"),
+            correctAnswer = "Sarah's",
+            level = 4
         )
     )
     val phonemes = listOf(
