@@ -138,14 +138,6 @@ class PhoneticsViewModel(
         val questionType = validQuestionTypes.random()
 
 
-        val getDisplayLabel: (Phoneme, QuestionType) -> String = { phoneme, type ->
-            when (type) {
-                QuestionType.GRAPHEME_TO_WORD -> phoneme.exampleWord
-                QuestionType.GRAPHEME_TO_SOUND -> phoneme.sound
-                else -> phoneme.grapheme
-            }
-        }
-
         val sameLevel = levelPhonemes.filter { it.id != targetPhoneme.id }.shuffled()
         val globalOthers = (allPhonemes - levelPhonemes.toSet()).filter { it.id != targetPhoneme.id }.shuffled()
         val potentialOptions = sameLevel + globalOthers
@@ -190,6 +182,14 @@ class PhoneticsViewModel(
                     questionType = questionType
                 )
             )
+        }
+    }
+
+    private fun getDisplayLabel(phoneme: Phoneme, type: QuestionType): String {
+        return when (type) {
+            QuestionType.GRAPHEME_TO_WORD -> phoneme.exampleWord
+            QuestionType.GRAPHEME_TO_SOUND -> phoneme.sound
+            else -> phoneme.grapheme
         }
     }
 }
