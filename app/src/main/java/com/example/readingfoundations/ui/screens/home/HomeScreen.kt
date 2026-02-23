@@ -1,7 +1,15 @@
 package com.example.readingfoundations.ui.screens.home
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -34,13 +42,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -97,22 +111,36 @@ fun HomeScreen(
             }
         },
     ) { paddingValues ->
-        UnitPathScreen(
-            paddingValues = paddingValues,
-            homeUiState = homeUiState,
-            onUnitClick = { subject, level ->
-                val route = when (subject) {
-                    Subjects.PHONETICS -> "phonetics/$level"
-                    Subjects.WORD_BUILDING -> "reading_word/$level"
-                    Subjects.SENTENCE_READING -> "sentence_reading/$level"
-                    Subjects.PUNCTUATION -> "punctuation/$level"
-                    Subjects.READING_COMPREHENSION -> "reading_comprehension/$level"
-                    else -> ""
-                }
-                if (route.isNotEmpty()) {
-                    navController.navigate(route)
-                }
-            })
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.surface,
+                            MaterialTheme.colorScheme.surfaceContainerHigh,
+                            MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
+                        )
+                    )
+                )
+        ) {
+            UnitPathScreen(
+                paddingValues = paddingValues,
+                homeUiState = homeUiState,
+                onUnitClick = { subject, level ->
+                    val route = when (subject) {
+                        Subjects.PHONETICS -> "phonetics/$level"
+                        Subjects.WORD_BUILDING -> "reading_word/$level"
+                        Subjects.SENTENCE_READING -> "sentence_reading/$level"
+                        Subjects.PUNCTUATION -> "punctuation/$level"
+                        Subjects.READING_COMPREHENSION -> "reading_comprehension/$level"
+                        else -> ""
+                    }
+                    if (route.isNotEmpty()) {
+                        navController.navigate(route)
+                    }
+                })
+        }
     }
 }
 
@@ -152,6 +180,16 @@ fun UnitPathScreen(
             .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        item {
+            Spacer(modifier = Modifier.height(32.dp))
+            Text(
+                text = "Your Journey",
+                style = MaterialTheme.typography.displayMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
+        }
+
         itemsIndexed(units, key = { _, unit -> unit.id }) { index, unit ->
             val nextLevel by remember(unit) { derivedStateOf { getNextLevel(unit) } }
             val nextIncompleteLevel by remember(nextLevel, homeUiState) {
@@ -197,30 +235,40 @@ fun UnitPathItem(
     nextLevel: Level?,
     nextIncompleteLevel: Int?
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min),
-        verticalAlignment = Alignment.CenterVertically
+    AnimatedVisibility(
+        visible = true, // Simplified for entrance animation when composed, though proper state observation might be needed for a real entry. Let's rely on standard compose layout animation if needed, or just slide in.
+        enter = fadeIn(animationSpec = tween(500)) + slideInVertically(
+            initialOffsetY = { 50 }, animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow
+            )
+        )
     ) {
-        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
-            UnitShape(
-                unit = unit,
-                shape = shape,
-                isCurrent = isCurrent,
-                isCompleted = isCompleted,
-                onClick = {
-                    if (isCurrent && nextLevel != null) {
-                        onUnitClick(nextLevel.subject, nextLevel.levelNumber)
-                    }
-                })
-        }
-        Spacer(modifier = Modifier.width(16.dp))
-        UnitPathNode(isCompleted = isCompleted, isFirst = isFirst, isLast = isLast)
-        Spacer(modifier = Modifier.width(16.dp))
-        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-            if (nextLevel != null && isCurrent && nextIncompleteLevel != null) {
-                InfoBox(subject = nextLevel.subject, levelNumber = nextIncompleteLevel)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp)
+                .height(IntrinsicSize.Min),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                UnitShape(
+                    unit = unit,
+                    shape = shape,
+                    isCurrent = isCurrent,
+                    isCompleted = isCompleted,
+                    onClick = {
+                        if (isCurrent && nextLevel != null) {
+                            onUnitClick(nextLevel.subject, nextLevel.levelNumber)
+                        }
+                    })
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            UnitPathNode(isCompleted = isCompleted, isFirst = isFirst, isLast = isLast)
+            Spacer(modifier = Modifier.width(16.dp))
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+                if (nextLevel != null && isCurrent && nextIncompleteLevel != null) {
+                    InfoBox(subject = nextLevel.subject, levelNumber = nextIncompleteLevel)
+                }
             }
         }
     }
@@ -234,7 +282,7 @@ fun UnitPathNode(isCompleted: Boolean, isFirst: Boolean, isLast: Boolean) {
         if (isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
     Box(
         modifier = Modifier
-            .width(16.dp)
+            .width(24.dp)
             .fillMaxHeight()
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -244,16 +292,18 @@ fun UnitPathNode(isCompleted: Boolean, isFirst: Boolean, isLast: Boolean) {
                 color = topColor,
                 start = Offset(center.x, 0f),
                 end = center,
-                strokeWidth = 4.dp.toPx()
+                strokeWidth = 12.dp.toPx(),
+                cap = StrokeCap.Round
             )
             drawCircle(
-                color = nodeColor, radius = 8.dp.toPx(), center = center
+                color = nodeColor, radius = 12.dp.toPx(), center = center
             )
             drawLine(
                 color = bottomColor,
                 start = center,
                 end = Offset(center.x, size.height),
-                strokeWidth = 4.dp.toPx()
+                strokeWidth = 12.dp.toPx(),
+                cap = StrokeCap.Round
             )
         }
     }
@@ -275,22 +325,46 @@ fun UnitShape(
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
+    var isPressed by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.85f else 1f, animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow
+        ), label = "PressScaleAnimation"
+    )
+
     Box(
         modifier = Modifier
-            .size(120.dp)
+            .size(136.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
             .clip(shape)
-            .clickable(enabled = isCurrent, onClick = onClick), contentAlignment = Alignment.Center
+            .pointerInput(isCurrent) {
+                if (isCurrent) {
+                    detectTapGestures(
+                        onPress = {
+                            isPressed = true
+                            tryAwaitRelease()
+                            isPressed = false
+                            onClick()
+                        })
+                }
+            }, contentAlignment = Alignment.Center
     ) {
         Card(
-            shape = shape, colors = CardDefaults.cardColors(
+            shape = shape,
+            colors = CardDefaults.cardColors(
                 containerColor = containerColor, contentColor = contentColor
-            ), modifier = Modifier.fillMaxSize()
+            ),
+            modifier = Modifier.fillMaxSize(),
+            elevation = CardDefaults.cardElevation(defaultElevation = if (isCurrent) 12.dp else 2.dp)
         ) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                 if (isCurrent) {
                     CircularProgressIndicator(
                         progress = { unit.progress },
-                        modifier = Modifier.fillMaxSize(0.55f),
+                        modifier = Modifier.fillMaxSize(0.6f),
                         color = MaterialTheme.colorScheme.onTertiary,
                         trackColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.7F),
                         strokeWidth = ProgressIndicatorDefaults.CircularStrokeWidth * 2,
@@ -298,7 +372,7 @@ fun UnitShape(
                 }
                 Text(
                     text = "${unit.id}",
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.displaySmall,
                     textAlign = TextAlign.Center,
                     color = contentColor
                 )
@@ -323,16 +397,19 @@ fun InfoBox(subject: String, levelNumber: Int) {
                         Subjects.READING_COMPREHENSION -> R.string.reading_comprehension
                         else -> R.string.subjects
                     }
-                ),
-                style = MaterialTheme.typography.bodyLarge
+                ), style = MaterialTheme.typography.bodyLarge
             )
-            Text(text = stringResource(R.string.level_format, levelNumber), style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = stringResource(R.string.level_format, levelNumber),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
 
 private fun getNextIncompleteLevel(subject: String, homeUiState: HomeUiState): Int {
-    val completedLevels = homeUiState.userProgress.completedLevels[subject]?.toHashSet() ?: emptySet()
+    val completedLevels =
+        homeUiState.userProgress.completedLevels[subject]?.toHashSet() ?: emptySet()
     var level = 1
     while (level in completedLevels) {
         level++
