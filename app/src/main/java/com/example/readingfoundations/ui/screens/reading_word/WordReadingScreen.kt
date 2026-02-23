@@ -317,9 +317,7 @@ fun PracticeMode(
         ) {
 
             ButtonGroup(
-                overflowIndicator = { menuState ->
-                    { }
-                }) {
+                overflowIndicator = { _ -> }) {
                 val options = listOf("Reset", "Listen")
                 val modifiers = listOf(1f, 1.4f)
                 val icons = listOf(R.drawable.replay_24px, R.drawable.ear_sound_24px)
