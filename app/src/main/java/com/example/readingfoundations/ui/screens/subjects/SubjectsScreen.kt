@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -24,11 +25,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ChromeReaderMode
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -42,13 +41,11 @@ import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -64,6 +61,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -133,102 +131,108 @@ fun SubjectsScreen(
             }
         },
     ) { paddingValues ->
-        LazyVerticalStaggeredGrid(
-            columns = StaggeredGridCells.Fixed(2),
+        val scrollState = rememberScrollState()
+        Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(paddingValues)
                 .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
                 .statusBarsPadding(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalItemSpacing = 16.dp,
-            contentPadding = paddingValues
         ) {
-            item(span = StaggeredGridItemSpan.FullLine) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Explore Subjects",
-                    style = MaterialTheme.typography.displayMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Explore Subjects",
+                style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .fillMaxWidth()
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    LevelSelectionTile(
+                        title = stringResource(R.string.phonetics),
+                        icon = Icons.Default.RecordVoiceOver,
+                        numLevels = uiState.phoneticsLevelCount,
+                        progressMap = uiState.userProgress.completedLevels[Subjects.PHONETICS]?.associateWith { 100 }
+                            ?: emptyMap(),
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        shape = RoundedCornerShape(32.dp),
+                        heightDp = 150,
+                        onLevelClick = { level -> navController.navigate("phonetics/$level") })
+
+                    LevelSelectionTile(
+                        title = stringResource(R.string.sentence_reading),
+                        icon = Icons.AutoMirrored.Filled.ChromeReaderMode,
+                        numLevels = uiState.sentenceLevelCount,
+                        progressMap = uiState.userProgress.completedLevels[Subjects.SENTENCE_READING]?.associateWith { 100 }
+                            ?: emptyMap(),
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        shape = RoundedCornerShape(32.dp, 8.dp, 32.dp, 8.dp),
+                        heightDp = 180,
+                        onLevelClick = { level -> navController.navigate("sentence_reading/$level") })
+
+                    LevelSelectionTile(
+                        title = stringResource(R.string.reading_comprehension),
+                        icon = Icons.AutoMirrored.Filled.MenuBook,
+                        numLevels = uiState.readingComprehensionLevelCount,
+                        progressMap = uiState.userProgress.completedLevels[Subjects.READING_COMPREHENSION]?.associateWith { 100 }
+                            ?: emptyMap(),
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        shape = RoundedCornerShape(24.dp),
+                        heightDp = 220,
+                        onLevelClick = { level -> navController.navigate("reading_comprehension/$level") })
+                }
+
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    LevelSelectionTile(
+                        title = stringResource(R.string.word_building),
+                        icon = Icons.Default.Construction,
+                        numLevels = uiState.wordLevelCount,
+                        progressMap = uiState.userProgress.completedLevels[Subjects.WORD_BUILDING]?.associateWith { 100 }
+                            ?: emptyMap(),
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        shape = RoundedCornerShape(16.dp, 48.dp, 16.dp, 48.dp),
+                        heightDp = 150,
+                        onLevelClick = { level -> navController.navigate("reading_word/$level") })
+
+                    LevelSelectionTile(
+                        title = stringResource(R.string.punctuation),
+                        icon = Icons.Default.EditNote,
+                        numLevels = uiState.punctuationLevelCount,
+                        progressMap = uiState.userProgress.completedLevels[Subjects.PUNCTUATION]?.associateWith { 100 }
+                            ?: emptyMap(),
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        shape = RoundedCornerShape(48.dp, 16.dp, 48.dp, 16.dp),
+                        heightDp = 150,
+                        onLevelClick = { level -> navController.navigate("punctuation/$level") })
+                }
             }
 
-            item {
-                LevelSelectionTile(
-                    title = stringResource(R.string.phonetics),
-                    icon = Icons.Default.RecordVoiceOver,
-                    numLevels = uiState.phoneticsLevelCount,
-                    progressMap = uiState.userProgress.completedLevels[Subjects.PHONETICS]?.associateWith { 100 }
-                        ?: emptyMap(),
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    shape = RoundedCornerShape(32.dp),
-                    heightDp = 160,
-                    onLevelClick = { level -> navController.navigate("phonetics/$level") })
-            }
-            item {
-                LevelSelectionTile(
-                    title = stringResource(R.string.word_building),
-                    icon = Icons.Default.Construction,
-                    numLevels = uiState.wordLevelCount,
-                    progressMap = uiState.userProgress.completedLevels[Subjects.WORD_BUILDING]?.associateWith { 100 }
-                        ?: emptyMap(),
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    shape = RoundedCornerShape(16.dp, 48.dp, 16.dp, 48.dp),
-                    heightDp = 200,
-                    onLevelClick = { level -> navController.navigate("reading_word/$level") })
-            }
+            Spacer(modifier = Modifier.height(24.dp))
 
-            item {
-                LevelSelectionTile(
-                    title = stringResource(R.string.sentence_reading),
-                    icon = Icons.AutoMirrored.Filled.ChromeReaderMode,
-                    numLevels = uiState.sentenceLevelCount,
-                    progressMap = uiState.userProgress.completedLevels[Subjects.SENTENCE_READING]?.associateWith { 100 }
-                        ?: emptyMap(),
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                    shape = MaterialShapes.Cookie9Sided.toShape(),
-                    heightDp = 180,
-                    onLevelClick = { level -> navController.navigate("sentence_reading/$level") })
-            }
-
-            item {
-                LevelSelectionTile(
-                    title = stringResource(R.string.punctuation),
-                    icon = Icons.Default.EditNote,
-                    numLevels = uiState.punctuationLevelCount,
-                    progressMap = uiState.userProgress.completedLevels[Subjects.PUNCTUATION]?.associateWith { 100 }
-                        ?: emptyMap(),
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                    shape = RoundedCornerShape(48.dp, 16.dp, 48.dp, 16.dp),
-                    heightDp = 150,
-                    onLevelClick = { level -> navController.navigate("punctuation/$level") })
-            }
-
-            item {
-                LevelSelectionTile(
-                    title = stringResource(R.string.reading_comprehension),
-                    icon = Icons.AutoMirrored.Filled.MenuBook,
-                    numLevels = uiState.readingComprehensionLevelCount,
-                    progressMap = uiState.userProgress.completedLevels[Subjects.READING_COMPREHENSION]?.associateWith { 100 }
-                        ?: emptyMap(),
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    shape = RoundedCornerShape(24.dp),
-                    heightDp = 220,
-                    onLevelClick = { level -> navController.navigate("reading_comprehension/$level") })
-            }
-
-            item(span = StaggeredGridItemSpan.FullLine) {
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            items(items = staticMenuItems, key = { it.id }) { item ->
+            staticMenuItems.forEach { item ->
                 StaticMenuItemCard(
                     item = item, onClick = { navController.navigate(item.route) })
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -278,8 +282,7 @@ private fun LevelSelectionTile(
         Card(
             shape = shape,
             colors = CardDefaults.cardColors(
-                containerColor = containerColor,
-                contentColor = contentColor
+                containerColor = containerColor, contentColor = contentColor
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = if (expanded) 8.dp else 2.dp),
             modifier = Modifier.fillMaxSize()
@@ -300,6 +303,7 @@ private fun LevelSelectionTile(
                 Text(
                     text = title,
                     style = if (expanded) MaterialTheme.typography.titleMedium else MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
 
@@ -317,9 +321,11 @@ private fun LevelSelectionTile(
                         for (level in 0 until numLevels) {
                             val levelNum = level + 1
                             val progress = progressMap[levelNum] ?: 0
-                            Box(modifier = Modifier
-                                .size(56.dp)
-                                .padding(4.dp)) {
+                            Box(
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .padding(4.dp)
+                            ) {
                                 LevelCard(
                                     level = levelNum,
                                     progress = progress,
@@ -337,10 +343,14 @@ private fun LevelSelectionTile(
 @Composable
 private fun LevelCard(level: Int, progress: Int, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.aspectRatio(1f), onClick = onClick, colors = CardDefaults.cardColors(
+        modifier = Modifier.aspectRatio(1f),
+        onClick = onClick,
+        colors = CardDefaults.cardColors(
             containerColor = Color.White.copy(alpha = 0.15f),
             contentColor = LocalContentColor.current
-        ), elevation = CardDefaults.cardElevation(0.dp)
+        ),
+        elevation = CardDefaults.cardElevation(0.dp),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.5f))
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
             CircularWavyProgressIndicator(
