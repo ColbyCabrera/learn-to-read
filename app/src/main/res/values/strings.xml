@@ -41,4 +41,5 @@
     <string name="question_grapheme_to_sound">What sound does the grapheme \'%1$s\' make?</string>
     <string name="question_word_to_grapheme">What is the first grapheme in \'%1$s\'?</string>
     <string name="question_grapheme_to_word">Which word starts with the grapheme \'%1$s\'?</string>
+    <string name="unit_title">Unit %1$d</string>
 </resources>
