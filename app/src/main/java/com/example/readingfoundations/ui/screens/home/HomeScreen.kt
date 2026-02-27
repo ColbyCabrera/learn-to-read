@@ -359,9 +359,13 @@ fun UnitShape(
                     detectTapGestures(
                         onPress = {
                             isPressed = true
-                            tryAwaitRelease()
-                            isPressed = false
-                            onClick()
+                            try {
+                                if (tryAwaitRelease()) {
+                                    onClick()
+                                }
+                            } finally {
+                                isPressed = false
+                            }
                         })
                 }
             }, contentAlignment = Alignment.Center
