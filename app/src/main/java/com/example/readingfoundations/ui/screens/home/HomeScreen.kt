@@ -1,5 +1,6 @@
 package com.example.readingfoundations.ui.screens.home
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -92,10 +93,13 @@ fun HomeScreen(
             Subjects.SENTENCE_READING -> "sentence_reading/$level"
             Subjects.PUNCTUATION -> "punctuation/$level"
             Subjects.READING_COMPREHENSION -> "reading_comprehension/$level"
-            else -> ""
+            else -> {
+                Log.e("HomeScreen", "Unknown subject: $subject in navigateToLevel")
+                null
+            }
         }
-        if (route.isNotEmpty()) {
-            navController.navigate(route)
+        route?.let {
+            navController.navigate(it)
         }
     }
 

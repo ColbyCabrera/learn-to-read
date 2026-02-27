@@ -1,5 +1,6 @@
 package com.example.readingfoundations.data
 
+import android.util.Log
 import androidx.annotation.StringRes
 import com.example.readingfoundations.R
 
@@ -20,7 +21,10 @@ object Subjects {
             SENTENCE_READING -> R.string.sentence_reading
             PUNCTUATION -> R.string.punctuation
             READING_COMPREHENSION -> R.string.reading_comprehension
-            else -> R.string.subjects
+            else -> {
+                Log.e("Subjects", "Unknown subject: $subject in getTitleRes")
+                R.string.subjects
+            }
         }
     }
 }
