@@ -1,5 +1,6 @@
 package com.example.readingfoundations.ui.screens.home
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -83,6 +84,31 @@ fun HomeScreen(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val selectedItem = routes.indexOf(currentRoute)
+    var selectedUnit by remember { mutableStateOf<DataUnit?>(null) }
+
+    val navigateToLevel: (String, Int) -> Unit = { subject, level ->
+        val route = when (subject) {
+            Subjects.PHONETICS -> "phonetics/$level"
+            Subjects.WORD_BUILDING -> "reading_word/$level"
+            Subjects.SENTENCE_READING -> "sentence_reading/$level"
+            Subjects.PUNCTUATION -> "punctuation/$level"
+            Subjects.READING_COMPREHENSION -> "reading_comprehension/$level"
+            else -> {
+                Log.e("HomeScreen", "Unknown subject: $subject in navigateToLevel")
+                null
+            }
+        }
+        route?.let {
+            navController.navigate(it)
+        }
+    }
+
+    selectedUnit?.let { unit ->
+        UnitDetailsBottomSheet(unit = unit, onLevelClick = { subject, level ->
+            selectedUnit = null
+            navigateToLevel(subject, level)
+        }, onDismiss = { selectedUnit = null })
+    }
 
     Scaffold(
         bottomBar = {
@@ -127,19 +153,7 @@ fun HomeScreen(
             UnitPathScreen(
                 paddingValues = paddingValues,
                 homeUiState = homeUiState,
-                onUnitClick = { subject, level ->
-                    val route = when (subject) {
-                        Subjects.PHONETICS -> "phonetics/$level"
-                        Subjects.WORD_BUILDING -> "reading_word/$level"
-                        Subjects.SENTENCE_READING -> "sentence_reading/$level"
-                        Subjects.PUNCTUATION -> "punctuation/$level"
-                        Subjects.READING_COMPREHENSION -> "reading_comprehension/$level"
-                        else -> ""
-                    }
-                    if (route.isNotEmpty()) {
-                        navController.navigate(route)
-                    }
-                })
+                onShowDetails = { unit -> selectedUnit = unit })
         }
     }
 }
@@ -147,7 +161,7 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UnitPathScreen(
-    paddingValues: PaddingValues, homeUiState: HomeUiState, onUnitClick: (String, Int) -> Unit
+    paddingValues: PaddingValues, homeUiState: HomeUiState, onShowDetails: (DataUnit) -> Unit
 ) {
     val units = homeUiState.units
     val shapes = with(MaterialShapes) {
@@ -206,7 +220,7 @@ fun UnitPathScreen(
                 isCompleted = index < currentUnitIndex,
                 isFirst = index == 0,
                 isLast = index == units.size - 1,
-                onUnitClick = onUnitClick,
+                onShowDetails = onShowDetails,
                 nextLevel = nextLevel,
                 nextIncompleteLevel = nextIncompleteLevel
             )
@@ -231,7 +245,7 @@ fun UnitPathItem(
     isCompleted: Boolean,
     isFirst: Boolean,
     isLast: Boolean,
-    onUnitClick: (String, Int) -> Unit,
+    onShowDetails: (DataUnit) -> Unit,
     nextLevel: Level?,
     nextIncompleteLevel: Int?
 ) {
@@ -256,10 +270,9 @@ fun UnitPathItem(
                     shape = shape,
                     isCurrent = isCurrent,
                     isCompleted = isCompleted,
+                    enabled = isCurrent || isCompleted,
                     onClick = {
-                        if (isCurrent && nextLevel != null) {
-                            onUnitClick(nextLevel.subject, nextLevel.levelNumber)
-                        }
+                        onShowDetails(unit)
                     })
             }
             Spacer(modifier = Modifier.width(16.dp))
@@ -312,7 +325,12 @@ fun UnitPathNode(isCompleted: Boolean, isFirst: Boolean, isLast: Boolean) {
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UnitShape(
-    unit: DataUnit, shape: Shape, isCurrent: Boolean, isCompleted: Boolean, onClick: () -> Unit
+    unit: DataUnit,
+    shape: Shape,
+    isCurrent: Boolean,
+    isCompleted: Boolean,
+    enabled: Boolean = true,
+    onClick: () -> Unit
 ) {
     val containerColor = when {
         isCurrent -> MaterialTheme.colorScheme.tertiaryContainer
@@ -340,14 +358,18 @@ fun UnitShape(
                 scaleY = scale
             }
             .clip(shape)
-            .pointerInput(isCurrent) {
-                if (isCurrent) {
+            .pointerInput(enabled) {
+                if (enabled) {
                     detectTapGestures(
                         onPress = {
                             isPressed = true
-                            tryAwaitRelease()
-                            isPressed = false
-                            onClick()
+                            try {
+                                if (tryAwaitRelease()) {
+                                    onClick()
+                                }
+                            } finally {
+                                isPressed = false
+                            }
                         })
                 }
             }, contentAlignment = Alignment.Center
@@ -388,16 +410,8 @@ fun InfoBox(subject: String, levelNumber: Int) {
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             Text(
-                text = stringResource(
-                    when (subject) {
-                        Subjects.PHONETICS -> R.string.phonetics
-                        Subjects.WORD_BUILDING -> R.string.word_building
-                        Subjects.SENTENCE_READING -> R.string.sentence_reading
-                        Subjects.PUNCTUATION -> R.string.punctuation
-                        Subjects.READING_COMPREHENSION -> R.string.reading_comprehension
-                        else -> R.string.subjects
-                    }
-                ), style = MaterialTheme.typography.bodyLarge
+                text = stringResource(Subjects.getTitleRes(subject)),
+                style = MaterialTheme.typography.bodyLarge
             )
             Text(
                 text = stringResource(R.string.level_format, levelNumber),
