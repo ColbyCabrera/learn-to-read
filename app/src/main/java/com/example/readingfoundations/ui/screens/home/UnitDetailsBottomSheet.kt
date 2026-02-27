@@ -74,13 +74,13 @@ fun UnitDetailsBottomSheet(
                         if (level.isCompleted) {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
-                                contentDescription = null,
+                                contentDescription = stringResource(R.string.level_completed_desc),
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         } else if (!isUnlocked) {
                             Icon(
                                 imageVector = Icons.Default.Lock,
-                                contentDescription = null,
+                                contentDescription = stringResource(R.string.level_locked_desc),
                                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
                             )
                         }
@@ -88,7 +88,6 @@ fun UnitDetailsBottomSheet(
                         if (isUnlocked) {
                         Modifier.clickable {
                             onLevelClick(level.subject, level.levelNumber)
-                            onDismiss()
                         }
                     } else {
                         Modifier

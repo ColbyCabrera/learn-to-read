@@ -99,9 +99,9 @@ fun HomeScreen(
         }
     }
 
-    if (selectedUnit != null) {
+    selectedUnit?.let { unit ->
         UnitDetailsBottomSheet(
-            unit = selectedUnit!!,
+            unit = unit,
             onLevelClick = { subject, level ->
                 selectedUnit = null
                 navigateToLevel(subject, level)
