@@ -69,7 +69,7 @@ private fun UnitDetailsContent(
                 ListItem(
                     headlineContent = {
                     Text(
-                        text = getSubjectTitle(level.subject),
+                        text = stringResource(Subjects.getTitleRes(level.subject)),
                         color = if (isUnlocked) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
                             alpha = 0.38f
                         )
@@ -96,7 +96,7 @@ private fun UnitDetailsContent(
                         )
                     }
                 }, modifier = Modifier.then(
-                        if (isUnlocked) {
+                    if (isUnlocked) {
                     Modifier.clickable {
                         onLevelClick(level.subject, level.levelNumber)
                     }
@@ -107,20 +107,6 @@ private fun UnitDetailsContent(
         }
         Spacer(modifier = Modifier.height(32.dp))
     }
-}
-
-@Composable
-fun getSubjectTitle(subject: String): String {
-    return stringResource(
-        when (subject) {
-            Subjects.PHONETICS -> R.string.phonetics
-            Subjects.WORD_BUILDING -> R.string.word_building
-            Subjects.SENTENCE_READING -> R.string.sentence_reading
-            Subjects.PUNCTUATION -> R.string.punctuation
-            Subjects.READING_COMPREHENSION -> R.string.reading_comprehension
-            else -> R.string.subjects
-        }
-    )
 }
 
 @Preview(showBackground = true)

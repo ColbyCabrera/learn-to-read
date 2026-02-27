@@ -100,14 +100,10 @@ fun HomeScreen(
     }
 
     selectedUnit?.let { unit ->
-        UnitDetailsBottomSheet(
-            unit = unit,
-            onLevelClick = { subject, level ->
-                selectedUnit = null
-                navigateToLevel(subject, level)
-            },
-            onDismiss = { selectedUnit = null }
-        )
+        UnitDetailsBottomSheet(unit = unit, onLevelClick = { subject, level ->
+            selectedUnit = null
+            navigateToLevel(subject, level)
+        }, onDismiss = { selectedUnit = null })
     }
 
     Scaffold(
@@ -153,8 +149,7 @@ fun HomeScreen(
             UnitPathScreen(
                 paddingValues = paddingValues,
                 homeUiState = homeUiState,
-                onShowDetails = { unit -> selectedUnit = unit }
-            )
+                onShowDetails = { unit -> selectedUnit = unit })
         }
     }
 }
@@ -162,9 +157,7 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UnitPathScreen(
-    paddingValues: PaddingValues,
-    homeUiState: HomeUiState,
-    onShowDetails: (DataUnit) -> Unit
+    paddingValues: PaddingValues, homeUiState: HomeUiState, onShowDetails: (DataUnit) -> Unit
 ) {
     val units = homeUiState.units
     val shapes = with(MaterialShapes) {
@@ -409,16 +402,8 @@ fun InfoBox(subject: String, levelNumber: Int) {
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             Text(
-                text = stringResource(
-                    when (subject) {
-                        Subjects.PHONETICS -> R.string.phonetics
-                        Subjects.WORD_BUILDING -> R.string.word_building
-                        Subjects.SENTENCE_READING -> R.string.sentence_reading
-                        Subjects.PUNCTUATION -> R.string.punctuation
-                        Subjects.READING_COMPREHENSION -> R.string.reading_comprehension
-                        else -> R.string.subjects
-                    }
-                ), style = MaterialTheme.typography.bodyLarge
+                text = stringResource(Subjects.getTitleRes(subject)),
+                style = MaterialTheme.typography.bodyLarge
             )
             Text(
                 text = stringResource(R.string.level_format, levelNumber),
