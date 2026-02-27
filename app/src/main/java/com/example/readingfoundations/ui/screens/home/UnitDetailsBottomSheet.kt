@@ -1,13 +1,22 @@
 package com.example.readingfoundations.ui.screens.home
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -21,15 +30,10 @@ import com.example.readingfoundations.data.models.Unit as DataUnit
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UnitDetailsBottomSheet(
-    unit: DataUnit,
-    onLevelClick: (String, Int) -> Unit,
-    onDismiss: () -> Unit
+    unit: DataUnit, onLevelClick: (String, Int) -> Unit, onDismiss: () -> Unit
 ) {
     val sortedLevels = remember(unit) {
-        unit.levels.sortedWith(
-            compareBy<Level> { it.levelNumber }
-                .thenBy { Subjects.ALL.indexOf(it.subject) }
-        )
+        unit.levels.sortedWith(compareBy<Level> { it.levelNumber }.thenBy { Subjects.ALL.indexOf(it.subject) })
     }
 
     // First incomplete level is the next one to play.
@@ -53,43 +57,42 @@ fun UnitDetailsBottomSheet(
 
                     ListItem(
                         headlineContent = {
-                            Text(
-                                text = getSubjectTitle(level.subject),
-                                color = if (isUnlocked) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        Text(
+                            text = getSubjectTitle(level.subject),
+                            color = if (isUnlocked) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(
+                                alpha = 0.38f
                             )
-                        },
-                        supportingContent = {
-                            Text(
-                                text = stringResource(R.string.level_format, level.levelNumber),
-                                color = if (isUnlocked) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-                            )
-                        },
-                        trailingContent = {
-                            if (level.isCompleted) {
-                                Icon(
-                                    imageVector = Icons.Default.CheckCircle,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            } else if (!isUnlocked) {
-                                Icon(
-                                    imageVector = Icons.Default.Lock,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                                )
-                            }
-                        },
-                        modifier = Modifier.then(
-                            if (isUnlocked) {
-                                Modifier.clickable {
-                                    onLevelClick(level.subject, level.levelNumber)
-                                    onDismiss()
-                                }
-                            } else {
-                                Modifier
-                            }
                         )
-                    )
+                    }, supportingContent = {
+                        Text(
+                            text = stringResource(R.string.level_format, level.levelNumber),
+                            color = if (isUnlocked) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                alpha = 0.38f
+                            )
+                        )
+                    }, trailingContent = {
+                        if (level.isCompleted) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        } else if (!isUnlocked) {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            )
+                        }
+                    }, modifier = Modifier.then(
+                        if (isUnlocked) {
+                        Modifier.clickable {
+                            onLevelClick(level.subject, level.levelNumber)
+                            onDismiss()
+                        }
+                    } else {
+                        Modifier
+                    }))
                 }
             }
             Spacer(modifier = Modifier.height(32.dp))
