@@ -28,8 +28,24 @@ class PhonemeRepositoryTest {
     @Test
     fun `getAllPhonemes returns flow from dao`() = runTest {
         val phonemes = listOf(
-            Phoneme(id = 1, grapheme = "a", sound = "a", ttsText = "a", exampleWord = "apple", category = "vowel", level = 1),
-            Phoneme(id = 2, grapheme = "b", sound = "b", ttsText = "b", exampleWord = "ball", category = "consonant", level = 1)
+            Phoneme(
+                id = 1,
+                grapheme = "a",
+                sound = "a",
+                ttsText = "a",
+                exampleWord = "apple",
+                category = "vowel",
+                level = 1
+            ),
+            Phoneme(
+                id = 2,
+                grapheme = "b",
+                sound = "b",
+                ttsText = "b",
+                exampleWord = "ball",
+                category = "consonant",
+                level = 1
+            )
         )
         `when`(phonemeDao.getAllPhonemes()).thenReturn(flowOf(phonemes))
 

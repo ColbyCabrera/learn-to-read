@@ -22,7 +22,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
@@ -41,10 +40,42 @@ class PhoneticsViewModelTest {
     private lateinit var viewModel: PhoneticsViewModel
 
     private val testPhonemes = listOf(
-        Phoneme(id = 1, grapheme = "a", sound = "a", ttsText = "a", exampleWord = "apple", category = "vowel", level = 1),
-        Phoneme(id = 2, grapheme = "b", sound = "b", ttsText = "b", exampleWord = "ball", category = "consonant", level = 1),
-        Phoneme(id = 3, grapheme = "c", sound = "c", ttsText = "c", exampleWord = "cat", category = "consonant", level = 1),
-        Phoneme(id = 4, grapheme = "d", sound = "d", ttsText = "d", exampleWord = "dog", category = "consonant", level = 1)
+        Phoneme(
+            id = 1,
+            grapheme = "a",
+            sound = "a",
+            ttsText = "a",
+            exampleWord = "apple",
+            category = "vowel",
+            level = 1
+        ),
+        Phoneme(
+            id = 2,
+            grapheme = "b",
+            sound = "b",
+            ttsText = "b",
+            exampleWord = "ball",
+            category = "consonant",
+            level = 1
+        ),
+        Phoneme(
+            id = 3,
+            grapheme = "c",
+            sound = "c",
+            ttsText = "c",
+            exampleWord = "cat",
+            category = "consonant",
+            level = 1
+        ),
+        Phoneme(
+            id = 4,
+            grapheme = "d",
+            sound = "d",
+            ttsText = "d",
+            exampleWord = "dog",
+            category = "consonant",
+            level = 1
+        )
     )
 
     @Before
@@ -102,8 +133,8 @@ class PhoneticsViewModelTest {
 
         val newState = viewModel.uiState.value
         assertEquals(true, newState.quizState!!.isAnswerCorrect)
-        assertEquals(1, newState.quizState!!.score)
-        assertEquals(target, newState.quizState!!.selectedOption)
+        assertEquals(1, newState.quizState.score)
+        assertEquals(target, newState.quizState.selectedOption)
     }
 
     @Test
@@ -119,8 +150,8 @@ class PhoneticsViewModelTest {
 
         val newState = viewModel.uiState.value
         assertEquals(false, newState.quizState!!.isAnswerCorrect)
-        assertEquals(0, newState.quizState!!.score)
-        assertEquals(incorrectOption, newState.quizState!!.selectedOption)
+        assertEquals(0, newState.quizState.score)
+        assertEquals(incorrectOption, newState.quizState.selectedOption)
     }
 
     @Test
@@ -148,13 +179,13 @@ class PhoneticsViewModelTest {
             viewModel.nextQuestion()
         }
 
-        // On the last question, calling nextQuestion should finish the quiz
-        viewModel.nextQuestion()
-        advanceUntilIdle()
-
-        verify(unitRepository).updateProgress(Subjects.PHONETICS, 1)
-
         viewModel.navigationEvent.test {
+            // On the last question, calling nextQuestion should finish the quiz
+            viewModel.nextQuestion()
+            advanceUntilIdle()
+
+            verify(unitRepository).updateProgress(Subjects.PHONETICS, 1)
+
             val event = awaitItem()
             assertTrue(event is NavigationEvent.LevelComplete)
             val levelCompleteEvent = event as NavigationEvent.LevelComplete

@@ -47,9 +47,7 @@ class HomeViewModelTest {
     fun `uiState correctly combines units and progress`() = runTest {
         val testUnits = listOf(
             Unit(
-                id = 1,
-                levels = listOf(Level(Subjects.PHONETICS, 1, false)),
-                progress = 0f
+                id = 1, levels = listOf(Level(Subjects.PHONETICS, 1, false)), progress = 0f
             )
         )
         val testProgress = UserProgress(
@@ -61,22 +59,6 @@ class HomeViewModelTest {
 
         viewModel = HomeViewModel(unitRepository)
 
-        // Ensure the StateFlow is collected to trigger the upstream flows
-        // In a real app, the UI collects it. In a test, accessing .value usually gives the initial value
-        // until collection starts or SharingStarted.Eagerly is used.
-        // However, with WhileSubscribed, it waits for a subscriber.
-
-        // We can use a background collection job
-        // Or we can just access it? No, accessing .value doesn't start collection for WhileSubscribed.
-
-        // Let's use turbine or a simple background collection
-
-        // Actually, stateIn with WhileSubscribed(5000) will keep the value cached for 5s after subscription ends.
-        // But it needs a subscription to start.
-
-        // Wait, I see other tests using stateIn often require a collector.
-
-        // Let's try collecting it in a background job
         val job = launch {
             viewModel.uiState.collect {}
         }
@@ -94,9 +76,7 @@ class HomeViewModelTest {
     fun `uiState handles null user progress`() = runTest {
         val testUnits = listOf(
             Unit(
-                id = 1,
-                levels = listOf(Level(Subjects.PHONETICS, 1, false)),
-                progress = 0f
+                id = 1, levels = listOf(Level(Subjects.PHONETICS, 1, false)), progress = 0f
             )
         )
 

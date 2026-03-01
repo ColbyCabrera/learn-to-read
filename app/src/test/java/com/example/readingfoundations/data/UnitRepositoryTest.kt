@@ -6,7 +6,6 @@ import com.example.readingfoundations.data.local.ReadingComprehensionDao
 import com.example.readingfoundations.data.local.SentenceDao
 import com.example.readingfoundations.data.local.UserProgressDao
 import com.example.readingfoundations.data.local.WordDao
-import com.example.readingfoundations.data.models.Unit
 import com.example.readingfoundations.data.models.UserProgress
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
