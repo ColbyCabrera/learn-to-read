@@ -73,26 +73,30 @@ class UnitRepositoryImpl @Inject constructor(
             )
             val totalUnits = (maxLevels + 1) / 2
 
+            val subjects = arrayOf(
+                Subjects.PHONETICS to maxPhonemeLevel,
+                Subjects.WORD_BUILDING to maxWordLevel,
+                Subjects.SENTENCE_READING to maxSentenceLevel,
+                Subjects.PUNCTUATION to maxPunctuationLevel,
+                Subjects.READING_COMPREHENSION to maxReadingComprehensionLevel
+            )
+            val completedSets = userProgress?.completedLevels?.mapValues { it.value.toSet() } ?: emptyMap()
+
             (1..totalUnits).map { unitId ->
                 val levels = mutableListOf<Level>()
-                val subjects = mapOf(
-                    Subjects.PHONETICS to maxPhonemeLevel,
-                    Subjects.WORD_BUILDING to maxWordLevel,
-                    Subjects.SENTENCE_READING to maxSentenceLevel,
-                    Subjects.PUNCTUATION to maxPunctuationLevel,
-                    Subjects.READING_COMPREHENSION to maxReadingComprehensionLevel
-                )
+                var completedCount = 0
                 for ((subject, maxLevel) in subjects) {
+                    val completedSet = completedSets[subject]
                     for (i in 1..2) {
                         val levelNumber = (unitId - 1) * 2 + i
                         if (levelNumber > maxLevel) continue
-                        val isCompleted =
-                            userProgress?.completedLevels?.get(subject)?.contains(levelNumber)
-                                ?: false
+                        val isCompleted = completedSet?.contains(levelNumber) == true
+                        if (isCompleted) {
+                            completedCount++
+                        }
                         levels.add(Level(subject, levelNumber, isCompleted))
                     }
                 }
-                val completedCount = levels.count { it.isCompleted }
                 val progress =
                     if (levels.isNotEmpty()) completedCount.toFloat() / levels.size else 0f
                 Unit(unitId, levels, progress)
