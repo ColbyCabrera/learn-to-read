@@ -244,7 +244,8 @@ fun PracticeMode(
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start)
             ) {
-                selectedIndices.map { jumbledWords[it] }.forEachIndexed { index, word ->
+                selectedIndices.forEachIndexed { index, wordIndex ->
+                    val word = jumbledWords[wordIndex]
                     Button(
                         onClick = {
                             selectedIndices.removeAt(index)
